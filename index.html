@@ -45,6 +45,8 @@ body{background:var(--stone);color:var(--parchment);font-family:var(--font-body)
 .sub2{position:absolute;left:12px;right:12px;top:36px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:12px;text-shadow:1px 1px 0 #000}
 .stm{flex:1;height:8px;background:#15131a;border:2px solid rgba(242,231,208,.8)}.stm i{display:block;height:100%;width:100%;background:var(--gold)}.stm.tired i{background:#8d8496}.stm.tired{animation:low .4s steps(2) infinite}
 .gear{display:flex;align-items:center;gap:4px;white-space:nowrap}.gear em{display:block;width:30px;height:7px;background:#15131a;border:1.5px solid rgba(242,231,208,.8)}.gear em i{display:block;height:100%;background:var(--parchment)}.gear.broken{opacity:.45;text-decoration:line-through}
+.inc{position:absolute;left:50%;top:50%;width:0;height:0;margin:-17px 0 0 -18px;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:34px solid #ff6b5e;opacity:0;filter:drop-shadow(2px 2px 0 #000);pointer-events:none}
+.practice #v1 .bar,.practice #v1 .sub2{opacity:.5}
 .vig{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,rgba(170,20,30,0) 45%,rgba(170,20,30,.75) 100%)}
 .power{position:absolute;right:12px;bottom:14px;width:min(40%,220px);height:8px;background:rgba(15,13,20,.7);border:2px solid rgba(242,231,208,.8)}
 .power i{display:block;height:100%;width:0;background:var(--parchment)}
@@ -181,6 +183,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <div class="seg" role="group" aria-label="2P 조종 방식">
           <button type="button" id="mH" aria-pressed="true">2P 사람</button><button type="button" id="mC" aria-pressed="false">2P 컴퓨터</button>
         </div>
+        <button type="button" id="practice">연습</button>
         <button type="button" id="start">결투 시작<small>Space</small></button>
       </div>
       <div id="padJoin" hidden><label for="padCode">이 폰을 무기 손잡이로 쓰기</label><input id="padCode" maxlength="5" placeholder="코드 5자리" autocapitalize="characters" autocomplete="off" spellcheck="false"><button type="button" data-p="0">1P로 연결</button><button type="button" data-p="1">2P로 연결</button></div>
@@ -191,6 +194,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>무기가 부딪히는 순간 반대 방향 키를 누르면 패링. 상대가 크게 휘청인다.</li>
         <li>아래 대각선(S+A, S+D / 폰은 칼끝을 비스듬히 아래로)으로 잡으면 머리 위에서 비스듬히 내려 막는 자세가 된다. 막는 동안 스태미나가 닳는다.</li>
         <li>옆이나 머리 뒤로 크게 젖혔다가 휘두르면 최대 1.6배로 세게 들어간다.</li>
+        <li>빨간 화살표는 상대 무기가 날아오는 쪽이다. 연습에서는 서 있는 상대에게 속도와 피해가 표시된다.</li>
         <li>휘두르면 스태미나가 닳고, 바닥나면 느려진다. 투구는 맞다 보면 벗겨진다.</li>
       </ul>
     </div>
@@ -284,17 +288,18 @@ function runPad(code,p){
   document.body.classList.add('padmode');$('title').hidden=true;$('pad').hidden=false;
   $('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;
   const say=t=>{$('padStatus').textContent=t;};
-  let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0;const hv=[0,0,0],hp=[0,0,0];
+  let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0;const hv=[0,0,0],hp=[0,0,0];
   say('컴퓨터에 연결하는 중…');
   netJoin(code,{p},c=>{conn=c;say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
-    d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}},
+    d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}
+      if(d&&d.t==='c'&&sensing&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
   function onOri(e){
     if(e.alpha==null||e.beta==null)return;gotEvent=true;
     const a=e.alpha*PI/180,b=e.beta*PI/180,cb=Math.cos(b);ang=[a,b,(e.gamma||0)*PI/180];
     // direction of the phone's top edge: heading (left positive) and elevation, independent of how the phone is rolled
     yaw=Math.atan2(cb*Math.sin(a),cb*Math.cos(a));const pit=Math.asin(clamp(Math.sin(b),-1,1));
-    if(yaw0==null)yaw0=yaw;
+    lastPit=pit;if(yaw0==null)yaw0=yaw;
     const fw=cb*Math.cos(a-yaw0),lf=cb*Math.sin(a-yaw0),up=Math.sin(b);
     // which way the tip went behind the body is decided once, as it crosses, and kept until it comes back in front;
     // otherwise leaning the phone a little while it is overhead would flip between the two readings
@@ -584,11 +589,11 @@ function buildKnight(kind){
   // --- mace
   mb=new MB(0.02);
   mb.box(0,0,-0.02,0.036,0.036,0.26,P.grip);mb.box(0,0,0.115,0.05,0.05,0.045,P.guard);mb.box(0,0,-0.16,0.05,0.05,0.04,P.guard);
-  for(let n=0;n<9;n++){const z=-0.205-n*0.05;if(n%2)mb.box(0,0,z,0.012,0.04,0.062,P.S);else mb.box(0,0,z,0.04,0.012,0.062,P.D);}
+  const mace=mb.mesh();mb=new MB(0.02);
   mb.box(0,0,-0.73,0.105,0.105,0.17,P.D);mb.box(0,0,-0.73,0.2,0.032,0.13,P.S);mb.box(0,0,-0.73,0.032,0.2,0.13,P.S);
   mb.m=mRZ(PI/4);mb.box(0,0,-0.73,0.17,0.03,0.11,P.L);mb.box(0,0,-0.73,0.03,0.17,0.11,P.L);mb.m=null;
   mb.box(0,0,-0.84,0.04,0.04,0.07,P.L);
-  const mace=mb.mesh();
+  out.flailHead=mb.mesh();
   // --- spear
   mb=new MB(0.02);
   mb.box(0,0,-0.52,0.032,0.032,1.94,hex(kind===0?'#6b4d39':'#7a5c46'));mb.box(0,0,0.46,0.045,0.045,0.06,P.guard);mb.box(0,0,-1.49,0.052,0.052,0.07,P.guard);
@@ -633,17 +638,18 @@ const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.5
 // a..b: part of the weapon that collides (metres from the hand); head: where the striking end starts (0..1 along a..b)
 const WEAPONS=[
   {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:520,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
-  {name:'철퇴',desc:'짧고 느리지만 한 방이 무겁고 투구를 잘 부순다',a:0.12,b:0.86,head:0.6,acc:37,pk:330,dmg:1.75,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
+  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:380,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
   {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:280,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
+const FL_A=0.18,FL_L=0.55;
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
-let LOG=null;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,clashSide=0,crossT=0;
+let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,clashSide=0,crossT=0;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,shield:0,shieldOn:false,
     lunge:0,dip:0,charge:0,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
-  computePose(k);k.pbA=k.pose.bA;k.pbB=k.pose.bB;
+  k.fh=null;computePose(k);if(k.weapon===1){k.fh=add(k.pose.hand,mulS(k.pose.dir,FL_A+FL_L));k.fhp=k.fh.slice();computePose(k);}k.pbA=k.pose.bA;k.pbB=k.pose.bB;
 }
 function ik(a,b,l1,l2,pole){let d=sub(b,a),L=len(d);const mx=(l1+l2)*0.999;if(L>mx)L=mx;if(L<0.05)L=0.05;const dir=norm(d);
   const x=(l1*l1-l2*l2+L*L)/(2*L),h=Math.sqrt(Math.max(0,l1*l1-x*x));let p=sub(pole,mulS(dir,dot(pole,dir)));p=norm(p);
@@ -684,7 +690,9 @@ function computePose(k){
   const zs=mulS(dir,-1),ys=cross(zs,e);
   const swordM=mBasis(e,ys,zs,hand);
   const headC=mP(Um,[0,1.70,0]);
-  k.pose={M,U:Um,hand,dir,bA,bB,shM,swordM,lhand:lh2,shR,shL,elR,elL,hipR,hipL,knR,knL,anR,anL,up,back,mback,mup,twist:-axc*0.30,headC,
+  let fl=null; // flail: the striking segment runs from the handle tip along the chain to the swinging head
+  if(k.weapon===1&&k.fh){const an=add(hand,mulS(dir,FL_A)),cd=norm(sub(k.fh,an));fl={an,cd};}
+  k.pose={M,U:Um,hand,dir,bA:fl?fl.an:bA,bB:fl?add(k.fh,mulS(fl.cd,0.1)):bB,fl,shM,swordM,lhand:lh2,shR,shL,elR,elL,hipR,hipL,knR,knL,anR,anL,up,back,mback,mup,twist:-axc*0.30,headC,
     hit:[{a:headC,b:headC,r:0.165,p:'head'},{a:mP(Um,[0,1.03,0]),b:mP(Um,[0,1.40,0]),r:0.25,p:'torso'},{a:elR,b:hand,r:0.085,p:'arm'},{a:hipR,b:anR,r:0.115,p:'leg'},{a:hipL,b:anL,r:0.115,p:'leg'}]};
 }
 function camMatrix(k){
@@ -708,7 +716,7 @@ const bladeSpeed=(k,s,h)=>len(bladeVel(k,s,h));
 const bounce=(k,f,stun)=>{k.ax=k.pax;k.ay=k.pay;k.vx*=-f;k.vy*=-f;k.stun=Math.max(k.stun,stun);};
 const endThrust=k=>{if(k.thr)k.thr.t=Math.max(k.thr.t,0.251+(1-thrProf(k.thr.t))*0.2);};
 function sparks(pt,n,key,sp,size){for(let i=0;i<n&&particles.length<180;i++)particles.push({p:pt.slice(),v:[rr(-1,1)*sp,rr(0.2,1.4)*sp,rr(-1,1)*sp],l:rr(0.25,0.6),m:PART_COLS[key],s:size*rr(0.6,1.3)});}
-const buzz=(k,ms)=>{if(k.phone)k.phone.c.send({t:'v',ms:Math.round(ms)});};
+const buzz=(k,ms)=>{if(k.phone)k.phone.c.send({t:'v',ms:Array.isArray(ms)?ms:Math.round(ms)});};let rattleT=0;
 function knock(A,D,v){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;D.kvx+=dx/dl*v;D.kvz+=dz/dl*v;}
 function fling(mesh,pos,A,D,off){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;
   debris.push({m:mesh,p:pos.slice(),v:[dx/dl*rr(1.5,2.6)+rr(-0.8,0.8),rr(2.6,3.6),dz/dl*rr(1.5,2.6)+rr(-0.8,0.8)],r:[rr(0,3),rr(0,3)],w:[rr(-7,7),rr(-7,7)],off,rest:false});}
@@ -757,10 +765,11 @@ function attack(A,D,h){
   D.flinch=Math.min(1,0.3+dmg/30);D.flash=1;D.vig=Math.min(1,0.5+dmg/40);D.stun=Math.max(D.stun,0.12+dmg*0.008);D.shake=Math.min(1.4,0.3+dmg/22);A.shake=Math.max(A.shake,0.2+dmg/60);
   knock(A,D,0.7+dmg*0.11);freeze=Math.min(0.16,0.03+dmg*0.0042);if(big&&!REDUCED){slowT=0.22;slowS=0.45;}
   sparks(best.pt,5+Math.floor(dmg/5),'steel',2+dmg*0.04,0.02);sparks(best.pt,3+Math.floor(dmg/3),'red',2.4+dmg*0.04,0.028);sparks(best.pt,3,'hot',3,0.018);
-  buzz(D,40+dmg*5);buzz(A,25);sfx.hit(clamp(dmg/36,0.25,1),big);if(big)sfx.cheer(clamp(dmg/40,0.5,1));
-  popAt(A.i,best.pt,(bare?'맨머리':part.n)+' -'+dmg,big?'dmg big':'dmg');popFix(D.i,'-'+dmg+' '+part.n);
+  buzz(D,big?[60+dmg*6,40,120]:60+dmg*6);buzz(A,big?[40,30,60]:35);sfx.hit(clamp(dmg/36,0.25,1),big);if(big)sfx.cheer(clamp(dmg/40,0.5,1));
+  popAt(A.i,best.pt,(bare?'맨머리':part.n)+' -'+dmg+(practice?' · '+sp.toFixed(1)+'m/s':''),big?'dmg big':'dmg');popFix(D.i,'-'+dmg+' '+part.n);
   if(LOG)LOG.push(['hit',A.i,pn,dmg,+sp.toFixed(1),thrusting?'thrust':'swing']);
   if(pn==='head'&&D.helmOn){D.helm-=dmg*w.brk;if(D.helm<=0){D.helmOn=false;D.helm=0;fling(D.model.head,pd.headC,A,D,[0,-1.7,0]);sfx.brk();popAt(A.i,pd.headC,'투구 파괴','big');if(LOG)LOG.push(['helmbreak',D.i]);}}
+  if(practice){D.hp=Math.max(1,D.hp);D.regenT=1.6;}
   if(D.hp<=0)knockOut(A,D);
 }
 function clashCheck(h){
@@ -772,7 +781,7 @@ function clashCheck(h){
   if(crossed){crossT+=h;if(crossT>0.1){crossed=false;crossT=0;}}else crossT=0;
   if(K[0].dead||K[1].dead){clashSide=side;return;}
   if(crossed){for(const k of K){k.ax=k.pax;k.ay=k.pay;}closing=true;}else clashSide=side; // put both back where they were and treat it as contact
-  if(r[0]>0.13&&!crossed)return;const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
+  if(r[0]>0.13&&!crossed)return;rattleT-=h;if(rattleT<=0){rattleT=0.09;buzz(K[0],45);buzz(K[1],45);}const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
   // weapons are solid to each other: the quicker one pushes the other along in front of it, equal ones lock
   if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0){if(closing){const f=K[0].carryT>0?K[1]:K[1].carryT>0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
       if(!crossed&&(sl.carryT>0||hi>lo*1.5+0.3)){sl.carryT=0.14;sl.limpT=0.35;
@@ -786,7 +795,7 @@ function clashCheck(h){
   if(par[0]!==par[1]){const P=par[0]?K[0]:K[1],V=K[1-P.i];
     V.stag=0.8;V.stun=0.8;V.vx=-P.in[0]*5.5;V.vy=P.in[1]*5.5;V.hitCd=Math.max(V.hitCd,0.6);V.armCd=Math.max(V.armCd,0.6);V.flinch=0.7;V.shake=1;V.st=Math.max(0,V.st-22);P.st=Math.min(STMAX,P.st+10);endThrust(V);
     clashCd=0.3;freeze=0.07;if(!REDUCED){slowT=0.25;slowS=0.45;}
-    sparks(r[3],16,'hot',3.4,0.022);sparks(r[3],10,'spark',3,0.025);sfx.parry();buzz(V,150);buzz(P,40);
+    sparks(r[3],16,'hot',3.4,0.022);sparks(r[3],10,'spark',3,0.025);sfx.parry();buzz(V,[120,50,220]);buzz(P,[30,30,30]);
     popAt(P.i,r[3],'패링!','big');popFix(V.i,'휘청');if(LOG)LOG.push(['parry',P.i]);return;}
   const fast=s0>s1?K[0]:K[1],slow=K[1-fast.i],sf=Math.max(s0,s1),ss=Math.min(s0,s1);
   if(slow.guard>0.5&&!slow.thr){ // a hanging guard stops the blow outright
@@ -826,6 +835,7 @@ function step(h){
     k.pax=k.ax;k.pay=k.ay;k.pbA=k.pose.bA;k.pbB=k.pose.bB;k.pressAge+=h;
     if(k.dead){k.in=[0,0];k.fall=Math.min(1.45,k.fall+h*(0.6+k.fall*4));}
     else if(state==='ko'){k.in=[0,0];}
+    else if(practice&&k.i===1){k.in=[0,0];k.regenT=(k.regenT||0)-h;if(k.regenT<=0&&k.hp<HPMAX){k.hp=Math.min(HPMAX,k.hp+60*h);if(k.hp>=HPMAX&&!k.helmOn){k.helmOn=true;k.helm=HELM_MAX;}}}
     else if(k.cpu)aiThink(k,o,h);else readInput(k);
     k.mv=k.in;if(k.cpu&&!k.dead&&state==='fight'){const dd=Math.hypot(o.x-k.x,o.z-k.z),wt=(w.dist+WEAPONS[o.weapon].dist)/2;k.mv=[0,clamp((dd-wt)*2.5,-1,1)];} // footwork input; with a phone connected the keys only move the feet and the phone moves the weapon
     const ph=k.phone&&!k.cpu&&!k.dead&&state!=='ko'&&performance.now()-k.phone.last<700?k.phone:null;
@@ -883,7 +893,14 @@ function step(h){
     k.flinch*=Math.exp(-5*h);k.shPush*=Math.exp(-9*h);
     k.stun-=h;k.stag-=h;k.carryT-=h;k.limpT-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
     computePose(k);
-    const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipSp=tl/h;if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
+    if(k.weapon===1&&k.fh){ // chain: the head coasts, falls, and is only pulled when the chain goes taut
+      const an=add(k.pose.hand,mulS(k.pose.dir,FL_A)),f=k.fh,pv=k.fhp;k.fhp=f.slice();
+      for(let i=0;i<3;i++)f[i]+=(f[i]-pv[i])*0.9965;f[1]-=9.8*h*h;
+      // the handle direction nudges a slack chain so it does not just dangle
+      const want=add(an,mulS(k.pose.dir,FL_L));for(let i=0;i<3;i++)f[i]+=(want[i]-f[i])*Math.min(1,3.5*h);
+      const d=sub(f,an),dl=len(d);if(dl>FL_L){for(let i=0;i<3;i++)f[i]=an[i]+d[i]/dl*FL_L;}
+      if(f[1]<0.08)f[1]=0.08;computePose(k);}
+    const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipV=mulS(tv,1/h);k.tipSp=tl/h;if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
     if(subN%6===0){k.trail.push({a:lerp3(k.pose.bA,k.pose.bB,1-w.trail),b:k.pose.bB,s:k.tipSp});if(k.trail.length>10)k.trail.shift();}
   }
   clashCd-=h;
@@ -897,13 +914,14 @@ function updateFeet(k,dt){
   else{const e0=len(sub(k.feet[0],ideal[0])),e1=len(sub(k.feet[1],ideal[1])),f=e0>e1?0:1;if(Math.max(e0,e1)>0.19)k.step={f,from:k.feet[f].slice(),t:0};}
 }
 function knockOut(A,D){
+  buzz(D,[300,80,400]);buzz(A,[80,60,80,60,200]);
   D.dead=true;A.rounds++;state='ko';stateT=0;koPhase=0;koWinner=A;slowT=1.5;slowS=0.3;sfx.cheer(1);sfx.bell();knock(A,D,1.5);banner('');
   if(LOG)LOG.push(['ko',A.i]);
 }
 
 /* ================= HUD ================= */
 const stage=$('stage');
-K.forEach(k=>{const r=$('v'+k.i),q=s=>r.querySelector(s);k.el={root:r,hp:q('.hp i'),hpn:q('.hpn'),pips:r.querySelectorAll('.pips b'),vig:q('.vig'),pops:q('.pops'),pow:q('.power i'),stick:q('.stick'),knob:q('.stick b'),
+K.forEach(k=>{const r=$('v'+k.i),q=s=>r.querySelector(s);const inc=document.createElement('i');inc.className='inc';r.appendChild(inc);k.inc=inc;k.el={root:r,hp:q('.hp i'),hpn:q('.hpn'),pips:r.querySelectorAll('.pips b'),vig:q('.vig'),pops:q('.pops'),pow:q('.power i'),stick:q('.stick'),knob:q('.stick b'),
   st:q('.stm i'),helm:q('.helm'),helmB:q('.helm em i'),shld:q('.shld'),shldB:q('.shld em i')};});
 function project(v,p){const m=K[v].VP,w=m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15];if(w<0.05)return null;
   const x=(m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12])/w,y=(m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13])/w,r=K[v].el.root;
@@ -912,7 +930,11 @@ function addPop(v,x,y,text,cls){const e=document.createElement('span');e.classNa
 function popAt(v,pt,text,cls){const s=project(v,pt);if(s)addPop(v,s[0],s[1],text,cls);}
 function popFix(v,text){const r=K[v].el.root;addPop(v,r.clientWidth/2,r.clientHeight*0.72,text,'hurt');}
 function banner(t,cls){const b=$('banner');b.textContent=t;b.className=cls||'';b.hidden=!t;}
-function hud(){for(const k of K){const e=k.el;e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.hp<=30);e.hpn.textContent=Math.ceil(k.hp);
+function hud(){for(const k of K){const e=k.el;
+    {const o=K[1-k.i],v=o.tipV||[0,0,0],mx=v[0]*Math.cos(k.yaw)-v[2]*Math.sin(k.yaw),my=-v[1],m=Math.hypot(mx,my),near=Math.hypot(o.x-k.x,o.z-k.z)<3.2;
+      // where the opponent's weapon is coming from, shown on that side of the view
+      if(state==='fight'&&near&&m>6&&!o.dead&&o.limpT<=0){const R=Math.min(e.root.clientWidth,e.root.clientHeight)*0.36;k.inc.style.opacity=clamp((m-6)/5,0.35,1).toFixed(2);
+        k.inc.style.transform='translate('+(-mx/m*R).toFixed(0)+'px,'+(-my/m*R).toFixed(0)+'px) rotate('+Math.atan2(mx,-my).toFixed(2)+'rad)';}else k.inc.style.opacity='0';}e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.hp<=30);e.hpn.textContent=Math.ceil(k.hp);
     e.pips.forEach((b,i)=>b.classList.toggle('on',i<k.rounds));e.vig.style.opacity=k.vig.toFixed(2);e.pow.style.width=clamp(k.tipSp/12,0,1)*100+'%';e.pow.classList.toggle('hot',k.tipSp>7);
     e.st.style.width=(k.st/STMAX*100)+'%';e.st.parentNode.classList.toggle('tired',k.tired);
     e.helmB.style.width=(k.helm/HELM_MAX*100)+'%';e.helm.classList.toggle('broken',!k.helmOn);e.shldB.style.width=(Math.max(0,k.shield)/SHIELD_MAX*100)+'%';e.shld.classList.toggle('broken',!k.shieldOn);}}
@@ -975,6 +997,9 @@ function drawKnight(k,own){
   draw(m.thigh,segM(p.hipR,p.knR,p.mback,p.mup));draw(m.shin,segM(p.knR,p.anR,p.mback,p.mup));
   draw(m.thigh,segM(p.hipL,p.knL,p.mback,p.mup));draw(m.shin,segM(p.knL,p.anL,p.mback,p.mup));
   draw(m.weap[k.weapon],p.swordM);
+  if(p.fl){const an=p.fl.an,cd=p.fl.cd,z=mulS(cd,-1);let x=cross(p.up,cd);if(len(x)<0.05)x=cross(p.back,cd);x=norm(x);const y=cross(z,x);
+    for(let n=1;n<=8;n++){const q=lerp3(an,k.fh,n/9.5),sc=n%2?[0.04,0.013,0.06]:[0.013,0.04,0.06];draw(PART_COLS.steel,mMulN(mBasis(x,y,z,q),mS(sc[0],sc[1],sc[2])));}
+    draw(m.flailHead,mMul(mBasis(x,y,z,k.fh),mT(0,0,0.73)));}
   if(k.shieldOn)draw(m.shield,own?mMul(mT(p.up[0]*-0.13,p.up[1]*-0.13,p.up[2]*-0.13),p.shM):p.shM);
   gl.uniform3f(U.uTint,0,0,0);
 }
@@ -1015,8 +1040,8 @@ function frame(ts){
   if(state==='title')return;
   time+=dt;stateT+=dt;
   if(state==='intro'){
-    if(introStage===0&&stateT>0.1){banner(K[0].rounds&&K[1].rounds?'마지막 라운드':round+'라운드');sfx.tick();introStage=1;}
-    if(introStage===1&&stateT>1.4){banner('시작!','go');sfx.bell();introStage=2;state='fight';stateT=0;}
+    if(introStage===0&&stateT>0.1){banner(practice?'연습':K[0].rounds&&K[1].rounds?'마지막 라운드':round+'라운드');sfx.tick();introStage=1;}
+    if(introStage===1&&stateT>1.4){for(const k of K)if(k.phone)k.phone.c.send({t:'c'});banner('시작!','go');sfx.bell();introStage=2;state='fight';stateT=0;}
   }
   if(state==='fight'&&introStage===2&&stateT>0.7){banner('');introStage=3;}
   if(state==='ko'){const A=koWinner;
@@ -1042,7 +1067,8 @@ function startRound(){
   K.forEach(resetKnight);particles=[];debris=[];state='intro';stateT=0;introStage=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
   $('title').hidden=true;$('ko').hidden=true;banner('');K.forEach(k=>k.el.pops.textContent='');stage.classList.add('playing');
 }
-function startMatch(){audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
+function startPractice(){practice=true;K[1].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
+function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
 function toTitle(){state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
 
 /* ================= input ================= */
@@ -1075,7 +1101,7 @@ stage.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)ret
 const pend=e=>{const p=ptrs.get(e.pointerId);if(!p)return;ptrs.delete(e.pointerId);const k=K[p.pi];k.touch=[0,0];k.tprev=[0,0];k.el.stick.classList.remove('on');};
 stage.addEventListener('pointerup',pend);stage.addEventListener('pointercancel',pend);
 stage.addEventListener('contextmenu',e=>e.preventDefault());
-$('start').addEventListener('click',startMatch);$('again').addEventListener('click',startMatch);$('back').addEventListener('click',toTitle);
+$('start').addEventListener('click',startMatch);$('practice').addEventListener('click',startPractice);$('again').addEventListener('click',startMatch);$('back').addEventListener('click',toTitle);
 const setMode=c=>{K[1].cpu=c;$('mH').setAttribute('aria-pressed',String(!c));$('mC').setAttribute('aria-pressed',String(c));};
 $('mH').addEventListener('click',()=>setMode(false));$('mC').addEventListener('click',()=>setMode(true));
 function setWeapon(p,w){K[p].weapon=w;document.querySelectorAll('.wsel button[data-p="'+p+'"]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===w)));$('wd'+p).textContent=WEAPONS[w].desc;}
