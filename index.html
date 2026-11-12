@@ -517,7 +517,7 @@ function buildKnight(kind){
     mb.box(0,0.99,0,0.45,0.07,0.29,P.belt);mb.box(0,0.99,-0.15,0.07,0.08,0.02,P.buckle);
     mb.box(0,0.88,0,0.40,0.16,0.26,P.under);
     for(const s of[-1,1]){mb.box(s*0.22,0.82,0,0.10,0.24,0.27,P.S,{bx:0.8});
-      mb.box(s*0.35,1.48,0,0.31,0.17,0.35,P.L,{tx:0.6,tz:0.7,ox:-s*0.03});mb.box(s*0.41,1.36,0,0.19,0.11,0.30,P.S,{bx:0.8});}
+}
   }else{
     mb.box(0,1.27,0,0.46,0.40,0.29,P.cloth,{tx:1.2,tz:1.05});
     mb.box(0,1.24,-0.16,0.07,0.34,0.02,P.trim);mb.box(0,1.31,-0.162,0.26,0.07,0.02,P.trim);
@@ -526,10 +526,15 @@ function buildKnight(kind){
     mb.box(0,0.88,0,0.41,0.16,0.27,P.under);
     mb.lathe([{y:1.41,rx:0.21,rz:0.19},{y:1.50,rx:0.25,rz:0.23},{y:1.59,rx:0.17,rz:0.17}],8,P.trim,PI/8,true);
     mb.box(0.04,1.40,-0.16,0.30,0.12,0.09,mulS(P.trim,0.85));
-    for(const s of[-1,1]){mb.box(s*0.38,1.49,0,0.36,0.21,0.39,P.L,{tx:0.55,tz:0.6,ox:-s*0.04});mb.box(s*0.45,1.36,0,0.21,0.13,0.34,P.S,{bx:0.85});}
   }
   mb.box(0,1.53,0,0.13,0.1,0.13,P.under);
+  for(const sd of[-1,1]){mb.box(sd*0.3,1.42,0,0.16,0.14,0.2,P.under);} // shoulder caps under the pauldrons
   out.torso=mb.mesh();
+  // --- pauldrons, modelled around the shoulder joint so they can tilt with the arm
+  out.pauld=[-1,1].map(sd=>{const m=new MB();
+    if(kind===0){m.box(sd*0.06,0.05,0,0.31,0.17,0.35,P.L,{tx:0.6,tz:0.7,ox:-sd*0.03});m.box(sd*0.12,-0.07,0,0.19,0.11,0.30,P.S,{bx:0.8});}
+    else{m.box(sd*0.09,0.06,0,0.36,0.21,0.39,P.L,{tx:0.55,tz:0.6,ox:-sd*0.04});m.box(sd*0.16,-0.07,0,0.21,0.13,0.34,P.S,{bx:0.85});}
+    return m.mesh();});
   // --- head
   mb=new MB();
   if(kind===0){
@@ -578,7 +583,8 @@ function buildKnight(kind){
   const sword=mb.mesh();
   // --- mace
   mb=new MB(0.02);
-  mb.box(0,0,-0.29,0.034,0.034,0.78,P.grip);mb.box(0,0,0.11,0.05,0.05,0.045,P.guard);mb.box(0,0,-0.6,0.05,0.05,0.05,P.guard);
+  mb.box(0,0,-0.02,0.036,0.036,0.26,P.grip);mb.box(0,0,0.115,0.05,0.05,0.045,P.guard);mb.box(0,0,-0.16,0.05,0.05,0.04,P.guard);
+  for(let n=0;n<9;n++){const z=-0.205-n*0.05;if(n%2)mb.box(0,0,z,0.012,0.04,0.062,P.S);else mb.box(0,0,z,0.04,0.012,0.062,P.D);}
   mb.box(0,0,-0.73,0.105,0.105,0.17,P.D);mb.box(0,0,-0.73,0.2,0.032,0.13,P.S);mb.box(0,0,-0.73,0.032,0.2,0.13,P.S);
   mb.m=mRZ(PI/4);mb.box(0,0,-0.73,0.17,0.03,0.11,P.L);mb.box(0,0,-0.73,0.03,0.17,0.11,P.L);mb.m=null;
   mb.box(0,0,-0.84,0.04,0.04,0.07,P.L);
@@ -631,7 +637,7 @@ const WEAPONS=[
   {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:280,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
-let LOG=null;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,beatT=0;
+let LOG=null;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,clashSide=0,crossT=0;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,shield:0,shieldOn:false,
     lunge:0,dip:0,charge:0,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
@@ -668,7 +674,7 @@ function computePose(k){
   const lhand=null;
   const up=mD(Um,[0,1,0]),back=mD(Um,[0,0,1]);
   const shR=mP(Um,sh),shL=mP(Um,[-0.29,1.43,0]);
-  const elR=ik(shR,hand,0.30,0.30,mD(Um,[0.5,-1,0.35])),elL=ik(shL,lh2,0.30,0.30,mD(Um,[-0.6,-1,0.3]));
+  const hi=clamp((hl[1]-1.25)/0.5,0,1),elR=ik(shR,hand,0.30,0.30,mD(Um,[0.5+hi*0.6,-1+hi*0.9,0.35-hi*0.2])),elL=ik(shL,lh2,0.30,0.30,mD(Um,[-0.6-hi*0.6,-1+hi*0.9,0.3-hi*0.2]));
   const hipR=mP(Um,[0.125,0.93,0]),hipL=mP(Um,[-0.125,0.93,0]);
   const fwd=mD(M,[0,0,-1]),mback=mD(M,[0,0,1]),mup=mD(M,[0,1,0]);
   const anR=add(k.feet[0],mulS(mup,0.10)),anL=add(k.feet[1],mulS(mup,0.10));
@@ -758,12 +764,19 @@ function attack(A,D,h){
   if(D.hp<=0)knockOut(A,D);
 }
 function clashCheck(h){
-  const a=K[0].pose,b=K[1].pose,r=segSeg(a.bA,a.bB,b.bA,b.bB),closing=r[0]<clashD-1e-6;clashD=r[0];beatT-=h;
-  if(r[0]>0.13||K[0].dead||K[1].dead)return;const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
-  // weapons are solid to each other: while they are closing they hold each other off, unless one has just been beaten aside
-  if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0){if(closing&&beatT<=0){const f=K[0].carryT>0?K[1]:K[1].carryT>0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
-      if(sl.carryT>0||hi>lo*1.5+0.3){sl.carryT=0.12;sl.limpT=0.35; // the moving weapon pushes the other one along in front of it
-        const v=bladeVel(f,f===K[0]?r[1]:r[2],h),rx=Math.cos(sl.yaw),rz=-Math.sin(sl.yaw);sl.vx=(v[0]*rx+v[2]*rz)*0.95;sl.vy=v[1]*0.95;f.vx*=0.985;f.vy*=0.985;}
+  const a=K[0].pose,b=K[1].pose,r=segSeg(a.bA,a.bB,b.bA,b.bB);let closing=r[0]<clashD-1e-6;clashD=r[0];
+  // which side of the other weapon each one is on; if that flips while they overlap, one has gone through the other
+  const side=Math.sign(dot(sub(b.bA,a.bA),cross(sub(a.bB,a.bA),sub(b.bB,b.bA))));
+  let crossed=clashSide!==0&&side!==0&&side!==clashSide&&r[0]<0.3&&r[1]>0.01&&r[1]<0.99&&r[2]>0.01&&r[2]<0.99;
+  // if putting them back cannot undo it (the bodies moved, not the weapons), accept the new arrangement rather than lock up
+  if(crossed){crossT+=h;if(crossT>0.1){crossed=false;crossT=0;}}else crossT=0;
+  if(K[0].dead||K[1].dead){clashSide=side;return;}
+  if(crossed){for(const k of K){k.ax=k.pax;k.ay=k.pay;}closing=true;}else clashSide=side; // put both back where they were and treat it as contact
+  if(r[0]>0.13&&!crossed)return;const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
+  // weapons are solid to each other: the quicker one pushes the other along in front of it, equal ones lock
+  if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0){if(closing){const f=K[0].carryT>0?K[1]:K[1].carryT>0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
+      if(!crossed&&(sl.carryT>0||hi>lo*1.5+0.3)){sl.carryT=0.14;sl.limpT=0.35;
+        const v=bladeVel(f,f===K[0]?r[1]:r[2],h),rx=Math.cos(sl.yaw),rz=-Math.sin(sl.yaw);sl.vx=(v[0]*rx+v[2]*rz)*1.05;sl.vy=v[1]*1.05;f.vx*=0.985;f.vy*=0.985;}
       else for(const k of K){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.15;k.vy*=-0.15;}}
     return;}
   // parry: a fresh key press pushing against the incoming weapon
@@ -780,7 +793,7 @@ function clashCheck(h){
     bounce(fast,0.55,0.32);endThrust(fast);fast.st=Math.max(0,fast.st-4);clashCd=0.14;popAt(fast.i,r[3],'막힘','blk');buzz(fast,35);buzz(slow,35);
   }else if(sf>ss*1.7+1){ // a fast weapon beats a slow one aside and keeps going, weaker
     const v=bladeVel(fast,fast===K[0]?r[1]:r[2],h),rx=Math.cos(slow.yaw),rz=-Math.sin(slow.yaw);
-    slow.vx=(v[0]*rx+v[2]*rz)*0.9;slow.vy=v[1]*0.9;slow.stun=Math.max(slow.stun,0.18);slow.limpT=0.35;{const keep=0.6+0.3*fast.charge;fast.vx*=keep;fast.vy*=keep;}clashCd=0.22;beatT=0.22;
+    slow.vx=(v[0]*rx+v[2]*rz)*1.3;slow.vy=v[1]*1.3;slow.stun=Math.max(slow.stun,0.18);slow.limpT=0.4;slow.carryT=0.3;{const keep=0.6+0.3*fast.charge;fast.vx*=keep;fast.vy*=keep;}clashCd=0.1; // knocked ahead of the blow, never passed through
   }else{clashCd=0.12;bounce(K[0],0.35,0.1);bounce(K[1],0.35,0.1);endThrust(K[0]);endThrust(K[1]);}
   sparks(r[3],8+Math.floor(rel),'spark',2.6,0.022);sparks(r[3],4,'hot',3.2,0.016);sfx.clang(clamp(rel/19,0.25,1));if(LOG)LOG.push(['clash',+rel.toFixed(1),sf>ss*1.7+1?'beat':'bind']);
 }
@@ -825,15 +838,15 @@ function step(h){
       k.vx+=((T.tx-k.ax)*220-k.vx*26)*h;k.vy+=((T.ty-k.ay)*220-k.vy*26)*h;
       if(T.t>=0.44){k.thr=null;k.thrCd=0.22;k.ext=0;}
     }else if(ph){k.mv=[clamp(k.mv[0]+ph.mx,-1,1),clamp(k.mv[1]+ph.my,-1,1)]; // the weapon chases where the phone points; a heavier weapon lags more
-      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1),Ks=w.pk*g,C=1.8*Math.sqrt(Ks);
+      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1),Ks=w.pk*g,C=1.8*Math.sqrt(Ks);
       k.vx+=((ph.tx-k.ax)*Ks-k.vx*C)*h;k.vy+=((ph.ty-k.ay)*Ks-k.vy*C)*h;
     }else{
-      const ctl=(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
+      const ctl=(k.carryT>0?0.12:1)*(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
       // pressing against the motion kills it at once, so reversals are crisp
       if(k.in[0]*k.vx<0)k.vx*=Math.exp(-24*h);if(k.in[1]*k.vy<0)k.vy*=Math.exp(-24*h);
       k.vx+=(k.in[0]*w.acc*ctl-k.vx*DAMP)*h;k.vy+=(k.in[1]*w.acc*ctl-k.vy*DAMP)*h;
       // an axis with no key held drifts back to the guard, so side cuts stay level and chops stay on the centre line
-      if(k.stag<=0&&!k.dead){if(Math.abs(k.in[0])<0.15)k.vx+=((REST[0]-k.ax)*50-k.vx*9)*h;if(Math.abs(k.in[1])<0.15)k.vy+=((REST[1]-k.ay)*50-k.vy*9)*h;}
+      if(k.stag<=0&&!k.dead){if(k.carryT<=0&&Math.abs(k.in[0])<0.15)k.vx+=((REST[0]-k.ax)*50-k.vx*9)*h;if(k.carryT<=0&&Math.abs(k.in[1])<0.15)k.vy+=((REST[1]-k.ay)*50-k.vy*9)*h;}
     }
     k.ax+=k.vx*h;k.ay+=k.vy*h;
     {const ry=k.ay>0?AY_UP:1,rx=AX_SIDE,al=Math.hypot(k.ax/rx,k.ay/ry);if(al>1){k.ax/=al;k.ay/=al;const nl=Math.hypot(k.ax/(rx*rx),k.ay/(ry*ry))||1,nx=k.ax/(rx*rx)/nl,ny=k.ay/(ry*ry)/nl,vn=k.vx*nx+k.vy*ny;if(vn>0){k.vx-=vn*nx;k.vy-=vn*ny;}}}
@@ -955,6 +968,8 @@ function drawKnight(k,own){
   draw(m.torso,p.U);if(!own)draw(k.helmOn?m.head:m.bare,p.U);
   draw(m.skirt,mMulN(p.U,mT(0,0.955,-0.145),mRX(k.skirtA)));
   draw(m.cape,mMulN(p.U,mT(0,1.47,0.155),mRX(-k.capeA)));
+  // each pauldron leans halfway toward its upper arm, so raising or reaching carries the armour with it
+  for(const sd of[0,1]){const S=sd?p.shR:p.shL,E=sd?p.elR:p.elL,y=norm(lerp3(p.up,norm(sub(S,E)),0.55)),x=norm(cross(y,p.back)),z=cross(x,y);draw(m.pauld[sd],mBasis(x,y,z,S));}
   draw(m.uarm,segM(p.shR,p.elR,p.back,p.up));draw(m.farm,segM(p.elR,p.hand,p.up,p.back));
   draw(m.uarm,segM(p.shL,p.elL,p.back,p.up));draw(m.farm,segM(p.elL,p.lhand,p.up,p.back));
   draw(m.thigh,segM(p.hipR,p.knR,p.mback,p.mup));draw(m.shin,segM(p.knR,p.anR,p.mback,p.mup));
