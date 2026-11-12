@@ -621,10 +621,10 @@ const WEAPONS=[
   {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:280,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
-let LOG=null;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null;
+let LOG=null;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,beatT=0;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.9:-1.9,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,shield:SHIELD_MAX,shieldOn:true,
-    lunge:0,dip:0,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
+    lunge:0,dip:0,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
   computePose(k);k.pbA=k.pose.bA;k.pbB=k.pose.bB;
@@ -733,7 +733,7 @@ function attack(A,D,h){
   const sp=thrusting?Math.abs(dot(bladeVel(A,best.s,h),pa.dir)):bladeSpeed(A,best.s,h);if(sp<(thrusting?2:MINSP))return;
   const pn=best.hb.p,part=PARTS[pn],bare=pn==='head'&&!D.helmOn;
   const f=Math.pow(thrusting?clamp((sp-2)/6.5,0,1.25):clamp((sp-MINSP)/9,0,1.25),1.15);
-  const dmg=Math.round(16*f*(bare?2.5:part.m)*w.dmg*(thrusting?w.thr:best.s>=w.head?1:w.shaft));if(dmg<2)return;
+  const dmg=Math.round(11*f*(bare?2.5:part.m)*w.dmg*(thrusting?w.thr:best.s>=w.head?1:w.shaft));if(dmg<2)return;
   const isArm=pn==='arm';D.hp=Math.max(0,D.hp-dmg);if(isArm){A.armCd=0.45;A.vx*=0.85;A.vy*=0.85;}else{A.hitCd=0.5;A.armCd=0.3;A.vx*=0.3;A.vy*=0.3;}endThrust(A);
   // the harder the hit, the longer the pause, the push and the shake
   const big=dmg>=20;
@@ -747,8 +747,14 @@ function attack(A,D,h){
   if(D.hp<=0)knockOut(A,D);
 }
 function clashCheck(h){
-  if(clashCd>0)return;const a=K[0].pose,b=K[1].pose,r=segSeg(a.bA,a.bB,b.bA,b.bB);
-  if(r[0]>0.13)return;const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;if(rel<2.8)return;
+  const a=K[0].pose,b=K[1].pose,r=segSeg(a.bA,a.bB,b.bA,b.bB),closing=r[0]<clashD-1e-6;clashD=r[0];beatT-=h;
+  if(r[0]>0.13||K[0].dead||K[1].dead)return;const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
+  // weapons are solid to each other: while they are closing they hold each other off, unless one has just been beaten aside
+  if(clashCd>0||rel<2.8){if(closing&&beatT<=0){const f=K[0].carryT>0?K[1]:K[1].carryT>0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
+      if(sl.carryT>0||hi>lo*1.5+0.3){sl.carryT=0.12; // the moving weapon pushes the other one along in front of it
+        const v=bladeVel(f,f===K[0]?r[1]:r[2],h),rx=Math.cos(sl.yaw),rz=-Math.sin(sl.yaw);sl.vx=(v[0]*rx+v[2]*rz)*0.95;sl.vy=v[1]*0.95;f.vx*=0.985;f.vy*=0.985;}
+      else for(const k of K){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.15;k.vy*=-0.15;}}
+    return;}
   // parry: a fresh key press pushing against the incoming weapon
   const par=[0,1].map(i=>{const me=K[i],op=K[1-i],v=bladeVel(op,i?r[1]:r[2],h),ox=v[0]*Math.cos(me.yaw)-v[2]*Math.sin(me.yaw),oy=v[1],m=Math.hypot(ox,oy);
     return me.pressAge<0.25&&me.pressAge<op.pressAge-0.04&&m>1.5&&!me.thr&&me.stun<=0&&me.stag<=0&&(me.in[0]*ox+me.in[1]*oy)/m<-0.35;});
@@ -763,7 +769,7 @@ function clashCheck(h){
     bounce(fast,0.55,0.32);endThrust(fast);fast.st=Math.max(0,fast.st-4);clashCd=0.14;popAt(fast.i,r[3],'막힘','blk');buzz(fast,35);buzz(slow,35);
   }else if(sf>ss*1.7+1){ // a fast weapon beats a slow one aside and keeps going, weaker
     const v=bladeVel(fast,fast===K[0]?r[1]:r[2],h),rx=Math.cos(slow.yaw),rz=-Math.sin(slow.yaw);
-    slow.vx=(v[0]*rx+v[2]*rz)*0.55;slow.vy=v[1]*0.55;slow.stun=Math.max(slow.stun,0.18);fast.vx*=0.6;fast.vy*=0.6;clashCd=0.22;
+    slow.vx=(v[0]*rx+v[2]*rz)*0.9;slow.vy=v[1]*0.9;slow.stun=Math.max(slow.stun,0.18);fast.vx*=0.6;fast.vy*=0.6;clashCd=0.22;beatT=0.22;
   }else{clashCd=0.12;bounce(K[0],0.35,0.1);bounce(K[1],0.35,0.1);endThrust(K[0]);endThrust(K[1]);}
   sparks(r[3],8+Math.floor(rel),'spark',2.6,0.022);sparks(r[3],4,'hot',3.2,0.016);sfx.clang(clamp(rel/19,0.25,1));if(LOG)LOG.push(['clash',+rel.toFixed(1),sf>ss*1.7+1?'beat':'bind']);
 }
@@ -849,7 +855,7 @@ function step(h){
     k.guard+=((k.thr||k.dead?0:clamp((-k.ay-0.2)/0.3,0,1)*clamp((Math.abs(k.ax)-0.2)/0.3,0,1))-k.guard)*Math.min(1,14*h);
     k.dip+=((k.thr||k.guard>0.3?0:clamp((Math.abs(k.vx)-2)/3,0,1)*0.30)-k.dip)*Math.min(1,22*h);
     k.flinch*=Math.exp(-5*h);k.shPush*=Math.exp(-9*h);
-    k.stun-=h;k.stag-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
+    k.stun-=h;k.stag-=h;k.carryT-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
     computePose(k);
     const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipSp=tl/h;if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
     if(subN%6===0){k.trail.push({a:lerp3(k.pose.bA,k.pose.bB,1-w.trail),b:k.pose.bB,s:k.tipSp});if(k.trail.length>10)k.trail.shift();}
