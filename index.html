@@ -716,7 +716,7 @@ const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
 let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];
 function resetKnight(k){
-  Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,armA:ARM_MAX,armArmor:true,armOff:false,legA:LEG_MAX,legArmor:true,legOff:false,headOff:false,cutT:0,shield:0,shieldOn:false,
+  Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,armA:ARM_MAX,armArmor:true,armOff:false,legA:LEG_MAX,legArmor:true,legOff:false,headOff:false,headDeb:null,cutT:0,shield:0,shieldOn:false,
     lunge:0,dip:0,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
@@ -767,6 +767,8 @@ function computePose(k){
     hit:[{a:headC,b:headC,r:0.165,p:'head'},{a:mP(Um,[0,1.03,0]),b:mP(Um,[0,1.40,0]),r:0.25,p:'torso'},...(k.armOff?[]:[{a:elR,b:hand,r:0.085,p:'arm'}]),{a:hipR,b:anR,r:0.115,p:'leg'},{a:hipL,b:anL,r:0.115,p:'leg'}]};
 }
 function camMatrix(k){
+  // a severed head keeps seeing: the view tumbles with it and comes to rest on the ground looking back at the body
+  if(k.headOff&&k.headDeb){const q=k.headDeb;return mMulN(mT(q.p[0],q.p[1]+0.03,q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0));}
   const p=k.pose,eye=mP(p.U,[0,1.70,-0.10]),sk=k.shake*(REDUCED?0.25:1);
   const yo=-clamp(k.ax,-1.2,1.2)*0.15+p.twist*0.5+Math.sin(time*61+k.i)*sk*0.04;
   const pi=-0.09+Math.min(k.ay,1.2)*0.22-k.lunge*0.15+k.flinch*0.16+Math.sin(time*47+k.i*3)*sk*0.04;
@@ -790,7 +792,7 @@ function sparks(pt,n,key,sp,size){for(let i=0;i<n&&particles.length<70;i++)parti
 const buzz=(k,ms)=>{if(k.phone)k.phone.c.send({t:'v',ms:Array.isArray(ms)?ms:Math.round(ms)});};let rattleT=0;
 function knock(A,D,v){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;D.kvx+=dx/dl*v;D.kvz+=dz/dl*v;}
 function fling(mesh,pos,A,D,off){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;
-  debris.push({m:mesh,p:pos.slice(),v:[dx/dl*rr(1.5,2.6)+rr(-0.8,0.8),rr(2.6,3.6),dz/dl*rr(1.5,2.6)+rr(-0.8,0.8)],r:[rr(0,3),rr(0,3)],w:[rr(-7,7),rr(-7,7)],off,rest:false});}
+  debris.push({m:mesh,p:pos.slice(),v:[dx/dl*rr(1.5,2.6)+rr(-0.8,0.8),rr(2.6,3.6),dz/dl*rr(1.5,2.6)+rr(-0.8,0.8)],r:[rr(0,3),rr(0,3),0],w:[rr(-7,7),rr(-7,7)],off,rest:false});return debris[debris.length-1];}
 function breakShield(A,D,pt){D.shieldOn=false;D.shield=0;D.stag=Math.max(D.stag,0.35);
   fling(D.model.shield,mP(D.pose.shM,[0,0,0]),A,D,[0,0,0]);sparks(pt,14,'steel',3,0.03);sparks(pt,8,'dust',2.5,0.035);sfx.brk();
   popAt(A.i,pt,'방패 파괴','big');popFix(D.i,'방패가 부서졌다');if(LOG)LOG.push(['shieldbreak',D.i]);}
@@ -869,7 +871,7 @@ function attackCore(A,D,h){
   if(pn==='leg'&&!D.legOff){
     if(D.legArmor){D.legA-=dmg*w.brk;if(D.legA<=0){D.legArmor=false;D.legA=0;fling(D.model.greave,pd.knL,A,D,[0,0.2,0]);sfx.brk();popAt(A.i,best.pt,'다리 갑옷 파괴','big');}}
     else if(dmg>=4&&!thrusting){D.legOff=true;cut('다리 절단');fling(D.model.shinBare,pd.knL,A,D,[0,0.2,0]);popFix(D.i,'다리를 잃어 걸을 수 없다');}}
-  if(bare&&!D.headOff&&(dmg>=12||D.hp<=0)&&!thrusting){D.headOff=true;cut('참수');fling(D.model.bare,pd.headC,A,D,[0,-1.7,0]);D.hp=0;}
+  if(bare&&!D.headOff&&(dmg>=12||D.hp<=0)&&!thrusting){D.headOff=true;cut('참수');D.headDeb=fling(D.model.bare,pd.headC,A,D,[0,-1.7,0]);D.headDeb.owner=D;D.headDeb.r=[0,D.yaw,0];D.headDeb.w=[rr(3,6)*(rnd()<0.5?-1:1),rr(-3,3)];D.hp=0;}
   if(pn==='head'&&D.helmOn){D.helm-=dmg*w.brk;if(D.helm<=0){D.helmOn=false;D.helm=0;fling(D.model.head,pd.headC,A,D,[0,-1.7,0]);sfx.brk();popAt(A.i,pd.headC,'투구 파괴','big');if(LOG)LOG.push(['helmbreak',D.i]);}}
   if(tut)tut.ev.push({i:A.i,p:pn,thr:thrusting,ch:A.charge});
   if(practice){D.hp=Math.max(1,D.hp);D.regenT=1.6;}
@@ -1060,7 +1062,7 @@ function hud(){for(const k of K){const e=k.el;
         k.inc.style.transform='translate('+(-mx/m*R).toFixed(0)+'px,'+(-my/m*R).toFixed(0)+'px) rotate('+Math.atan2(mx,-my).toFixed(2)+'rad)';}else k.inc.style.opacity='0';}e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.hp<=30);e.hpn.textContent=Math.ceil(k.hp);
     e.pips.forEach((b,i)=>b.classList.toggle('on',i<k.rounds));e.vig.style.opacity=k.vig.toFixed(2);e.pow.style.width=clamp(k.tipSp/12,0,1)*100+'%';e.pow.classList.toggle('hot',k.tipSp>7);
     {const o=K[1-k.i];e.ehp.querySelector('i').style.width=(o.hp/HPMAX*100)+'%';e.ehp.querySelector('b').textContent=Math.ceil(o.hp);}
-    e.arm.querySelector('i').style.width=(k.armA/ARM_MAX*100)+'%';e.arm.classList.toggle('broken',k.armOff);e.leg.querySelector('i').style.width=(k.legA/LEG_MAX*100)+'%';e.leg.classList.toggle('broken',k.legOff);e.root.classList.toggle('blackout',k.headOff);
+    e.arm.querySelector('i').style.width=(k.armA/ARM_MAX*100)+'%';e.arm.classList.toggle('broken',k.armOff);e.leg.querySelector('i').style.width=(k.legA/LEG_MAX*100)+'%';e.leg.classList.toggle('broken',k.legOff);
     e.crowd.style.width=k.crowd+'%';e.st.style.width=(k.st/STMAX*100)+'%';e.st.parentNode.classList.toggle('tired',k.tired);
     e.helmB.style.width=(k.helm/HELM_MAX*100)+'%';e.helm.classList.toggle('broken',!k.helmOn);e.shldB.style.width=(Math.max(0,k.shield)/SHIELD_MAX*100)+'%';e.shld.classList.toggle('broken',!k.shieldOn);}}
 
@@ -1119,6 +1121,8 @@ function buildTrail(){
 function drawKnight(k,own){
   const p=k.pose,m=k.model,f=k.flash*0.5;gl.uniform3f(U.uTint,f,f*0.9,f*0.8);
   draw(m.torso,p.U);if(!own&&!k.headOff)draw(k.helmOn?m.head:m.bare,p.U);
+  if(k.headOff){draw(PART_COLS.red,mMulN(p.U,mT(0,1.585,0),mS(0.15,0.04,0.15)));draw(colCube('skin'+k.i,hex(k.i?'#d8ab8b':'#c99a7a')),mMulN(p.U,mT(0,1.545,0),mS(0.16,0.06,0.16)));}
+  if(k.armOff)draw(PART_COLS.red,mMulN(mT(p.elR[0],p.elR[1],p.elR[2]),mS(0.11,0.11,0.11)));
   draw(m.skirt,mMulN(p.U,mT(0,0.955,-0.145),mRX(k.skirtA)));
   draw(m.cape,mMulN(p.U,mT(0,1.47,0.155),mRX(-k.capeA)));
   // each pauldron leans halfway toward its upper arm, so raising or reaching carries the armour with it
@@ -1145,8 +1149,8 @@ function render(){
     gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3f(U.uCam,cam[12],cam[13],cam[14]);gl.uniform3f(U.uTint,0,0,0);gl.uniform1f(U.uAlpha,1);
     gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.uniform1f(U.uEmis,1);draw(sky,mT(cam[12],cam[13]*0.5,cam[14]));
     gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.uniform1f(U.uEmis,0);draw(arena,mI());
-    for(const kk of K)drawKnight(kk,!dbg&&kk===k);
-    for(const q of debris)draw(q.m,mMulN(mT(q.p[0],q.p[1],q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mT(q.off[0],q.off[1],q.off[2])));
+    for(const kk of K)drawKnight(kk,!dbg&&kk===k&&!k.headOff);
+    for(const q of debris){if(!dbg&&q===k.headDeb)continue;draw(q.m,mMulN(mT(q.p[0],q.p[1],q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0),mT(q.off[0],q.off[1],q.off[2])));}
     // blob shadows
     gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.uniform1f(U.uEmis,1);gl.uniform1f(U.uAlpha,0.38);
     for(const kk of K)draw(shadowMesh,mMulN(mT(kk.x+0.12,0.012,kk.z-0.1),mS(0.42,1,0.42)));
@@ -1198,7 +1202,7 @@ function frame(ts){
     k.flash*=Math.exp(-9*dt);k.vig*=Math.exp(-3.2*dt);k.shake*=Math.exp(-7*dt);}
   for(let i=particles.length-1;i>=0;i--){const q=particles[i];q.l-=sd;if(q.l<=0){particles.splice(i,1);continue;}q.v[1]-=9*sd;q.p[0]+=q.v[0]*sd;q.p[1]+=q.v[1]*sd;q.p[2]+=q.v[2]*sd;if(q.p[1]<0.02){q.p[1]=0.02;q.v[1]*=-0.3;q.v[0]*=0.6;q.v[2]*=0.6;}}
   for(const q of debris){if(q.rest)continue;q.v[1]-=9.8*sd;q.p[0]+=q.v[0]*sd;q.p[1]+=q.v[1]*sd;q.p[2]+=q.v[2]*sd;q.r[0]+=q.w[0]*sd;q.r[1]+=q.w[1]*sd;
-    if(q.p[1]<0.14){q.p[1]=0.14;if(Math.abs(q.v[1])<1.2){q.rest=true;q.r[0]=PI/2;}else{q.v[1]*=-0.35;q.v[0]*=0.5;q.v[2]*=0.5;q.w[0]*=0.5;q.w[1]*=0.5;}}}
+    if(q.p[1]<0.14){q.p[1]=0.14;if(Math.abs(q.v[1])<1.2){q.rest=true;if(q.owner){const o=q.owner;q.r=[0.12,Math.atan2(-(o.x-q.p[0]),-(o.z-q.p[2])),1.3];}else q.r[0]=PI/2;}else{q.v[1]*=-0.35;q.v[0]*=0.5;q.v[2]*=0.5;q.w[0]*=0.5;q.w[1]*=0.5;}}}
   if(state==='fight'||state==='ko'){hist.push(snap(time));if(hist.length>260)hist.shift();}
   tutStep(dt);render();hud();whooshUpdate();
   fpsN++;if(now-fpsT>=1){const el=$('diag');if(el){el.textContent=fpsN+'fps'+K.map(k=>k.phone?' · '+(k.i+1)+'P 폰 '+(k.phone.rtt<0?'?':k.phone.rtt)+'ms/'+k.phone.rate+'회':'').join('');}fpsN=0;fpsT=now;}
