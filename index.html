@@ -708,7 +708,7 @@ const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.7
 // a..b: part of the weapon that collides (metres from the hand); head: where the striking end starts (0..1 along a..b)
 const WEAPONS=[
   {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:1100,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
-  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:900,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
+  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:900,dmg:1.3,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
   {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:28,pk:750,dmg:0.56,shaft:0.28,thr:1.4,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3},
   {name:'해머',desc:'가장 무겁고 느리다. 머리로 맞히면 피해가 크고 투구가 금방 깨진다',a:0.15,b:1.14,head:0.72,acc:27,pk:600,dmg:1.6,shaft:0.3,thr:0.4,ext:0.34,dist:1.55,st:1.5,brk:2.5,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
@@ -1016,9 +1016,8 @@ function step(h){
     computePose(k);
     if(k.weapon===1&&k.fh){ // chain: the head coasts, falls, and is only pulled when the chain goes taut
       const an=add(k.pose.hand,mulS(k.pose.dir,FL_A)),f=k.fh,pv=k.fhp;k.fhp=f.slice();
-      for(let i=0;i<3;i++)f[i]+=(f[i]-pv[i])*0.9965;f[1]-=9.8*h*h;
-      // the handle direction nudges a slack chain so it does not just dangle
-      const want=add(an,mulS(k.pose.dir,FL_L));for(let i=0;i<3;i++)f[i]+=(want[i]-f[i])*Math.min(1,3.5*h);
+      // a chain cannot push: the head only coasts, falls, and is tugged when the chain runs out, so at rest it hangs straight down
+      for(let i=0;i<3;i++)f[i]+=(f[i]-pv[i])*0.9988;f[1]-=9.8*h*h;
       const d=sub(f,an),dl=len(d);if(dl>FL_L){for(let i=0;i<3;i++)f[i]=an[i]+d[i]/dl*FL_L;}
       if(f[1]<0.08)f[1]=0.08;computePose(k);}
     if(k.weapon!==1&&k.pose.bB[1]<0.03&&k.pose.bB[1]<k.pbB[1]&&!k.dead){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.1;k.vy*=-0.1;computePose(k);}
