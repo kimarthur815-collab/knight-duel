@@ -274,6 +274,8 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
   <section id="notes" hidden aria-label="패치 노트">
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
+      <h3>11월 13일 (오후 3)</h3>
+      <ul><li>조이스틱 두 번 두드리기 인식을 훨씬 너그럽게 (간격 0.55초, 위치 조금 달라도 됨)</li><li>특수 공격 신호를 여러 번 보내 누락 방지, 인식되면 조이스틱이 번쩍임</li></ul>
       <h3>11월 13일 (오후 2)</h3>
       <ul>
         <li>무기별 특수 공격 추가: 장검 회전 베기, 철퇴 돌리기, 창 깊은 찌르기, 해머 내려찍기. 폰은 조이스틱 칸을 두 번 두드리고, 키보드는 R(1P)과 /(2P). 4초마다 쓸 수 있다.</li>
@@ -455,11 +457,13 @@ function runPad(code,p){
   const joy=$('padJoy'),nub=$('padNub');let jid=null,jo=[0,0],lastMv=0;
   const mv=(x,y,force)=>{nub.style.transform='translate('+(x*60)+'px,'+(-y*60)+'px)';const t=performance.now();if(conn&&(force||t-lastMv>40)){lastMv=t;conn.send({t:'m',x:+x.toFixed(2),y:+y.toFixed(2)});}};
   let joyTap=0,joyXY=[0,0];
-  joy.addEventListener('pointerdown',e=>{e.preventDefault();if(jid!=null)return;
-    {const t=performance.now();if(t-joyTap<350&&Math.hypot(e.clientX-joyXY[0],e.clientY-joyXY[1])<60){joyTap=0;if(conn)conn.send({t:'sp'});feel(30);}else{joyTap=t;joyXY=[e.clientX,e.clientY];}} // two quick taps in place = special attack
+  let spN=0;const sendSp=()=>{const n=++spN;for(let i=0;i<4;i++)setTimeout(()=>{if(conn)conn.send({t:'sp',n});},i*30);feel(40);joy.style.background='var(--parchment)';setTimeout(()=>{joy.style.background='';},160);}; // sent several times: the link may drop a packet
+  joy.addEventListener('pointerdown',e=>{e.preventDefault();
+    {const t=performance.now();if(t-joyTap<550&&Math.hypot(e.clientX-joyXY[0],e.clientY-joyXY[1])<130){joyTap=0;sendSp();}else{joyTap=t;joyXY=[e.clientX,e.clientY];}} // two quick taps in roughly the same place = special attack
+    if(jid!=null)return;
     jid=e.pointerId;jo=[e.clientX,e.clientY];try{joy.setPointerCapture(jid);}catch(_){}mv(0,0,true);});
   joy.addEventListener('pointermove',e=>{if(e.pointerId!==jid)return;let x=(e.clientX-jo[0])/60,y=-(e.clientY-jo[1])/60;const l=Math.hypot(x,y);if(l>1){x/=l;y/=l;}mv(x,y);});
-  const jend=e=>{if(e.pointerId!==jid)return;jid=null;mv(0,0,true);};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
+  const jend=e=>{if(e.pointerId!==jid)return;jid=null;mv(0,0,true);if(performance.now()-joyTap>320)joyTap=0;};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
 }
 if(PHONE&&HASH.get('j')){runPad(HASH.get('j').toUpperCase().slice(0,8),HASH.get('p')==='1'?1:0);return;}
 
@@ -1386,7 +1390,7 @@ function pairOpen(p){
         let pp=id?K.findIndex(k=>k.phone&&k.phone.id===id):-1;if(pp<0)pp=free(want)?want:free(1-want)?1-want:want;
         c.send({t:'slot',p:pp});const ph={c,id,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='sp')K[pp].spReq=true;else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='sp'){if(d.n==null||d.n!==ph.spN){ph.spN=d.n;K[pp].spReq=true;}}else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);}
