@@ -328,7 +328,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -1749,8 +1749,16 @@ function frame(ts){
   }
   const ts2=state==='ko'&&koPhase===0?(stateT<0.9?0.12:0.4):slowT>0?slowS:1;slowT-=dt; // the finishing blow: very slow at first, then easing up
   // replay of the finishing blow from outside, at half speed, before the result is shown
-  if(state==='ko'&&koPhase===0&&!replay&&!replayDone&&stateT>1.2&&hist.length>30&&!REDUCED){const end=hist[hist.length-1];replay={t:Math.max(hist[0].t,koTime-1.6),end,ang:rr(0.5,1.1)*(rnd()<0.5?-1:1)};
-    extCam=()=>{const mx=(K[0].x+K[1].x)/2,mz=(K[0].z+K[1].z)/2,base=Math.atan2(-(K[1].x-K[0].x),-(K[1].z-K[0].z))+PI/2;return mMulN(mT(mx,1.25,mz),mRY(base+replay.ang+(replay.t-koTime)*0.25),mT(0,0.15,3.4),mRX(-0.1));};
+  if(state==='ko'&&koPhase===0&&!replay&&!replayDone&&stateT>1.2&&hist.length>30&&!REDUCED){const end=hist[hist.length-1];replay={t:Math.max(hist[0].t,koTime-1.6),end,ang:0};
+    // the camera circles the two knights; it must stay inside the walls (the stands, gates and brazier pillars start at about 9.5 m from the centre)
+    const CAM_R=8.6,camPos=(th,d)=>{const mx=(K[0].x+K[1].x)/2,mz=(K[0].z+K[1].z)/2,M=mMulN(mT(mx,1.25,mz),mRY(th),mT(0,0.15,d));return [M[12],M[14]];},
+      baseNow=()=>Math.atan2(-(K[1].x-K[0].x),-(K[1].z-K[0].z))+PI/2;
+    {const b0=baseNow(),span=[-0.4,0.35];let best=null; // pick the side whose whole orbit stays well inside the arena
+      for(const a of [0.5,0.7,0.9,1.1,-0.5,-0.7,-0.9,-1.1,1.6,-1.6,2.3,-2.3,PI]){let clr=9;for(let i=0;i<=6;i++){const p=camPos(b0+a+span[0]+(span[1]-span[0])*i/6,3.4);clr=Math.min(clr,CAM_R-Math.hypot(p[0],p[1]));}
+        const sc=(Math.abs(a)<=1.1?2:Math.abs(a)<2?1:0)-Math.max(0,Math.abs(a)-0.5)*0.6+Math.min(clr,0)*3+rnd()*0.25;if(!best||sc>best.sc)best={a,sc};} // side-on views first; turn further round only when the wall is in the way
+      replay.ang=best.a;}
+    extCam=()=>{const th=baseNow()+replay.ang+(replay.t-koTime)*0.25;let d=3.4;while(d>1.6){const p=camPos(th,d);if(Math.hypot(p[0],p[1])<=CAM_R)break;d-=0.1;} // pulled in if the wall is close
+      return mMulN(mT((K[0].x+K[1].x)/2,1.25,(K[0].z+K[1].z)/2),mRY(th),mT(0,0.15,d),mRX(-0.1));};
     stage.classList.add('replay');banner('다시 보기','rep');particles=[];}
   if(replay){replay.t+=dt*(replay.t>koTime?1:replay.t>koTime-0.12?0.12:0.5); // half speed, crawling through the blow itself; what follows was already recorded in slow motion
     let sn=hist[0];for(const hsn of hist){if(hsn.t<=replay.t)sn=hsn;else break;}unsnap(sn);
