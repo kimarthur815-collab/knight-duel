@@ -67,6 +67,7 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 .stick b{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(242,231,208,.7);transform:translate(-50%,-50%)}
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
+#diag{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-size:11px;color:var(--muted);text-shadow:1px 1px 0 #000;pointer-events:none;white-space:nowrap;display:none}.playing #diag{display:block}
 #banner.rep{top:12%;font-size:clamp(22px,4vw,40px);color:var(--gold)}
 .replay .view{visibility:hidden!important}
 
@@ -159,6 +160,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
   </div>
   <div id="divider"></div>
   <div id="banner" hidden></div>
+  <div id="diag" aria-hidden="true"></div>
 
   <section id="title">
     <div class="tin">
@@ -298,6 +300,7 @@ function runPad(code,p){
   setInterval(()=>{if(conn)conn.send({t:'hb'});},1000); // tells the screen this phone is still there even before its sensors are on
   netJoin(code,{p},c=>{conn=c;c.send({t:'hb'});say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
     d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}
+      if(d&&d.t==='pg'&&conn)conn.send({t:'po',ts:d.ts});
       if(d&&d.t==='c'&&sensing&&gotEvent&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
   function onOri(e){
@@ -729,7 +732,7 @@ const bladeVel=(k,s,h)=>mulS(sub(lerp3(k.pose.bA,k.pose.bB,s),lerp3(k.pbA,k.pbB,
 const bladeSpeed=(k,s,h)=>len(bladeVel(k,s,h));
 const bounce=(k,f,stun)=>{k.ax=k.pax;k.ay=k.pay;k.vx*=-f;k.vy*=-f;k.stun=Math.max(k.stun,stun);};
 const endThrust=k=>{if(k.thr)k.thr.t=Math.max(k.thr.t,0.251+(1-thrProf(k.thr.t))*0.2);};
-function sparks(pt,n,key,sp,size){for(let i=0;i<n&&particles.length<180;i++)particles.push({p:pt.slice(),v:[rr(-1,1)*sp,rr(0.2,1.4)*sp,rr(-1,1)*sp],l:rr(0.25,0.6),m:PART_COLS[key],s:size*rr(0.6,1.3)});}
+function sparks(pt,n,key,sp,size){for(let i=0;i<n&&particles.length<70;i++)particles.push({p:pt.slice(),v:[rr(-1,1)*sp,rr(0.2,1.4)*sp,rr(-1,1)*sp],l:rr(0.25,0.6),m:PART_COLS[key],s:size*rr(0.6,1.3)});}
 const buzz=(k,ms)=>{if(k.phone)k.phone.c.send({t:'v',ms:Array.isArray(ms)?ms:Math.round(ms)});};let rattleT=0;
 function knock(A,D,v){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;D.kvx+=dx/dl*v;D.kvz+=dz/dl*v;}
 function fling(mesh,pos,A,D,off){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1;
@@ -1077,14 +1080,14 @@ function render(){
     gl.uniform1f(U.uAlpha,1);
     gl.disable(gl.BLEND);gl.depthMask(true);
     // fire and particles
-    for(let i=0;i<fires.length;i++){const f=fires[i];for(let j=0;j<5;j++){const ph=time*(5+j*1.7)+i*2.1+j,s=(0.42-j*0.07)*(0.85+0.2*Math.sin(ph));
+    for(let i=0;i<fires.length;i++){const f=fires[i];for(let j=0;j<3;j++){const ph=time*(5+j*1.7)+i*2.1+j,s=(0.42-j*0.07)*(0.85+0.2*Math.sin(ph));
       draw(FIRE[(j+(Math.floor(time*9+i)%2))%4],mMulN(mT(f[0]+Math.sin(ph*0.7)*0.06,f[1]+j*0.17+0.05*Math.sin(ph),f[2]+Math.cos(ph*0.9)*0.06),mRY(ph*0.3),mS(s,s*1.25,s)));}}
     for(const q of particles){const s=q.s*Math.min(1,q.l*5);draw(q.m,mMul(mT(q.p[0],q.p[1],q.p[2]),mS(s,s,s)));}
   }
 }
 
 /* ================= loop ================= */
-let last=0,acc=0,introStage=0;
+let last=0,acc=0,introStage=0,fpsN=0,fpsT=0;
 const H=1/360;
 function frame(ts){
   requestAnimationFrame(frame);
@@ -1111,7 +1114,7 @@ function frame(ts){
     if(replay.t>=Math.min(replay.end.t,koTime+0.9)){unsnap(replay.end);replay=null;replayDone=true;extCam=null;stage.classList.remove('replay');banner('');stateT=1.8;}
     else{stateT=1.3;render();return;}}
   if(freeze>0){freeze-=dt;dt=0;}
-  acc+=dt*ts2;let n=0;while(acc>=H&&n<36){step(H);acc-=H;n++;}if(n===36)acc=0;
+  acc+=dt*ts2;let n=0;while(acc>=H&&n<30){step(H);acc-=H;n++;}if(n===30)acc=0;
   const sd=dt*ts2;
   for(const k of K){updateFeet(k,sd);computePose(k);
     const sp=Math.hypot(k.mvx,k.mvz);k.capeA+=((0.1+sp*0.22+(k.lunge+k.ext)*1.2+Math.sin(time*1.7+k.i*2)*0.035+k.fall*0.2)-k.capeA)*Math.min(1,6*dt);
@@ -1122,6 +1125,7 @@ function frame(ts){
     if(q.p[1]<0.14){q.p[1]=0.14;if(Math.abs(q.v[1])<1.2){q.rest=true;q.r[0]=PI/2;}else{q.v[1]*=-0.35;q.v[0]*=0.5;q.v[2]*=0.5;q.w[0]*=0.5;q.w[1]*=0.5;}}}
   if(state==='fight'||state==='ko'){hist.push(snap(time));if(hist.length>260)hist.shift();}
   render();hud();whooshUpdate();
+  fpsN++;if(now-fpsT>=1){const el=$('diag');if(el){el.textContent=fpsN+'fps'+K.map(k=>k.phone?' · '+(k.i+1)+'P 폰 '+(k.phone.rtt<0?'?':k.phone.rtt)+'ms/'+k.phone.rate+'회':'').join('');}fpsN=0;fpsT=now;}
 }
 function startRound(){
   hist.length=0;replay=null;replayDone=false;extCam=null;stage.classList.remove('replay');
@@ -1186,10 +1190,11 @@ function pairRefresh(){document.querySelectorAll('.plink').forEach(el=>{const p=
 function pairOpen(p){
   if(!pairCode){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';pairCode='';for(let i=0;i<5;i++)pairCode+=A[Math.floor(Math.random()*A.length)];
     netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        ph.n=0;ph.rate=0;ph.rtt=-1;
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
-    setInterval(pairRefresh,1000);}
+    setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);}
   const el=document.querySelector('.plink[data-p="'+p+'"]');el.querySelector('.pbox').hidden=false;pairRefresh();
 }
 if(PHONE){document.querySelectorAll('.plink').forEach(el=>{el.hidden=false;el.querySelector('.pbtn').addEventListener('click',()=>pairOpen(+el.dataset.p));});
