@@ -50,6 +50,9 @@ body{background:var(--stone);color:var(--parchment);font-family:var(--font-body)
 .gear{display:flex;align-items:center;gap:4px;white-space:nowrap}.gear em{display:block;width:30px;height:7px;background:#15131a;border:1.5px solid rgba(242,231,208,.8)}.gear em i{display:block;height:100%;background:var(--parchment)}.gear.broken{opacity:.45;text-decoration:line-through}
 .inc{position:absolute;left:50%;top:50%;width:0;height:0;margin:-17px 0 0 -18px;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:34px solid #ff6b5e;opacity:0;filter:drop-shadow(2px 2px 0 #000);pointer-events:none}
 .practice #v1 .bar,.practice #v1 .sub2{opacity:.5}
+.ehp{position:absolute;left:12px;right:12px;top:56px;display:none;align-items:center;gap:8px;font-family:var(--font-display);font-size:14px;text-shadow:1px 1px 0 #000}
+.solo .ehp{display:flex}.ehp div{flex:1;max-width:340px;height:10px;background:#15131a;border:2px solid rgba(242,231,208,.85)}.ehp i{display:block;height:100%}
+#v0 .ehp i{background:var(--crimson)}#v1 .ehp i{background:var(--blue)}.ehp b{font-weight:400;font-variant-numeric:tabular-nums;min-width:2em}
 .vig{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,rgba(170,20,30,0) 45%,rgba(170,20,30,.75) 100%)}
 .power{position:absolute;right:12px;bottom:14px;width:min(40%,220px);height:8px;background:rgba(15,13,20,.7);border:2px solid rgba(242,231,208,.8)}
 .power i{display:block;height:100%;width:0;background:var(--parchment)}
@@ -70,7 +73,7 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 #banner.go{color:var(--gold)}
 #fullGame{position:absolute;right:8px;bottom:28px;display:none;font-size:18px;line-height:1;padding:4px 8px;box-shadow:none;border-width:2px;opacity:.6}.playing #fullGame{display:block}
 button small{font-size:12px;opacity:.7;margin-left:6px}
-#tut{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:min(92%,560px);display:flex;gap:10px;align-items:center;padding:8px 12px;background:rgba(34,31,41,.88);border:2px solid var(--gold);font-size:15px;line-height:1.45}
+#tut{position:absolute;left:50%;top:84px;transform:translateX(-50%);width:min(92%,560px);display:flex;gap:10px;align-items:center;padding:8px 12px;background:rgba(34,31,41,.88);border:2px solid var(--gold);font-size:15px;line-height:1.45}
 #tutText{flex:1}#tutSkip{font-size:13px;padding:5px 9px;box-shadow:none;border-width:2px;white-space:nowrap}
 #diag{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-size:11px;color:var(--muted);text-shadow:1px 1px 0 #000;pointer-events:none;white-space:nowrap;display:none}.playing #diag{display:block}
 #banner.rep{top:12%;font-size:clamp(22px,4vw,40px);color:var(--gold)}
@@ -1020,6 +1023,7 @@ function knockOut(A,D){koTime=time;replayDone=false;
 /* ================= HUD ================= */
 const stage=$('stage');
 K.forEach(k=>{const r=$('v'+k.i),q=s=>r.querySelector(s);const inc=document.createElement('i');inc.className='inc';r.appendChild(inc);k.inc=inc;k.el={root:r,hp:q('.hp i'),hpn:q('.hpn'),pips:r.querySelectorAll('.pips b'),vig:q('.vig'),pops:q('.pops'),pow:q('.power i'),stick:q('.stick'),knob:q('.stick b'),
+  ehp:(()=>{const g=document.createElement('div');g.className='ehp';g.innerHTML='<span>'+NAMES[1-k.i]+'</span><div><i></i></div><b></b>';r.appendChild(g);return g;})(),
   crowd:(()=>{const g=document.createElement('span');g.className='gear crowd';g.innerHTML='환호<em><i></i></em>';q('.sub2').appendChild(g);return g.querySelector('em i');})(),
   st:q('.stm i'),helm:q('.helm'),helmB:q('.helm em i'),shld:q('.shld'),shldB:q('.shld em i')};});
 function project(v,p){const m=K[v].VP,w=m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15];if(w<0.05)return null;
@@ -1035,6 +1039,7 @@ function hud(){for(const k of K){const e=k.el;
       if(state==='fight'&&near&&m>6&&!o.dead&&o.limpT<=0){const R=Math.min(e.root.clientWidth,e.root.clientHeight)*0.36;k.inc.style.opacity=clamp((m-6)/5,0.35,1).toFixed(2);
         k.inc.style.transform='translate('+(-mx/m*R).toFixed(0)+'px,'+(-my/m*R).toFixed(0)+'px) rotate('+Math.atan2(mx,-my).toFixed(2)+'rad)';}else k.inc.style.opacity='0';}e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.hp<=30);e.hpn.textContent=Math.ceil(k.hp);
     e.pips.forEach((b,i)=>b.classList.toggle('on',i<k.rounds));e.vig.style.opacity=k.vig.toFixed(2);e.pow.style.width=clamp(k.tipSp/12,0,1)*100+'%';e.pow.classList.toggle('hot',k.tipSp>7);
+    {const o=K[1-k.i];e.ehp.querySelector('i').style.width=(o.hp/HPMAX*100)+'%';e.ehp.querySelector('b').textContent=Math.ceil(o.hp);}
     e.crowd.style.width=k.crowd+'%';e.st.style.width=(k.st/STMAX*100)+'%';e.st.parentNode.classList.toggle('tired',k.tired);
     e.helmB.style.width=(k.helm/HELM_MAX*100)+'%';e.helm.classList.toggle('broken',!k.helmOn);e.shldB.style.width=(Math.max(0,k.shield)/SHIELD_MAX*100)+'%';e.shld.classList.toggle('broken',!k.shieldOn);}}
 
