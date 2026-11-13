@@ -63,6 +63,8 @@ body{background:var(--stone);color:var(--parchment);font-family:var(--font-body)
 .solo .ehp{display:flex}.ehp div{flex:1;max-width:340px;height:10px;background:#15131a;border:2px solid rgba(242,231,208,.85)}.ehp i{display:block;height:100%}
 #v0 .ehp i{background:var(--crimson)}#v1 .ehp i{background:var(--blue)}.ehp b{font-weight:400;font-variant-numeric:tabular-nums;min-width:2em}
 .view.blackout::after{content:"";position:absolute;inset:0;background:#000;animation:bo .35s ease-in}@keyframes bo{from{opacity:0}}
+.lbx{position:absolute;left:0;right:0;height:0;background:#050407;transition:height .22s ease-out;pointer-events:none}.lbx.t{top:0}.lbx.b{bottom:0}
+.view.cine .lbx{height:12%}.view.cine2 .lbx{height:7%}
 .imp{position:absolute;inset:-10%;opacity:0;display:none;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.75) 0deg 1.2deg,transparent 1.2deg 7deg);-webkit-mask:radial-gradient(circle,transparent 34%,#000 70%);mask:radial-gradient(circle,transparent 34%,#000 70%);backdrop-filter:contrast(1.35) saturate(1.5)}
 .gray{position:absolute;inset:0;display:none;backdrop-filter:grayscale(1) contrast(1.25) brightness(1.08)}
 .hb{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,rgba(120,0,10,0) 40%,rgba(150,0,15,.55) 75%,rgba(90,0,8,.9) 100%)}
@@ -196,7 +198,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
 <div id="stage" class="land">
   <canvas id="gl" aria-label="결투장 화면"></canvas>
   <div class="view" id="v0">
-    <div class="vig"></div><div class="imp"></div><div class="gray"></div><div class="hb"></div>
+    <div class="lbx t"></div><div class="lbx b"></div><div class="vig"></div><div class="imp"></div><div class="gray"></div><div class="hb"></div>
     <div class="bar"><span class="tag">1P 청기사</span><div class="hp"><i></i><span class="hpn">100</span></div><span class="pips" title="딴 라운드"><b></b><b></b></span></div>
     <div class="sub2"><div class="stm" title="스태미나"><i></i></div><span class="gear helm">투구<em><i></i></em></span><span class="gear shld" hidden>방패<em><i></i></em></span></div>
     <div class="pops"></div>
@@ -205,7 +207,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="tpad"><div class="tz l"><i class="tst"><em class="ar u">▲</em><em class="ar l">◀</em><em class="ar r">▶</em><em class="ar d">▼</em><b></b></i><span class="d">이동 · 두 번 톡톡 = 특수 · 톡 후 휙 = 대시</span><span class="s">같은 방향 두 번 = 대시 · 가운데 두 번 = 특수</span></div><div class="tz r"><i class="tst"><b></b></i><span>무기 · 아래 대각선 끝 = 막기</span></div></div>
   </div>
   <div class="view" id="v1">
-    <div class="vig"></div><div class="imp"></div><div class="gray"></div><div class="hb"></div>
+    <div class="lbx t"></div><div class="lbx b"></div><div class="vig"></div><div class="imp"></div><div class="gray"></div><div class="hb"></div>
     <div class="bar"><span class="tag">2P 성전기사</span><div class="hp"><i></i><span class="hpn">100</span></div><span class="pips" title="딴 라운드"><b></b><b></b></span></div>
     <div class="sub2"><div class="stm" title="스태미나"><i></i></div><span class="gear helm">투구<em><i></i></em></span><span class="gear shld" hidden>방패<em><i></i></em></span></div>
     <div class="pops"></div>
@@ -334,7 +336,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -1067,6 +1069,12 @@ function computePose(k){
   k.pose={own,M,U:Um,hand,dir,bA:fl?fl.an:bA,bB:fl?add(k.fh,mulS(fl.cd,0.1)):bB,fl,shM,swordM,lhand:lh2,shR,shL,elR,elL,hipR,hipL,knR,knL,anR,anL,up,back,mback,mup,twist:-axc*0.30,headC,
     hit:[{a:headC,b:headC,r:0.15,p:'head'},{a:mP(Um,[0,1.03,0]),b:mP(Um,[0,1.46,0]),r:0.25,p:'torso'},...(k.armOff?[]:[{a:elR,b:hand,r:0.09,p:'arm'}]),...(k.shOff?[]:[{a:shR,b:elR,r:0.105,p:'shoulder'}]),{a:shL,b:elL,r:0.105,p:'shoulder',L:1},{a:elL,b:lh2,r:0.09,p:'arm',L:1},{a:hipR,b:anR,r:0.115,p:'leg'},{a:hipL,b:anL,r:0.115,p:'leg'}]};
 }
+// special attack: the attacker's view pulls back over the shoulder to show both knights (kept inside the walls)
+function cineCam(k){const o=K[1-k.i];let dx=o.x-k.x,dz=o.z-k.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;const rx=-dz,rz=dx;
+  let best=null;for(const side of [1,-1]){for(const back of [3.1,2.5,1.9,1.4]){const px=k.x-dx*back+rx*1.55*side,pz=k.z-dz*back+rz*1.55*side;if(Math.hypot(px,pz)<=8.6){best=[px,pz];break;}}if(best)break;}
+  if(!best)best=[k.x-dx*0.9,k.z-dz*0.9];
+  const py=2.05,tx=lerp(k.x,o.x,0.5),tz=lerp(k.z,o.z,0.5),ty=1.05,hz=Math.hypot(tx-best[0],tz-best[1]);
+  return mMulN(mT(best[0],py,best[1]),mRY(Math.atan2(-(tx-best[0]),-(tz-best[1]))),mRX(Math.atan2(ty-py,hz)));}
 function camMatrix(k){
   // a severed head keeps seeing: the view tumbles with it and comes to rest on the ground looking back at the body
   if(k.headOff&&k.headDeb){const q=k.headDeb;return mMulN(mT(q.p[0],q.p[1]+0.03,q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0));}
@@ -1306,7 +1314,7 @@ function clashCore(h){
 /* ================= simulation ================= */
 // a sword wave: a tall thin crescent that flies forward; a guard stops it, a fast weapon can cut it apart
 function waveStep(h){
-  for(let i=waves.length-1;i>=0;i--){const q=waves[i],A=K[q.o],D=K[1-q.o];q.l-=h;q.p[0]+=q.d[0]*8*h;q.p[2]+=q.d[2]*8*h;if((subN&15)===0)sparks([q.p[0],rr(0.4,1.9),q.p[2]],1,'hot',0.6,0.03);
+  for(let i=waves.length-1;i>=0;i--){const q=waves[i],A=K[q.o],D=K[1-q.o];q.l-=h;q.p[0]+=q.d[0]*8*h;q.p[2]+=q.d[2]*8*h;q.run=(q.run||0)+8*h;if(q.run>0.28){q.run=0;addMark(MK_CRACK,q.p[0]+rr(-0.05,0.05),q.p[2]+rr(-0.05,0.05),q.yaw+rr(-0.25,0.25),rr(0.04,0.08),rr(0.28,0.4));if(rnd()<0.5)addMark(MK_CRACK,q.p[0]+rr(-0.18,0.18),q.p[2]+rr(-0.18,0.18),q.yaw+rr(-1,1),0.03,rr(0.1,0.18));}if((subN&15)===0)sparks([q.p[0],rr(0.4,1.9),q.p[2]],1,'hot',0.6,0.03);
     if(q.l<=0||Math.hypot(q.p[0],q.p[2])>14){waves.splice(i,1);continue;}
     if(D.dead)continue;
     const a=[q.p[0],0.25,q.p[2]],b=[q.p[0],1.95,q.p[2]],pd=D.pose,mid=[q.p[0],1.2,q.p[2]];
@@ -1321,7 +1329,7 @@ function waveStep(h){
     else if(pn==='arm'&&!best.hb.L&&D.armArmor){D.armA-=brk;if(D.armA<=0){D.armArmor=false;D.armA=0;fling(D.model.vambrace,pd.elR,A,D,[0,0.15,0]);sfx.brk();popAt(A.i,best.pt,'팔 갑옷 파괴','big');}}
     else if(pn==='shoulder'&&!best.hb.L&&D.shArmor){D.shA-=brk;if(D.shA<=0){D.shArmor=false;D.shA=0;fling(D.model.pauld[1],pd.shR,A,D,[0,0,0]);sfx.brk();popAt(A.i,best.pt,'어깨 갑옷 파괴','big');}}
     else if(pn==='leg'&&D.legArmor){D.legA-=brk;if(D.legA<=0){D.legArmor=false;D.legA=0;fling(D.model.greave,pd.knL,A,D,[0,0.2,0]);sfx.brk();popAt(A.i,best.pt,'다리 갑옷 파괴','big');}}
-    quietT=0;freeze=0.08;sparks(best.pt,10,'hot',3,0.025);sparks(best.pt,6,'red',2.6,0.028);sfx.hit(clamp(dmg/36,0.25,1),dmg>=20);buzz(D,[60+dmg*6,40,120],'hurt',dmg);buzz(A,[60,30,80],'hit',dmg);
+    quietT=0;freeze=0.08;sparks(best.pt,10,'hot',3,0.025);sparks(best.pt,6,'red',2.6,0.028);sfx.hit(clamp(dmg/36,0.25,1),dmg>=20);buzz(D,[60+dmg*6,40,120],'hurt',dmg);buzz(A,[60,30,80],'hit',dmg);knock(A,D,2.8);D.stun=Math.max(D.stun,0.35);dust(D,8);
     popAt(A.i,best.pt,'검기 '+(bare?'맨머리':part.n)+' -'+dmg,'dmg big');popFix(D.i,'-'+dmg+' '+part.n);if(LOG)LOG.push(['wave',A.i,pn,dmg]);
     if(practice){D.hp=Math.max(1,D.hp);D.regenT=1.6;}
     if(D.hp<=0)knockOut(A,D);}
@@ -1395,12 +1403,14 @@ function step(h){
     }else if(k.sp&&!k.thr){const S=k.sp;S.t+=h;k.charge=1;k.trav=2;let tx=0,ty=REST[1],end=1;
       if(k.weapon===0){end=0.75;if(S.t<0.3){tx=0;ty=2.4;k.hitCd=Math.max(k.hitCd,0.05);k.armCd=Math.max(k.armCd,0.05);}else{tx=0;ty=-0.6;
           if(!S.fired&&k.ay<1.1){S.fired=true;const M=mRY(k.yaw+k.turn*0),f=norm([-M[8],0,-M[10]]);waves.push({p:[k.x+f[0]*0.9,1.15,k.z+f[2]*0.9],d:f,yaw:k.yaw,o:k.i,l:1.3});sfx.thrust();k.shake=Math.max(k.shake,0.5);}}} // sword: cut straight down from overhead and send a wave of force flying forward
-      else if(k.weapon===3){end=0.85;if(S.t<0.32){tx=0;ty=2.5;k.hitCd=Math.max(k.hitCd,0.05);k.armCd=Math.max(k.armCd,0.05);}else{tx=0;ty=-0.75;}}                    // hammer: up over the head, then straight down
-      else{end=1.5;tx=0;ty=0.95;                                                                        // flail: hold the handle up and whirl the head around
+      else if(k.weapon===3){end=0.85;if(S.t<0.32){tx=0;ty=2.5;k.hitCd=Math.max(k.hitCd,0.05);k.armCd=Math.max(k.armCd,0.05);}else{tx=0;ty=-0.75;if(!S.quake&&k.ay<-0.3){S.quake=true;quake(k);}}}                    // hammer: up over the head, then straight down
+      else{end=1.5;tx=0;ty=0.95;k.flHeat=Math.min(1,S.t/1.2);                                          // flail: hold the handle up and whirl the head around
+        if(rnd()<h*40&&particles.length<70){const a=rnd()*TAU,r=rr(0.8,1.5),sp=2.4*S.side;particles.push({p:[k.x+Math.cos(a)*r,rr(0.05,0.9),k.z+Math.sin(a)*r],v:[-Math.sin(a)*sp,rr(0.5,1.4),Math.cos(a)*sp],l:rr(0.4,0.8),m:PART_COLS.dust,s:0.05*rr(0.7,1.4),fl:true});} // sand swirling round
+        if(!S.thrown&&S.t>end-0.32&&k.fh){S.thrown=true;const o=K[1-k.i],to=norm([o.x-k.fh[0],0.15,o.z-k.fh[2]]),V=19;k.fhp=[k.fh[0]-to[0]*V*h,k.fh[1]-to[1]*V*h,k.fh[2]-to[2]*V*h];sfx.thrust();k.shake=Math.max(k.shake,0.4);} // the last turn is let fly at the opponent
         if(k.fh){const an=add(k.pose.hand,mulS(k.pose.dir,FL_A)),r=[k.fh[0]-an[0],0,k.fh[2]-an[2]],rl=Math.hypot(r[0],r[2]);
           const tg=rl>0.05?[-r[2]/rl*S.side,0,r[0]/rl*S.side]:[Math.cos(k.yaw),0,-Math.sin(k.yaw)],a=70*h*h;k.fh[0]+=tg[0]*a+(rl<0.3?tg[2]*a:0);k.fh[2]+=tg[2]*a-(rl<0.3?tg[0]*a:0);k.fh[1]+=7*h*h;}}
       const K2=k.weapon===3?150:260,C2=2*Math.sqrt(K2);k.vx+=((tx-k.ax)*K2-k.vx*C2)*h;k.vy+=((ty-k.ay)*K2-k.vy*C2)*h;
-      if(S.t>=end||k.stag>0)k.sp=null;
+      if(S.t>=end||k.stag>0){k.sp=null;k.flHeat=0;}
     }else if(k.thr){const T=k.thr;T.w+=h; // line the point up first, then drive it forward
       if(T.t<0.07&&T.w<0.1&&Math.hypot(T.tx-k.ax,T.ty-k.ay)>0.12)T.t=Math.min(T.t+h,0.069);else T.t+=h*(T.sc||1);
       k.ext=w.ext*thrProf(T.t)*(T.big?1.5:1);
@@ -1616,8 +1626,9 @@ function drawKnight(k,own){
   draw(m.thigh,segM(p.hipL,p.knL,p.mback,p.mup));if(!k.legOff)draw(k.legArmor?m.shin:m.shinBare,segM(p.knL,p.anL,p.mback,p.mup));
   if(!k.armOff&&!k.dis){const g=clamp((k.charge-0.45)/0.55,0,1)*(0.75+0.25*Math.sin(time*22));if(g>0)gl.uniform3f(U.uTint,0.95*g,0.7*g,0.22*g);draw(m.weap[k.weapon],q.swordM);if(g>0)gl.uniform3f(U.uTint,tb[0],tb[1],tb[2]);}
   if(p.fl&&!k.armOff&&!k.dis){const an=p.fl.an,cd=p.fl.cd,z=mulS(cd,-1);let x=cross(p.up,cd);if(len(x)<0.05)x=cross(p.back,cd);x=norm(x);const y=cross(z,x);
+    const ht=k.flHeat||0;if(ht>0)gl.uniform3f(U.uTint,ht*1.1,ht*0.28,0);
     for(let n=1;n<=8;n++){const q=lerp3(an,k.fh,n/9.5),sc=n%2?[0.04,0.013,0.06]:[0.013,0.04,0.06];draw(PART_COLS.steel,mMulN(mBasis(x,y,z,q),mS(sc[0],sc[1],sc[2])));}
-    draw(m.flailHead,mMul(mBasis(x,y,z,k.fh),mT(0,0,0.73)));}
+    draw(m.flailHead,mMul(mBasis(x,y,z,k.fh),mT(0,0,0.73)));if(ht>0)gl.uniform3f(U.uTint,tb[0],tb[1],tb[2]);}
   if(k.shieldOn)draw(m.shield,own?mMul(mT(p.up[0]*-0.13,p.up[1]*-0.13,p.up[2]*-0.13),p.shM):p.shM);
   gl.uniform3f(U.uTint,0,0,0);
 }
@@ -1627,23 +1638,23 @@ function render(){
   gl.enable(gl.SCISSOR_TEST);
   for(const vp of views){
     const v=vp.k,k=K[v];gl.viewport(vp.x,vp.y,vp.w,vp.h);gl.scissor(vp.x,vp.y,vp.w,vp.h);
-    const dbg=window.__duel.cam||extCam,cam=dbg?dbg(v):camMatrix(k),asp=vp.w/vp.h,fov=dbg?0.8:(asp<1?1.5:1.5-Math.min(0.35,(asp-1)*0.4))*(1-0.16*(k.zoom||0))+0.2*(k.fovB||0);
+    const dbg=window.__duel.cam||extCam,cam=dbg?dbg(v):k.cine?cineCam(k):camMatrix(k),asp=vp.w/vp.h,fov=dbg?0.8:k.cine?0.95:(asp<1?1.5:1.5-Math.min(0.35,(asp-1)*0.4))*(1-0.16*(k.zoom||0))+0.2*(k.fovB||0);
     const VP=mMul(mPersp(fov,asp,0.07,600),mInvRigid(cam));k.VP=VP;
     gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3f(U.uCam,cam[12],cam[13],cam[14]);gl.uniform3f(U.uTint,0,0,0);gl.uniform1f(U.uAlpha,1);
     gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.uniform1f(U.uEmis,1);draw(sky,mT(cam[12],cam[13]*0.5,cam[14]));
     gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.uniform1f(U.uEmis,0);draw(arena,mI());for(let j=0;j<3;j++)draw(crowdMesh[j],mT(0,hype*0.16*Math.abs(Math.sin(time*9+j*2.1)),0)); // the stands jump when the crowd is excited
     for(const mk of marks)draw(mk.m,mk.M);
     if(flagUp>0.01)for(let j=0;j<16;j++){const a=j/16*TAU+0.1,sw=Math.sin(time*5.5+j*1.3)*0.6;draw(FLAG[celebW],mMulN(mT(Math.cos(a)*11.5,2.3+flagUp*2+Math.abs(Math.sin(time*7+j))*0.15,Math.sin(a)*10.6),mRY(-a+PI/2+sw),mRZ(Math.sin(time*3+j)*0.12)));}
-    gl.uniform1f(U.uSpec,1);for(const kk of K)drawKnight(kk,!dbg&&kk===k&&!k.headOff);
+    gl.uniform1f(U.uSpec,1);for(const kk of K)drawKnight(kk,!dbg&&kk===k&&!k.headOff&&!k.cine);
     for(const q of debris){if(q.hide||(q.gone&&!replay)||(!dbg&&q===k.headDeb))continue;draw(q.m,mMulN(mT(q.p[0],q.p[1],q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0),mT(q.off[0],q.off[1],q.off[2])));}gl.uniform1f(U.uSpec,0);
     // blob shadows
     gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.uniform1f(U.uEmis,1);gl.uniform1f(U.uAlpha,0.38);
     for(const kk of K)draw(shadowMesh,mMulN(mT(kk.x+0.12,0.012,kk.z-0.1),mS(0.42,1,0.42)));
     // swing trails
     gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
-    for(const kk of K)if(trails[kk.i].n){gl.uniform1f(U.uAlpha,!dbg&&kk===k?0.3:1);draw(trails[kk.i],mI());}
+    for(const kk of K)if(trails[kk.i].n){gl.uniform1f(U.uAlpha,!dbg&&kk===k&&!k.cine?0.3:1);draw(trails[kk.i],mI());}
     ghosts=ghosts.filter(g=>time-g.t<0.4); // afterimages: glowing, fading copies of the spear (faint in the stabber's own view)
-    for(const g of ghosts){const f=1-(time-g.t)/0.4;gl.uniform1f(U.uAlpha,f*f*(g.big?0.85:0.6)*(!dbg&&g.i===k.i?0.35:1));gl.uniform3f(U.uTint,1.1,0.8,0.3);draw(K[g.i].model.weap[g.w],g.M);}
+    for(const g of ghosts){const f=1-(time-g.t)/0.4;gl.uniform1f(U.uAlpha,f*f*(g.big?0.85:0.6)*(!dbg&&g.i===k.i&&!k.cine?0.35:1));gl.uniform3f(U.uTint,1.1,0.8,0.3);draw(K[g.i].model.weap[g.w],g.M);}
     gl.uniform3f(U.uTint,0,0,0);
     gl.uniform1f(U.uAlpha,1);
     gl.disable(gl.BLEND);gl.depthMask(true);
@@ -1691,15 +1702,22 @@ function thrownHits(){for(const q of debris){if(q.th==null||q.rest)continue;cons
     sparks(q.p,6,'red',1.8,0.025);sfx.hit(0.25,false);buzz(k,60,'hurt',dmg);popAt(k.i,q.p,'퍽!','hurt');}}
 // ---------- effects
 let marks=[],rings=[],grayT=0,celebT=0,celebW=0,flagUp=0,celebThrow=0;
-const MK_FOOT=colCube('mkF',hex('#a7825e')),MK_BLOOD=[colCube('mkB',hex('#7a1c1c')),colCube('mkB2',hex('#5e1414'))];
+const MK_CRACK=colCube('mkC',hex('#5d4330')),MK_FOOT=colCube('mkF',hex('#a7825e')),MK_BLOOD=[colCube('mkB',hex('#7a1c1c')),colCube('mkB2',hex('#5e1414'))];
 function addMark(m,x,z,rot,sx,sz){marks.push({m,M:mMulN(mT(x,0.004,z),mRY(rot),mS(sx,0.006,sz))});if(marks.length>180)marks.shift();}
 function footprint(k,p){if(state!=='fight'&&state!=='ko')return;addMark(MK_FOOT,p[0],p[2],k.yaw,0.1,0.24);if(Math.hypot(k.mvx,k.mvz)>1.6)sparks([p[0],0.05,p[2]],2,'dust',0.7,0.03);}
 function bleed(D,pt,dmg){if(!pt)return;const n=1+Math.min(4,Math.floor(dmg/8));for(let i=0;i<n;i++){const t=rnd(),x=lerp(D.x,pt[0],t)+rr(-0.25,0.25),z=lerp(D.z,pt[2],t)+rr(-0.25,0.25),r=rr(0.05,0.1+dmg*0.004);addMark(MK_BLOOD[i%2],x,z,rnd()*PI,r,r*rr(0.6,1.4));}}
 function dust(k,n){for(let i=0;i<n&&particles.length<70;i++){const a=rnd()*TAU,sp=rr(0.6,1.5);particles.push({p:[k.x+Math.cos(a)*0.25,0.06,k.z+Math.sin(a)*0.25],v:[Math.cos(a)*sp,rr(0.8,1.8),Math.sin(a)*sp],l:rr(0.35,0.7),m:PART_COLS.dust,s:0.05*rr(0.7,1.4)});}}
+function quake(k){const b=k.pose.bB,cx=b[0],cz=b[2],o=K[1-k.i];
+  for(let r=0;r<9;r++){const a=r/9*TAU+rr(-0.2,0.2);let x=cx,z=cz;for(let j=0;j<4;j++){const st=rr(0.25,0.4);x+=Math.cos(a)*st;z+=Math.sin(a)*st;addMark(MK_CRACK,x,z,-a+PI/2+rr(-0.3,0.3),rr(0.04,0.07),st*1.1);}} // cracks running out from the blow
+  for(let i=0;i<26&&particles.length<70;i++){const a=i/26*TAU,sp=rr(2.5,4);particles.push({p:[cx,0.08,cz],v:[Math.cos(a)*sp,rr(0.6,1.6),Math.sin(a)*sp],l:rr(0.4,0.7),m:PART_COLS.dust,s:0.06*rr(0.8,1.4)});}
+  ringAt([cx,0.15,cz],true);sfx.block(1);sfx.brk();k.shake=Math.max(k.shake,0.7);o.shake=Math.max(o.shake,0.6);hype=Math.min(100,hype+30);buzz(k,[80,40,120],'block');
+  if(!o.dead&&Math.hypot(o.x-cx,o.z-cz)<2.6){o.stag=Math.max(o.stag,0.55);o.flinch=Math.min(1,o.flinch+0.5);knock(k,o,1.8);poseDirty=true;popFix(o.i,'땅이 흔들려 휘청!');buzz(o,[120,50,160],'hurt',8);}}
 function ringAt(pt,spc){rings.push({p:pt.slice(),t:0,spc,el:K.map(k=>{const e=document.createElement('i');e.className='ring'+(spc?' spc':'');k.el.root.appendChild(e);return e;})});}
 function proj(VP,p){const w=VP[3]*p[0]+VP[7]*p[1]+VP[11]*p[2]+VP[15];if(w<=0.01)return null;return[(VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+VP[12])/w,(VP[1]*p[0]+VP[5]*p[1]+VP[9]*p[2]+VP[13])/w];}
 function celebrate(A){celebT=2.4;celebW=A.i;celebThrow=0;}
 function fxStep(dt,sd){
+  for(const k of K){const act=state==='fight'&&!k.dead&&(k.tele>0||!!k.sp||!!(k.thr&&k.thr.fl));k.cineT=act?0.45:(k.cineT||0)-dt;k.cine=k.cineT>0&&state==='fight';}
+  for(const k of K){const r=k.el.root;r.classList.toggle('cine',!!k.cine);r.classList.toggle('cine2',!k.cine&&!!K[1-k.i].cine);}
   for(const k of K){const on=state==='fight'&&!practice&&!k.dead&&k.hp<=SP_HP;
     if(on&&!k.auraOn){popFix(k.i,'특수 공격 가능!');buzz(k,[30,40,30,40,80],'salute');sfx.warn();}k.auraOn=on;
     k.aura+=((on?1:0)-k.aura)*Math.min(1,3*dt);
