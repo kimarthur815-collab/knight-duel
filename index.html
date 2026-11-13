@@ -68,6 +68,8 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 .stick b{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(242,231,208,.7);transform:translate(-50%,-50%)}
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
+#tut{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:min(92%,560px);display:flex;gap:10px;align-items:center;padding:8px 12px;background:rgba(34,31,41,.88);border:2px solid var(--gold);font-size:15px;line-height:1.45}
+#tutText{flex:1}#tutSkip{font-size:13px;padding:5px 9px;box-shadow:none;border-width:2px;white-space:nowrap}
 #diag{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-size:11px;color:var(--muted);text-shadow:1px 1px 0 #000;pointer-events:none;white-space:nowrap;display:none}.playing #diag{display:block}
 #banner.rep{top:12%;font-size:clamp(22px,4vw,40px);color:var(--gold)}
 .replay .view{visibility:hidden!important}
@@ -162,6 +164,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
   <div id="divider"></div>
   <div id="banner" hidden></div>
   <div id="diag" aria-hidden="true"></div>
+  <div id="tut" hidden><span id="tutText" role="status"></span><button type="button" id="tutSkip">건너뛰기</button></div>
 
   <section id="title">
     <div class="tin">
@@ -190,6 +193,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <div class="seg" role="group" aria-label="2P 조종 방식">
           <button type="button" id="mH" aria-pressed="true">2P 사람</button><button type="button" id="mC" aria-pressed="false">2P 컴퓨터</button>
         </div>
+        <button type="button" id="tutorial">튜토리얼</button>
         <button type="button" id="practice">연습</button>
         <button type="button" id="start">결투 시작<small>Space</small></button>
       </div>
@@ -813,6 +817,7 @@ function attackCore(A,D,h){
   popAt(A.i,best.pt,(bare?'맨머리':part.n)+' -'+dmg+(practice?' · '+sp.toFixed(1)+'m/s':''),big?'dmg big':'dmg');popFix(D.i,'-'+dmg+' '+part.n);
   if(LOG)LOG.push(['hit',A.i,pn,dmg,+sp.toFixed(1),thrusting?'thrust':'swing']);
   if(pn==='head'&&D.helmOn){D.helm-=dmg*w.brk;if(D.helm<=0){D.helmOn=false;D.helm=0;fling(D.model.head,pd.headC,A,D,[0,-1.7,0]);sfx.brk();popAt(A.i,pd.headC,'투구 파괴','big');if(LOG)LOG.push(['helmbreak',D.i]);}}
+  if(tut)tut.ev.push({i:A.i,p:pn,thr:thrusting,ch:A.charge});
   if(practice){D.hp=Math.max(1,D.hp);D.regenT=1.6;}
   if(D.hp<=0)knockOut(A,D);
 }
@@ -1105,7 +1110,7 @@ function frame(ts){
   if(state==='title')return;
   time+=dt;stateT+=dt;
   if(state==='intro'){
-    if(introStage===0&&stateT>0.1){banner(practice?'연습':K[0].rounds&&K[1].rounds?'마지막 라운드':round+'라운드');sfx.tick();introStage=1;}
+    if(introStage===0&&stateT>0.1){banner(tut?'튜토리얼':practice?'연습':K[0].rounds&&K[1].rounds?'마지막 라운드':round+'라운드');sfx.tick();introStage=1;}
     if(introStage===1&&stateT>1.4){for(const k of K)if(k.phone)k.phone.c.send({t:'c'});banner('시작!','go');sfx.bell();introStage=2;state='fight';stateT=0;}
   }
   if(state==='fight'&&introStage===2&&stateT>0.7){banner('');introStage=3;}
@@ -1134,7 +1139,7 @@ function frame(ts){
   for(const q of debris){if(q.rest)continue;q.v[1]-=9.8*sd;q.p[0]+=q.v[0]*sd;q.p[1]+=q.v[1]*sd;q.p[2]+=q.v[2]*sd;q.r[0]+=q.w[0]*sd;q.r[1]+=q.w[1]*sd;
     if(q.p[1]<0.14){q.p[1]=0.14;if(Math.abs(q.v[1])<1.2){q.rest=true;q.r[0]=PI/2;}else{q.v[1]*=-0.35;q.v[0]*=0.5;q.v[2]*=0.5;q.w[0]*=0.5;q.w[1]*=0.5;}}}
   if(state==='fight'||state==='ko'){hist.push(snap(time));if(hist.length>260)hist.shift();}
-  render();hud();whooshUpdate();
+  tutStep(dt);render();hud();whooshUpdate();
   fpsN++;if(now-fpsT>=1){const el=$('diag');if(el){el.textContent=fpsN+'fps'+K.map(k=>k.phone?' · '+(k.i+1)+'P 폰 '+(k.phone.rtt<0?'?':k.phone.rtt)+'ms/'+k.phone.rate+'회':'').join('');}fpsN=0;fpsT=now;}
 }
 function startRound(){
@@ -1142,13 +1147,32 @@ function startRound(){
   K.forEach(resetKnight);particles=[];debris=[];state='intro';stateT=0;introStage=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
   $('title').hidden=true;$('ko').hidden=true;banner('');K.forEach(k=>k.el.pops.textContent='');stage.classList.add('playing');
 }
-function startPractice(){practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
-function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';K[0].cpu=false;
+function startPractice(){tut=null;tutShow();practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
+// tutorial: practice opponent plus a list of small tasks, each ticked off when the game sees it done
+let tut=null;
+const TUT=[
+  {k:'A와 D를 번갈아 눌러 무기를 좌우 끝까지 움직여 보세요.',p:'폰을 좌우로 돌려 무기를 양쪽 끝까지 움직여 보세요.',ok:(k,t)=>{if(k.ax<-0.8)t.f.l=1;if(k.ax>0.8)t.f.r=1;return t.f.l&&t.f.r;}},
+  {k:'W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면의 조이스틱을 위로 밀어 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
+  {k:'옆으로 베기: A를 눌러 무기를 옆으로 보냈다가 D로 휘둘러 맞혀 보세요.',p:'옆으로 베기: 폰을 옆으로 뺐다가 휘둘러 상대를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&!e.thr)},
+  {k:'내려치기: W로 무기를 들었다가 S로 내려쳐 머리를 맞혀 보세요.',p:'내려치기: 폰을 위로 들었다가 내려쳐 머리를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.p==='head')},
+  {k:'크게 젖히기: W나 A를 길게 눌러 머리 뒤나 옆으로 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',p:'크게 젖히기: 칼끝을 머리 뒤나 어깨 뒤까지 넘겼다가 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.ch>0.5)},
+  {k:'찌르기: 같은 키를 빠르게 두 번 누르세요. (예: W W)',p:'찌르기: 폰을 칼끝 방향으로 짧고 빠르게 내지르세요.',ok:(k,t)=>{if(k.thr)t.f.th=1;return t.f.th;}},
+  {k:'막기: S+A 또는 S+D를 1초 동안 누르고 있으세요.',p:'막기: 칼끝을 비스듬히 아래로 내린 채 1초 동안 버티세요.',ok:(k,t,dt)=>{t.f.g=k.guard>0.5?(t.f.g||0)+dt:0;return t.f.g>1;}},
+  {k:'돌기: Q와 E로 몸을 좌우로 돌려 보세요.',p:null,ok:(k,t)=>{if(k.turn>0.5)t.f.a=1;if(k.turn<-0.5)t.f.b=1;return t.f.a&&t.f.b;}}];
+function tutShow(){const el=$('tut');if(!tut){el.hidden=true;return;}el.hidden=false;
+  if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(폰은 다시 하기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
+  const st=TUT[tut.i],ph=K[0].phLive;$('tutSkip').hidden=false;$('tutText').textContent=(tut.done>0?'좋아요! ':'')+'('+(tut.i+1)+'/'+TUT.length+') '+(ph?st.p:st.k);}
+function tutNext(){if(!tut)return;tut.i++;tut.f={};tut.ev=[];tut.done=0.9;while(tut.i<TUT.length&&K[0].phLive&&!TUT[tut.i].p)tut.i++;sfx.tick();tutShow();}
+function tutStep(dt){if(!tut||tut.i>=TUT.length||state!=='fight')return;if(tut.done>0){tut.done-=dt;if(tut.done<=0)tutShow();}
+  if(tut.ph!==K[0].phLive){tut.ph=K[0].phLive;tutShow();}
+  if(TUT[tut.i].ok(K[0],tut,dt))tutNext();else tut.ev=[];}
+function startTutorial(){practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();stage.classList.add('practice');tut={i:0,f:{},ev:[],done:0,ph:null};tutShow();}
+function startMatch(){tut=null;tutShow();practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';K[0].cpu=false;
   // a screen with no keyboard and only one phone connected: the computer plays the other knight
   if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.seen<6000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
   try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
   audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
-function toTitle(){replay=null;extCam=null;stage.classList.remove('replay');state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
+function toTitle(){tut=null;tutShow();replay=null;extCam=null;stage.classList.remove('replay');state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
 
 /* ================= input ================= */
 const KEYMAP={KeyQ:[0,'tl'],KeyE:[0,'tr'],Comma:[1,'tl'],Period:[1,'tr'],KeyW:[0,'u'],KeyS:[0,'d'],KeyA:[0,'l'],KeyD:[0,'r'],ArrowUp:[1,'u'],ArrowDown:[1,'d'],ArrowLeft:[1,'l'],ArrowRight:[1,'r']};
@@ -1180,7 +1204,7 @@ stage.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)ret
 const pend=e=>{const p=ptrs.get(e.pointerId);if(!p)return;ptrs.delete(e.pointerId);const k=K[p.pi];k.touch=[0,0];k.tprev=[0,0];k.el.stick.classList.remove('on');};
 stage.addEventListener('pointerup',pend);stage.addEventListener('pointercancel',pend);
 stage.addEventListener('contextmenu',e=>e.preventDefault());
-$('start').addEventListener('click',startMatch);$('practice').addEventListener('click',startPractice);$('again').addEventListener('click',startMatch);$('back').addEventListener('click',toTitle);
+$('start').addEventListener('click',startMatch);$('tutorial').addEventListener('click',startTutorial);$('tutSkip').addEventListener('click',tutNext);$('practice').addEventListener('click',startPractice);$('again').addEventListener('click',startMatch);$('back').addEventListener('click',toTitle);
 const setMode=c=>{K[1].cpu=c;$('mH').setAttribute('aria-pressed',String(!c));$('mC').setAttribute('aria-pressed',String(c));};
 $('mH').addEventListener('click',()=>setMode(false));$('mC').addEventListener('click',()=>setMode(true));
 function setWeapon(p,w){K[p].weapon=w;document.querySelectorAll('.wsel button[data-p="'+p+'"]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===w)));$('wd'+p).textContent=WEAPONS[w].desc;}
@@ -1201,7 +1225,7 @@ function pairOpen(p){
   if(!pairCode){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';pairCode='';for(let i=0;i<5;i++)pairCode+=A[Math.floor(Math.random()*A.length)];
     netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);}
