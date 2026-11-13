@@ -68,6 +68,8 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 .stick b{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(242,231,208,.7);transform:translate(-50%,-50%)}
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
+#fullGame{position:absolute;right:8px;bottom:28px;display:none;font-size:18px;line-height:1;padding:4px 8px;box-shadow:none;border-width:2px;opacity:.6}.playing #fullGame{display:block}
+button small{font-size:12px;opacity:.7;margin-left:6px}
 #tut{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:min(92%,560px);display:flex;gap:10px;align-items:center;padding:8px 12px;background:rgba(34,31,41,.88);border:2px solid var(--gold);font-size:15px;line-height:1.45}
 #tutText{flex:1}#tutSkip{font-size:13px;padding:5px 9px;box-shadow:none;border-width:2px;white-space:nowrap}
 #diag{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);font-size:11px;color:var(--muted);text-shadow:1px 1px 0 #000;pointer-events:none;white-space:nowrap;display:none}.playing #diag{display:block}
@@ -115,6 +117,9 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
 #padWho{margin:0;font-family:var(--font-display);font-size:22px;color:var(--gold)}
 #padStatus{margin:0;font-size:15px;line-height:1.5;min-height:3em}
 #padOn{font-size:26px;padding:22px;background:var(--gold);color:#1c1820;border-color:#1c1820}
+#padHow{display:flex;flex-direction:column;gap:10px}#padHow svg{width:100%;max-height:38vh;background:#15131a;border:2px solid var(--muted)}#padHow svg text{font-family:var(--font-body)}
+.padSteps{margin:0;padding-left:1.3em;display:grid;gap:6px;font-size:14.5px;line-height:1.5}
+#padHowOk{font-size:20px;padding:16px;background:var(--gold);color:#1c1820;border-color:#1c1820}
 #padPlay{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
 #padAim{position:relative;align-self:center;width:96px;height:96px;border:2px solid var(--muted);border-radius:50%}
 #padDot{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px}
@@ -164,6 +169,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
   <div id="divider"></div>
   <div id="banner" hidden></div>
   <div id="diag" aria-hidden="true"></div>
+  <button type="button" class="fullBtn" id="fullGame" aria-label="전체 화면">⛶</button>
   <div id="tut" hidden><span id="tutText" role="status"></span><button type="button" id="tutSkip">건너뛰기</button></div>
 
   <section id="title">
@@ -193,11 +199,13 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <div class="seg" role="group" aria-label="2P 조종 방식">
           <button type="button" id="mH" aria-pressed="true">2P 사람</button><button type="button" id="mC" aria-pressed="false">2P 컴퓨터</button>
         </div>
+        <button type="button" class="fullBtn">전체 화면<small>F</small></button>
         <button type="button" id="tutorial">튜토리얼</button>
         <button type="button" id="practice">연습</button>
         <button type="button" id="start">결투 시작<small>Space</small></button>
       </div>
       <div id="padJoin" hidden><label for="padCode">이 폰을 무기 손잡이로 쓰기</label><input id="padCode" maxlength="5" placeholder="코드 5자리" autocapitalize="characters" autocomplete="off" spellcheck="false"><button type="button" data-p="0">1P로 연결</button><button type="button" data-p="1">2P로 연결</button></div>
+      <p id="fullMsg" class="wdesc" role="status" style="min-height:0;padding:0"></p>
       <ul class="rules">
         <li>키로 무기를 움직이면 시선이 따라가고 몸도 그쪽으로 걷는다. 거리는 직접 맞춘다. 키를 떼면 중단 자세로 돌아온다. Q·E(2P는 쉼표·마침표)로 몸을 좌우로 돌린다.</li>
         <li>빠르게 벨수록 피해가 크다. 머리 1.8배, 몸통 1배, 다리 0.7배, 팔 0.5배. 3판 2선승.</li>
@@ -216,11 +224,33 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <p id="padWho"></p>
     <p id="padStatus" role="status"></p>
     <button type="button" id="padOn">센서 켜기</button>
+    <div id="padHow" hidden>
+      <svg viewBox="0 0 300 250" role="img" aria-label="폰을 칼 손잡이처럼 쥐는 그림: 아래쪽을 쥐고 위쪽 끝이 화면을 향한다">
+        <rect x="222" y="18" width="66" height="44" fill="none" stroke="#b9aec4" stroke-width="3"/><rect x="246" y="62" width="18" height="8" fill="#b9aec4"/>
+        <text x="255" y="45" text-anchor="middle" font-size="13" fill="#b9aec4">게임 화면</text>
+        <g transform="rotate(48 110 150)">
+          <rect x="88" y="52" width="44" height="150" rx="7" fill="#35303f" stroke="#f2e7d0" stroke-width="3"/>
+          <rect x="94" y="64" width="32" height="96" fill="#4a5ca6" opacity=".55"/>
+          <path d="M80 150 q-14 22 0 52 h60 q14 -30 0 -52 z" fill="#c99a7a" stroke="#1c1820" stroke-width="2.5"/>
+          <path d="M84 162 h52 M84 176 h52 M86 190 h48" stroke="#1c1820" stroke-width="2"/>
+        </g>
+        <path d="M178 96 L214 64" stroke="#d2a94e" stroke-width="4"/><path d="M219 59 l-14 3 l9 10 z" fill="#d2a94e"/>
+        <text x="20" y="36" font-size="15" fill="#d2a94e">위쪽 끝 = 칼끝</text>
+        <text x="24" y="238" font-size="15" fill="#f2e7d0">아래쪽을 손잡이처럼 쥔다</text>
+      </svg>
+      <ol class="padSteps">
+        <li>폰 아래쪽 절반을 칼 손잡이처럼 쥡니다. 엄지는 화면 아래 조이스틱 칸에 둡니다.</li>
+        <li>폰 위쪽 끝이 칼끝입니다. 게임 화면을 겨누세요.</li>
+        <li>폰의 얇은 옆면이 칼날입니다. 날을 세워 베면 더 세게 들어갑니다(장검).</li>
+        <li>화면을 겨눈 채 아래 버튼을 누르면 그 방향이 정면이 됩니다.</li>
+      </ol>
+      <button type="button" id="padHowOk">이렇게 쥐었어요 (정면 맞추기)</button>
+    </div>
     <div id="padPlay" hidden>
       <div id="padAim" aria-hidden="true"><i id="padDot"></i></div>
       <p class="padHelp">폰 위쪽 끝이 칼끝입니다. 손잡이처럼 쥐고 컴퓨터 화면을 겨눈 뒤 정면 맞추기를 누르세요. 앞으로 짧게 내지르면 찌르기입니다.</p>
       <div class="padRow"><button type="button" id="padCenter">정면 맞추기</button><button type="button" id="padRestart">결투 시작 · 다시 하기</button></div>
-      <div class="padRow"><button type="button" id="padVib">진동 시험</button></div><p class="padHelp" id="padVibInfo"></p>
+      <div class="padRow"><button type="button" id="padVib">진동 시험</button><button type="button" id="padHowAgain">잡는 법 보기</button></div><p class="padHelp" id="padVibInfo"></p>
       <div id="padJoy" aria-label="이동 조이스틱"><i id="padNub"></i><span>여기를 누른 채 끌어서 이동</span></div>
     </div>
   </section>
@@ -354,9 +384,11 @@ function runPad(code,p){
     if(!sensing){addEventListener('deviceorientation',onOri);addEventListener('devicemotion',onMot);sensing=true;}
     try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
     try{pac=pac||new(window.AudioContext||window.webkitAudioContext)();if(pac.state==='suspended')pac.resume();}catch(_){}
-    $('padOn').hidden=true;$('padPlay').hidden=false;$('padVibInfo').textContent=canVib?'':'이 브라우저는 진동을 지원하지 않아 폰 스피커의 둔탁한 소리로 대신합니다.';say(conn?'연결됨. 화면을 겨누고 정면 맞추기를 누르세요.':'센서 켜짐. 컴퓨터 연결을 기다리는 중…');
+    $('padOn').hidden=true;$('padHow').hidden=false;$('padVibInfo').textContent=canVib?'':'이 브라우저는 진동을 지원하지 않아 폰 스피커의 둔탁한 소리로 대신합니다.';say(conn?'연결됨. 화면을 겨누고 정면 맞추기를 누르세요.':'센서 켜짐. 컴퓨터 연결을 기다리는 중…');
     setTimeout(()=>{if(!gotEvent)say('동작 센서 값이 들어오지 않습니다. https 주소로 열었는지, 센서가 있는 기기인지 확인하세요.');},1800);
   });
+  $('padHowOk').addEventListener('click',()=>{$('padHow').hidden=true;$('padPlay').hidden=false;yaw0=yaw;});
+  $('padHowAgain').addEventListener('click',()=>{$('padPlay').hidden=true;$('padHow').hidden=false;});
   $('padVib').addEventListener('click',()=>{feel([120,60,120]);$('padVibInfo').textContent=canVib?'진동을 보냈습니다. 안 울리면 폰의 진동 설정(무음·방해 금지·절전)을 확인하세요.':'이 브라우저는 진동을 지원하지 않아 소리로 대신합니다.';});
   $('padRestart').addEventListener('click',()=>{if(conn)conn.send({t:'rs'});});
   $('padCenter').addEventListener('click',()=>{yaw0=yaw;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
@@ -1209,6 +1241,11 @@ const setMode=c=>{K[1].cpu=c;$('mH').setAttribute('aria-pressed',String(!c));$('
 $('mH').addEventListener('click',()=>setMode(false));$('mC').addEventListener('click',()=>setMode(true));
 function setWeapon(p,w){K[p].weapon=w;document.querySelectorAll('.wsel button[data-p="'+p+'"]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===w)));$('wd'+p).textContent=WEAPONS[w].desc;}
 document.querySelectorAll('.wsel button').forEach(b=>b.addEventListener('click',()=>setWeapon(+b.dataset.p,+b.dataset.w)));
+// full screen: button or F key (needs a click or key press, and the host page must allow it)
+function toggleFull(){try{const d=document,el=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d);}
+    else{const r=(el.requestFullscreen||el.webkitRequestFullscreen);if(!r){$('fullMsg').textContent='이 브라우저는 전체 화면을 지원하지 않습니다.';return;}const pr=r.call(el);if(pr&&pr.catch)pr.catch(()=>{$('fullMsg').textContent='전체 화면이 막혀 있습니다. 브라우저 메뉴의 전체 화면을 써 주세요.';});}}catch(_){}}
+document.querySelectorAll('.fullBtn').forEach(b=>b.addEventListener('click',toggleFull));
+addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT'))toggleFull();});
 addEventListener('resize',resize);
 function probe(A,D){const pa=A.pose,pd=D.pose,inv=mInvRigid(pd.shM),la=mP(inv,pa.bA),lb=mP(inv,pa.bB);la[1]+=0.02;lb[1]+=0.02;if(D.shieldOn&&segBox(la,lb,[0.26,0.39,0.05])>=0)return'#';
   let best=null;for(const hb of pd.hit){const r=segSeg(pa.bA,pa.bB,hb.a,hb.b),pen=hb.r-r[0];if(pen>0&&(!best||pen>best.pen))best={pen,hb};}
