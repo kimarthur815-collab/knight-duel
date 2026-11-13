@@ -332,13 +332,16 @@ function runPad(code,p){
   $('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;
   const say=t=>{$('padStatus').textContent=t;};
   let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0;const hv=[0,0,0],hp=[0,0,0];
-  say('컴퓨터에 연결하는 중…');
+  let devId='';try{devId=sessionStorage.getItem('kdId')||'';if(!devId){devId=Math.random().toString(36).slice(2,10);sessionStorage.setItem('kdId',devId);}}catch(_){devId=Math.random().toString(36).slice(2,10);}
+  say('화면 기기에 연결하는 중…');let tries=0;
+  const watchdog=()=>setTimeout(()=>{if(conn)return;tries++;if(tries<=3){say('연결이 늦어지고 있습니다. 다시 시도하는 중… ('+tries+'/3)');join();}else say('연결하지 못했습니다. 화면 기기와 같은 와이파이인지 확인하고 이 페이지를 새로 고치세요.');},9000);
   setInterval(()=>{if(conn)conn.send({t:'hb'});},1000); // tells the screen this phone is still there even before its sensors are on
-  netJoin(code,{p},c=>{conn=c;c.send({t:'hb'});say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
+  const join=()=>{watchdog();netJoin(code,{p,id:devId},c=>{if(conn)return;conn=c;c.send({t:'hb'});say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
     d=>{if(d&&d.t==='v')feel(d.ms);
+      if(d&&d.t==='slot'){p=d.p;$('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;}
       if(d&&d.t==='pg'&&conn)conn.send({t:'po',ts:d.ts});
       if(d&&d.t==='c'&&sensing&&gotEvent&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
-    (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
+    (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'))};join();
   let pac=null;const canVib=typeof navigator.vibrate==='function';
   function thump(ms){if(!pac)return;try{const t=pac.currentTime,o=pac.createOscillator(),g=pac.createGain(),dur=clamp(ms/1000,0.04,0.3);o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(50,t+dur);
       g.gain.setValueAtTime(0.9,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g);g.connect(pac.destination);o.start(t);o.stop(t+dur+0.02);}catch(_){}}
@@ -1260,7 +1263,9 @@ function pairRefresh(){document.querySelectorAll('.plink').forEach(el=>{const p=
     const cv=el.querySelector('canvas'),url=location.href.split('#')[0]+'#j='+pairCode+'&p='+p+(HASH.has('bc')?'&bc=1':'');if(cv.dataset.u!==url&&pairCode){cv.dataset.u=url;cv.hidden=!drawQR(cv,url);}});}
 function pairOpen(p){
   if(!pairCode){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';pairCode='';for(let i=0;i<5;i++)pairCode+=A[Math.floor(Math.random()*A.length)];
-    netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
+    netHost(pairCode,c=>{const now0=performance.now(),id=c.meta&&c.meta.id||'',free=i=>!K[i].phone||now0-K[i].phone.seen>4000,want=c.meta&&c.meta.p===1?1:0;
+        let pp=id?K.findIndex(k=>k.phone&&k.phone.id===id):-1;if(pp<0)pp=free(want)?want:free(1-want)?1-want:want;
+        c.send({t:'slot',p:pp});const ph={c,id,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
         c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
