@@ -88,13 +88,11 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 .solo .tpad{--u:60px}
 .touch.playing .tpad{display:block}
 @media (pointer:coarse){.playing .tpad{display:block}.playing #fullGame{right:auto;bottom:auto;left:50%;top:64px;transform:translateX(-50%)}}
-.tdir{position:absolute;left:10px;bottom:12px;width:calc(var(--u)*2.1);height:calc(var(--u)*2.1);border-radius:50%;border:2px solid rgba(242,231,208,.5);background:rgba(21,19,26,.4);pointer-events:auto;touch-action:none}
-.tdir.mv{border-color:var(--gold)}
-.tdir i{position:absolute;width:34%;height:34%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:calc(var(--u)*.36);color:rgba(242,231,208,.75);border-radius:8px}
-.tdir i[data-d=u]{left:33%;top:2%}.tdir i[data-d=d]{left:33%;bottom:2%}.tdir i[data-d=l]{left:2%;top:33%}.tdir i[data-d=r]{right:2%;top:33%}
-.tbtns{position:absolute;right:10px;bottom:30px;display:grid;grid-template-columns:repeat(2,var(--u));gap:6px}
-.tbtns b{height:var(--u);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:normal;color:var(--parchment);border:2px solid rgba(242,231,208,.5);border-radius:10px;background:rgba(21,19,26,.4);pointer-events:auto;touch-action:none}
-.tdir i.on,.tbtns b.on{background:rgba(242,231,208,.8);color:#15131a}
+.tz{position:absolute;top:22%;bottom:0;width:50%;pointer-events:auto;touch-action:none}.tz.l{left:0}.tz.r{right:0}
+.tz span{position:absolute;bottom:34px;width:100%;text-align:center;font-size:12px;color:rgba(242,231,208,.45);pointer-events:none}
+.tst{position:absolute;width:calc(var(--u)*2.2);height:calc(var(--u)*2.2);margin:calc(var(--u)*-1.1) 0 0 calc(var(--u)*-1.1);border-radius:50%;border:2px solid rgba(242,231,208,.55);background:rgba(21,19,26,.35);display:none;pointer-events:none}
+.tst b{position:absolute;left:50%;top:50%;width:calc(var(--u)*.9);height:calc(var(--u)*.9);margin:calc(var(--u)*-.45) 0 0 calc(var(--u)*-.45);border-radius:50%;background:rgba(242,231,208,.75)}
+.tz.r .tst b{background:rgba(226,194,122,.85)}.tst.grd{border-color:#8fb4ff}.tst.grd b{background:#8fb4ff}
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
 #fullGame{position:absolute;right:8px;bottom:28px;display:none;font-size:18px;line-height:1;padding:4px 8px;box-shadow:none;border-width:2px;opacity:.6}.playing #fullGame{display:block}
@@ -197,7 +195,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="pops"></div>
     <div class="power" title="칼 속도"><i></i></div>
     <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>회전</span><kbd>Q</kbd><kbd>E</kbd><span>특수</span><kbd>R</kbd></div>
-    <div class="tpad"><div class="tdir"><i data-d="u">▲</i><i data-d="l">◀</i><i data-d="r">▶</i><i data-d="d">▼</i></div><div class="tbtns"><b data-k="sp">특수</b><b data-k="mv">걷기</b><b data-k="bl">막기</b></div></div>
+    <div class="tpad"><div class="tz l"><i class="tst"><b></b></i><span>이동 · 두 번 톡톡 = 특수 · 톡 후 휙 = 대시</span></div><div class="tz r"><i class="tst"><b></b></i><span>무기 · 아래 대각선 끝 = 막기</span></div></div>
   </div>
   <div class="view" id="v1">
     <div class="vig"></div><div class="imp"></div><div class="gray"></div><div class="hb"></div>
@@ -206,7 +204,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="pops"></div>
     <div class="power" title="칼 속도"><i></i></div>
     <div class="keys"><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span>회전</span><kbd>,</kbd><kbd>.</kbd><span>특수</span><kbd>/</kbd></div>
-    <div class="tpad"><div class="tdir"><i data-d="u">▲</i><i data-d="l">◀</i><i data-d="r">▶</i><i data-d="d">▼</i></div><div class="tbtns"><b data-k="sp">특수</b><b data-k="mv">걷기</b><b data-k="bl">막기</b></div></div>
+    <div class="tpad"><div class="tz l"><i class="tst"><b></b></i><span>이동 · 두 번 톡톡 = 특수 · 톡 후 휙 = 대시</span></div><div class="tz r"><i class="tst"><b></b></i><span>무기 · 아래 대각선 끝 = 막기</span></div></div>
   </div>
   <div id="divider"></div>
   <div id="banner" hidden></div>
@@ -270,7 +268,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>WASD(2P는 방향키)는 무기만 움직인다. Shift(2P는 오른쪽 Shift)를 누른 채 누르면 걷는다. 그 상태에서 같은 방향을 빠르게 두 번 누르면 퀵스텝. 키를 떼면 중단 자세로 돌아온다. Q·E(2P는 쉼표·마침표)로 몸을 좌우로 돌린다.</li>
         <li>빠르게 벨수록 피해가 크다. 머리 1.8배, 몸통 1배, 다리 0.7배, 팔 0.5배. 3판 2선승.</li>
         <li>찌르기: 칼이 앞을 겨누고 있을 때 Shift+W를 빠르게 두 번(2P는 오른쪽 Shift+↑ 두 번) 눌러 앞으로 대시하면 대시하며 찌른다. 옆·뒤 대시는 그냥 대시.</li>
-        <li>터치: 왼쪽 방향판은 무기를 움직인다(대각선도 된다). 걷기 버튼을 누른 채 방향판을 쓰면 걷고, 그 상태에서 같은 방향을 두 번 두드리면 대시(앞으로 대시하면 찌르기). 막기·특수 버튼은 오른쪽.</li>
+        <li>터치(기기 한 대): 화면 왼쪽에 엄지를 대면 이동 조이스틱, 오른쪽에 대면 무기 조이스틱이 생긴다. 왼쪽을 빠르게 두 번 톡톡 누르면 특수 공격, 한 번 톡 누른 뒤 바로 대고 휙 밀면 그쪽으로 대시(앞으로 대시하면 찌르기). 무기 조이스틱을 아래 대각선 끝까지 당겨 잠깐 버티면 그쪽으로 막는다.</li>
         <li>게임패드: 왼쪽 스틱 걷기, 오른쪽 스틱 무기, LB 막기, LT·RT 돌기, A 퀵스텝(왼쪽 스틱을 앞으로 하고 누르면 찌르기), X 특수 공격. 첫 번째 패드가 1P, 두 번째가 2P.</li>
         <li>무기가 부딪히는 순간 반대 방향 키를 누르면 패링. 상대가 크게 휘청인다.</li>
         <li>특수 공격(R, 2P는 /)은 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생긴다(연습에서는 항상 가능). 나가기 직전에 상대 화면에 예고가 뜬다. 예고가 뜬 공격을 패링하면 상대가 훨씬 오래 휘청이고, 내 다음 공격이 1.8배로 들어간다.</li>
@@ -329,7 +327,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -994,11 +992,11 @@ const HEAVY_COST=22,GUARD_DRAIN=10,STA_REGEN=20,STA_BACK=40; // stamina is spent
 const SP_HP=30,spOk=k=>practice||k.hp<=SP_HP; // the special is a last stand: only at low health
 const SPECIAL=['검기','철퇴 돌리기','깊은 찌르기','내려찍기'],SP_CD=4,TELE=0.35,CTR_T=3,DISARM_F=9.5; // warning time before a special, counter window after parrying one, clash force that knocks a weapon loose
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
-const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9}}));
+const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],tw:[0,0],tm:[0,0],tbl:false,keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9}}));
 let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];let hype=0,crowdCd=0,quietT=0,poseDirty=false,xAll=-9;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,armA:ARM_MAX,armArmor:true,armOff:false,shA:SH_MAX,shArmor:true,shOff:false,legA:LEG_MAX,legArmor:true,legOff:false,headOff:false,headDeb:null,cutT:0,shield:0,shieldOn:false,
-    sp:null,spCd:0,spReq:false,tele:0,counter:0,dis:false,disT:0,wDeb:null,ps:null,heldT:0,bodyT:0,lunge:0,dip:0,hg:0,hgOn:false,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,sta:STMAX,gas:false,staDelay:0,heavyPaid:false,staMsg:0,aura:0,auraOn:false,spMsg:0,zoom:0,fovB:0,hbT:0,hbLast:-9,qsCd:0,bindT:0,bindHint:0,strain:0,saluted:false,qsReq:null,blk:false,blkS:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
+    sp:null,spCd:0,spReq:false,tele:0,counter:0,dis:false,disT:0,wDeb:null,ps:null,heldT:0,bodyT:0,lunge:0,dip:0,hg:0,hgOn:false,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,tw:[0,0],tm:[0,0],tbl:false,sta:STMAX,gas:false,staDelay:0,heavyPaid:false,staMsg:0,aura:0,auraOn:false,spMsg:0,zoom:0,fovB:0,hbT:0,hbLast:-9,qsCd:0,bindT:0,bindHint:0,strain:0,saluted:false,qsReq:null,blk:false,blkS:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0,def:null,defT:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
   k.fh=null;computePose(k);if(k.weapon===1){k.fh=add(k.pose.hand,mulS(k.pose.dir,FL_A+FL_L));k.fhp=k.fh.slice();computePose(k);}k.pbA=k.pose.bA;k.pbB=k.pose.bB;
@@ -1348,9 +1346,10 @@ function aiThink(k,o,h){
 }
 function readInput(k){ // plain direction keys move the weapon, with the move key (Shift, or the touch walk button) held they move the feet; gamepad: right stick weapon, left stick feet
   const kx=k.keys.r-k.keys.l,ky=k.keys.u-k.keys.d,sh=k.keys.mv?1:0,p=k.pad,c2=(x,y)=>{const l=Math.hypot(x,y);return l>1?[x/l,y/l]:[x,y];};
-  k.in=c2((sh?0:kx)+(p?p.w[0]:0),(sh?0:ky)+(p?p.w[1]:0));
-  k.mvIn=c2((sh||k.phLive?kx:0)+(p?p.m[0]:0),(sh||k.phLive?ky:0)+(p?p.m[1]:0));
-  k.blk=!!(k.keys.bl||p&&p.blk);if(!k.blk)k.blkS=0;
+  k.in=c2((sh?0:kx)+(p?p.w[0]:0)+k.tw[0],(sh?0:ky)+(p?p.w[1]:0)+k.tw[1]);
+  k.mvIn=c2((sh||k.phLive?kx:0)+(p?p.m[0]:0)+k.tm[0],(sh||k.phLive?ky:0)+(p?p.m[1]:0)+k.tm[1]);
+  {const on=!!k.tdiagT&&performance.now()-k.tdiagT>120;if(on&&!k.tbl)k.blkS=k.tdiagS;k.tbl=on;const st=k.el.root.querySelector('.tz.r .tst');if(st)st.classList.toggle('grd',on);}
+  k.blk=!!(k.keys.bl||p&&p.blk||k.tbl);if(!k.blk)k.blkS=0;
 }
 const thrProf=u=>{if(u<0.07)return 0;if(u<0.18){const q=(u-0.07)/0.11;return q*(2-q);}return u<0.24?1:u<0.44?1-(u-0.24)/0.2:0;};
 function step(h){
@@ -1396,7 +1395,7 @@ function step(h){
       k.vx+=((T.tx-k.ax)*360-k.vx*38)*h;k.vy+=((T.ty-k.ay)*360-k.vy*38)*h;
       if(T.t>=0.44){k.thr=null;k.thrCd=0.22;k.ext=0;}
     }else if(k.blk&&!k.gas&&!ph&&k.stag<=0&&!k.dead){ // block key: straight into the guard, on the side of the held direction (or where the weapon already is)
-      if(Math.abs(k.in[0])>0.3)k.blkS=k.in[0]>0?1:-1;else if(!k.blkS)k.blkS=k.ax<0?-1:1;
+      if(k.tbl){}else if(Math.abs(k.in[0])>0.3)k.blkS=k.in[0]>0?1:-1;else if(!k.blkS)k.blkS=k.ax<0?-1:1;
       const Kb=w.pk*0.2*(k.stun>0?0.5:1)*(k.carryT>0?0.12:1),Cb=2*Math.sqrt(Kb);
       k.vx+=((k.blkS*0.75-k.ax)*Kb-k.vx*Cb)*h;k.vy+=((-0.65-k.ay)*Kb-k.vy*Cb)*h;
     }else if(ph){k.mv=[clamp(k.mv[0]+ph.mx,-1,1),clamp(k.mv[1]+ph.my,-1,1)]; // the weapon chases where the phone points; a heavier weapon lags more
@@ -1821,17 +1820,28 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{const m=KEYMAP[e.code];if(m){K[m[0]].keys[m[1]]=0;e.preventDefault();}});
 addEventListener('blur',()=>K.forEach(k=>{k.keys={u:0,d:0,l:0,r:0};}));
-K.forEach(k=>{const tp=k.el.root.querySelector('.tpad'),dir=tp.querySelector('.tdir');let dp=null;
-  const setDir=e=>{const on={u:0,d:0,l:0,r:0};
-    if(e){const r=dir.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*2-1,y=1-(e.clientY-r.top)/r.height*2;
-      if(Math.hypot(x,y)>0.2){const a=Math.atan2(y,x);on.r=Math.abs(a)<PI*3/8;on.l=Math.abs(a)>PI*5/8;on.u=a>PI/8&&a<PI*7/8;on.d=a<-PI/8&&a>-PI*7/8;}}
-    for(const n in on){if(on[n]){if(!k.keys[n])pressKey(k,n);}else k.keys[n]=0;dir.querySelector('[data-d='+n+']').classList.toggle('on',!!on[n]);}};
-  dir.addEventListener('pointerdown',e=>{if(dp!==null||k.cpu)return;dp=e.pointerId;dir.setPointerCapture(dp);stage.classList.add('touch');setDir(e);e.preventDefault();});
-  dir.addEventListener('pointermove',e=>{if(e.pointerId===dp)setDir(e);});
-  const dEnd=e=>{if(e.pointerId!==dp)return;dp=null;setDir(null);};dir.addEventListener('pointerup',dEnd);dir.addEventListener('pointercancel',dEnd);
-  tp.querySelectorAll('.tbtns b').forEach(b=>{const n=b.dataset.k,up=()=>{if(n!=='sp')k.keys[n]=0;b.classList.remove('on');if(n==='mv')dir.classList.remove('mv');};
-    b.addEventListener('pointerdown',e=>{if(k.cpu)return;b.setPointerCapture(e.pointerId);stage.classList.add('touch');if(n==='sp')k.spReq=true;else pressKey(k,n);b.classList.add('on');if(n==='mv')dir.classList.add('mv');e.preventDefault();});
-    b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);});});
+// touch (one device): a floating stick under each thumb. left half: feet (double tap = special, tap then flick = dash);
+// right half: weapon (held at the end of a lower diagonal for a moment = guard on that side)
+function touchStick(zone,on){const st=zone.querySelector('.tst'),kn=st.querySelector('b');let id=null,o=[0,0];
+  const R=()=>st.offsetWidth/2||55;
+  zone.addEventListener('pointerdown',e=>{if(id!==null||on.off())return;id=e.pointerId;try{zone.setPointerCapture(id);}catch(_){}stage.classList.add('touch');
+    const r=zone.getBoundingClientRect();o=[e.clientX,e.clientY];st.style.left=(e.clientX-r.left)+'px';st.style.top=(e.clientY-r.top)+'px';st.style.display='block';kn.style.transform='';on.start();e.preventDefault();});
+  zone.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;let x=(e.clientX-o[0])/R(),y=-(e.clientY-o[1])/R();const l=Math.hypot(x,y);if(l>1){x/=l;y/=l;}
+    kn.style.transform='translate('+(x*R()*0.8).toFixed(0)+'px,'+(-y*R()*0.8).toFixed(0)+'px)';on.move(x,y,st);});
+  const end=e=>{if(e.pointerId!==id)return;id=null;st.style.display='none';st.classList.remove('grd');on.end();};zone.addEventListener('pointerup',end);zone.addEventListener('pointercancel',end);}
+K.forEach(k=>{const tp=k.el.root.querySelector('.tpad'),off=()=>k.cpu;
+  let t0=0,maxL=0,lastTap=-9,dashed=false,flickOK=false;
+  touchStick(tp.querySelector('.tz.l'),{off,
+    start(){const t=performance.now()/1000;t0=t;maxL=0;dashed=false;flickOK=t-lastTap<0.4;k.tm=[0,0];},
+    move(x,y){const t=performance.now()/1000,l=Math.hypot(x,y);maxL=Math.max(maxL,l);k.tm=[x,y];
+      if(flickOK&&!dashed&&l>0.8&&t-t0<0.3){dashed=true;lastTap=-9;k.qsReq=Math.abs(x)>Math.abs(y)?(x>0?'r':'l'):(y>0?'u':'d');}},
+    end(){const t=performance.now()/1000;k.tm=[0,0];
+      if(t-t0<0.25&&maxL<0.35){if(t-lastTap<0.4){lastTap=-9;k.spReq=true;}else lastTap=t;}}}); // a short tap; a second one soon after = special
+  touchStick(tp.querySelector('.tz.r'),{off,
+    start(){k.pressAge=0;k.tdiagT=0;},
+    move(x,y){k.tw=[x,y];const l=Math.hypot(x,y),a=Math.atan2(y,x)*180/PI,diag=l>0.75&&((a<-110&&a>-160)||(a>-70&&a<-20));
+      if(diag){if(!k.tdiagT||k.tdiagS!==(x<0?-1:1)){k.tdiagT=performance.now();k.tdiagS=x<0?-1:1;}}else k.tdiagT=0;},
+    end(){k.tw=[0,0];k.tdiagT=0;}});});
 stage.addEventListener('contextmenu',e=>e.preventDefault());
 $('notesBtn').addEventListener('click',()=>{$('notes').hidden=false;$('notesClose').focus();});$('notesClose').addEventListener('click',()=>{$('notes').hidden=true;$('notesBtn').focus();});
 $('recBtn').addEventListener('click',recShow);$('recClose').addEventListener('click',()=>{$('rec').hidden=true;$('recBtn').focus();});$('recClear').addEventListener('click',()=>{REC=[];recSave();recShow();});
