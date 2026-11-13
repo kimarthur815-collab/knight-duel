@@ -708,7 +708,7 @@ const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.7
 // a..b: part of the weapon that collides (metres from the hand); head: where the striking end starts (0..1 along a..b)
 const WEAPONS=[
   {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:1100,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
-  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:900,dmg:1.3,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
+  {name:'철퇴',desc:'사슬 끝의 쇠뭉치를 휘둘러 친다. 갑옷을 가장 잘 부수지만 베지는 못한다',a:0.18,b:0.86,head:0.6,acc:40,pk:900,dmg:1.3,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:3,blunt:true,trail:0.5},
   {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:28,pk:750,dmg:0.56,shaft:0.28,thr:1.4,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3},
   {name:'해머',desc:'가장 무겁고 느리다. 머리로 맞히면 피해가 크고 투구가 금방 깨진다',a:0.15,b:1.14,head:0.72,acc:27,pk:600,dmg:1.6,shaft:0.3,thr:0.4,ext:0.34,dist:1.55,st:1.5,brk:2.5,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
@@ -867,15 +867,15 @@ function attackCore(A,D,h){
   const cut=(text)=>{A.cutT=0.22;A.vx/=0.3;A.vy/=0.3;A.vx*=0.85;A.vy*=0.85;D.stag=Math.max(D.stag,0.6);sparks(best.pt,10,'red',2.6,0.03);sfx.brk();buzz(D,[200,60,300]);popAt(A.i,best.pt,text,'big');};
   if(isArm&&!D.armOff){
     if(D.armArmor){D.armA-=dmg*w.brk;if(D.armA<=0){D.armArmor=false;D.armA=0;fling(D.model.vambrace,pd.elR,A,D,[0,0.15,0]);sfx.brk();popAt(A.i,best.pt,'팔 갑옷 파괴','big');}}
-    else if(dmg>=3&&!thrusting){D.armOff=true;A.vx/=0.85/0.3;A.vy/=0.85/0.3;cut('팔 절단');fling(D.model.farmBare,pd.elR,A,D,[0,0.15,0]);fling(D.model.weap[D.weapon],pd.hand,A,D,[0,0,0.5]);popFix(D.i,'무기를 든 팔을 잃었다');}}
+    else if(dmg>=3&&!thrusting&&!w.blunt){D.armOff=true;A.vx/=0.85/0.3;A.vy/=0.85/0.3;cut('팔 절단');fling(D.model.farmBare,pd.elR,A,D,[0,0.15,0]);fling(D.model.weap[D.weapon],pd.hand,A,D,[0,0,0.5]);popFix(D.i,'무기를 든 팔을 잃었다');}}
   if(pn==='shoulder'&&!D.shOff){
     if(D.shArmor){D.shA-=dmg*w.brk;if(D.shA<=0){D.shArmor=false;D.shA=0;fling(D.model.pauld[1],pd.shR,A,D,[0,0,0]);sfx.brk();popAt(A.i,best.pt,'어깨 갑옷 파괴','big');}}
-    else if(dmg>=5&&!thrusting){const had=!D.armOff;D.shOff=true;D.armOff=true;cut('어깨 절단');fling(D.model.uarm,pd.shR,A,D,[0,0.15,0]);
+    else if(dmg>=5&&!thrusting&&!w.blunt){const had=!D.armOff;D.shOff=true;D.armOff=true;cut('어깨 절단');fling(D.model.uarm,pd.shR,A,D,[0,0.15,0]);
       if(had){fling(D.armArmor?D.model.farm:D.model.farmBare,pd.elR,A,D,[0,0.15,0]);fling(D.model.weap[D.weapon],pd.hand,A,D,[0,0,0.5]);}popFix(D.i,'무기를 든 팔을 어깨부터 잃었다');}}
   if(pn==='leg'&&!D.legOff){
     if(D.legArmor){D.legA-=dmg*w.brk;if(D.legA<=0){D.legArmor=false;D.legA=0;fling(D.model.greave,pd.knL,A,D,[0,0.2,0]);sfx.brk();popAt(A.i,best.pt,'다리 갑옷 파괴','big');}}
-    else if(dmg>=4&&!thrusting){D.legOff=true;cut('다리 절단');fling(D.model.shinBare,pd.knL,A,D,[0,0.2,0]);popFix(D.i,'다리를 잃어 걸을 수 없다');}}
-  if(bare&&!D.headOff&&(dmg>=12||D.hp<=0)&&!thrusting){D.headOff=true;cut('참수');D.headDeb=fling(D.model.bare,pd.headC,A,D,[0,-1.7,0]);D.headDeb.owner=D;D.headDeb.r=[0,D.yaw,0];D.headDeb.w=[rr(3,6)*(rnd()<0.5?-1:1),rr(-3,3)];D.hp=0;}
+    else if(dmg>=4&&!thrusting&&!w.blunt){D.legOff=true;cut('다리 절단');fling(D.model.shinBare,pd.knL,A,D,[0,0.2,0]);popFix(D.i,'다리를 잃어 걸을 수 없다');}}
+  if(bare&&!D.headOff&&(dmg>=12||D.hp<=0)&&!thrusting&&!w.blunt){D.headOff=true;cut('참수');D.headDeb=fling(D.model.bare,pd.headC,A,D,[0,-1.7,0]);D.headDeb.owner=D;D.headDeb.r=[0,D.yaw,0];D.headDeb.w=[rr(3,6)*(rnd()<0.5?-1:1),rr(-3,3)];D.hp=0;}
   if(pn==='head'&&D.helmOn){D.helm-=dmg*w.brk;if(D.helm<=0){D.helmOn=false;D.helm=0;fling(D.model.head,pd.headC,A,D,[0,-1.7,0]);sfx.brk();popAt(A.i,pd.headC,'투구 파괴','big');if(LOG)LOG.push(['helmbreak',D.i]);}}
   if(tut)tut.ev.push({i:A.i,p:pn,thr:thrusting,ch:A.charge});
   if(practice){D.hp=Math.max(1,D.hp);D.regenT=1.6;}
