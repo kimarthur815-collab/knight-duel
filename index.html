@@ -725,7 +725,18 @@ function fling(mesh,pos,A,D,off){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz
 function breakShield(A,D,pt){D.shieldOn=false;D.shield=0;D.stag=Math.max(D.stag,0.35);
   fling(D.model.shield,mP(D.pose.shM,[0,0,0]),A,D,[0,0,0]);sparks(pt,14,'steel',3,0.03);sparks(pt,8,'dust',2.5,0.035);sfx.brk();
   popAt(A.i,pt,'방패 파괴','big');popFix(D.i,'방패가 부서졌다');if(LOG)LOG.push(['shieldbreak',D.i]);}
+// bodies are solid to weapons: a weapon that is driving into a head, torso or leg is stopped at the surface
 function attack(A,D,h){
+  const pa=A.pose;let deep=null;
+  for(const hb of D.pose.hit){if(hb.p==='arm')continue;const r=segSeg(pa.bA,pa.bB,hb.a,hb.b),pen=hb.r-r[0];if(pen>0.02&&(!deep||pen>deep.pen)){const q=lerp3(hb.a,hb.b,r[2]);deep={pen,hb,q,vin:dot(bladeVel(A,r[1],h),norm(sub(q,r[3])))};}}
+  attackCore(A,D,h);
+  // if the weapon is still buried (a lunge or a step carried it in), it shoves the two knights apart like a pole
+  if(deep&&deep.pen>0.05&&!D.dead){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1,p=Math.min(0.02,(deep.pen-0.05)*0.5);A.x-=dx/dl*p;A.z-=dz/dl*p;D.x+=dx/dl*p;D.z+=dz/dl*p;}
+  if(deep&&deep.vin>0.2&&!D.dead){endThrust(A);
+    if(A.weapon===1&&A.fh){const d=sub(A.fh,deep.q),dl=len(d)||1,R=deep.hb.r+0.09;if(dl<R){A.fh=add(deep.q,mulS(d,R/dl));A.fhp=A.fh.slice();}}
+    else{A.ax=A.pax;A.ay=A.pay;A.vx*=-0.12;A.vy*=-0.12;}}
+}
+function attackCore(A,D,h){
   if(A.limpT>0)return; // a weapon that was just pushed or beaten aside is not a blow
   const pa=A.pose,pd=D.pose,w=WEAPONS[A.weapon];
   if(D.shieldOn){
@@ -880,7 +891,7 @@ function step(h){
       let dy=Math.atan2(-dx,-dz)+k.turn-k.yaw;while(dy>PI)dy-=TAU;while(dy<-PI)dy+=TAU;k.yaw+=dy*Math.min(1,10*h);
       const want=o.dead?2.3:(w.dist+WEAPONS[o.weapon].dist)/2;
       const mr=Math.min(1,8*h),ctlM=(k.stun>0||k.thr)?0.4:1;k.mix+=((fight?k.mv[0]*ctlM:0)-k.mix)*mr;k.miy+=((fight?k.mv[1]*ctlM:0)-k.miy)*mr;
-      const vr=dist<0.95?clamp((dist-0.95)*6,-2,0)*0.5:0,vf=k.miy*1.3*(k.miy<0&&asp>3?0.15:1); // a downward cut does not walk you backwards
+      const vr=dist<1.1?clamp((dist-1.1)*7,-2.2,0)*0.5:0,vf=k.miy*1.3*(k.miy<0&&asp>3?0.15:1); // a downward cut does not walk you backwards
       const rx=Math.cos(k.yaw),rz=-Math.sin(k.yaw),vs=k.mix*1.2;
       k.mvx=ux*vr-Math.sin(k.yaw)*vf+rx*vs+k.kvx;k.mvz=uz*vr-Math.cos(k.yaw)*vf+rz*vs+k.kvz;
       k.x+=k.mvx*h;k.z+=k.mvz*h;
@@ -904,6 +915,8 @@ function step(h){
       const want=add(an,mulS(k.pose.dir,FL_L));for(let i=0;i<3;i++)f[i]+=(want[i]-f[i])*Math.min(1,3.5*h);
       const d=sub(f,an),dl=len(d);if(dl>FL_L){for(let i=0;i<3;i++)f[i]=an[i]+d[i]/dl*FL_L;}
       if(f[1]<0.08)f[1]=0.08;computePose(k);}
+    if(k.weapon!==1&&k.pose.bB[1]<0.03&&k.pose.bB[1]<k.pbB[1]&&!k.dead){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.1;k.vy*=-0.1;computePose(k);}
+    if(k.weapon!==1&&k.pose.bB[1]<0&&!k.dead&&!(k.guard>0.3)){k.ay+=4*h;if(k.vy<0)k.vy=0;computePose(k);} // a crouch or lean pushed the tip under: lift it back out
     const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipV=mulS(tv,1/h);k.tipSp=tl/h;if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
     if(subN%6===0){k.trail.push({a:lerp3(k.pose.bA,k.pose.bB,1-w.trail),b:k.pose.bB,s:k.tipSp});if(k.trail.length>10)k.trail.shift();}
   }
