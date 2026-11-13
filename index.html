@@ -294,7 +294,7 @@ function runPad(code,p){
   say('컴퓨터에 연결하는 중…');
   netJoin(code,{p},c=>{conn=c;say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
     d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}
-      if(d&&d.t==='c'&&sensing&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
+      if(d&&d.t==='c'&&sensing&&gotEvent&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
   function onOri(e){
     if(e.alpha==null||e.beta==null)return;gotEvent=true;
@@ -639,9 +639,9 @@ const NAMES=['1P 청기사','2P 성전기사'];
 const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.5},leg:{n:'다리',m:0.7}};
 // a..b: part of the weapon that collides (metres from the hand); head: where the striking end starts (0..1 along a..b)
 const WEAPONS=[
-  {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:170,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
-  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:120,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
-  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:95,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
+  {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:260,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
+  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:190,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
+  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:150,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
@@ -730,8 +730,8 @@ function attack(A,D,h){
   const pa=A.pose;let deep=null;
   for(const hb of D.pose.hit){if(hb.p==='arm')continue;const r=segSeg(pa.bA,pa.bB,hb.a,hb.b),pen=hb.r-r[0];if(pen>0.02&&(!deep||pen>deep.pen)){const q=lerp3(hb.a,hb.b,r[2]);deep={pen,hb,q,vin:dot(bladeVel(A,r[1],h),norm(sub(q,r[3])))};}}
   attackCore(A,D,h);
-  // if the weapon is still buried (a lunge or a step carried it in), it shoves the two knights apart like a pole
-  if(deep&&deep.pen>0.05&&!D.dead){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1,p=Math.min(0.02,(deep.pen-0.05)*0.5);A.x-=dx/dl*p;A.z-=dz/dl*p;D.x+=dx/dl*p;D.z+=dz/dl*p;}
+  // a thrust that is still buried shoves the two knights apart like a pole
+  if(deep&&deep.pen>0.05&&!D.dead&&A.ext>0.03){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1,p=Math.min(0.02,(deep.pen-0.05)*0.5);A.x-=dx/dl*p;A.z-=dz/dl*p;D.x+=dx/dl*p;D.z+=dz/dl*p;}
   if(deep&&deep.vin>0.2&&!D.dead){endThrust(A);
     if(A.weapon===1&&A.fh){const d=sub(A.fh,deep.q),dl=len(d)||1,R=deep.hb.r+0.09;if(dl<R){A.fh=add(deep.q,mulS(d,R/dl));A.fhp=A.fh.slice();}}
     else{A.ax=A.pax;A.ay=A.pay;A.vx*=-0.12;A.vy*=-0.12;}}
@@ -796,8 +796,8 @@ function clashCheck(h){
   if(crossed){for(const k of K){k.ax=k.pax;k.ay=k.pay;}closing=true;}else clashSide=side; // put both back where they were and treat it as contact
   if(r[0]>0.13&&!crossed)return;rattleT-=h;if(rattleT<=0){rattleT=0.09;buzz(K[0],45);buzz(K[1],45);}const s0=bladeSpeed(K[0],r[1],h),s1=bladeSpeed(K[1],r[2],h),rel=s0+s1;
   // weapons are solid to each other: the quicker one pushes the other along in front of it, equal ones lock
-  if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0){if(closing){const f=K[0].carryT>0?K[1]:K[1].carryT>0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
-      if(!crossed&&(sl.carryT>0||hi>lo*1.5+0.3)){sl.carryT=0.14;sl.limpT=0.35;
+  if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0||K[0].limpT>0||K[1].limpT>0){if(closing){const y0=K[0].carryT>0||K[0].limpT>0,y1=K[1].carryT>0||K[1].limpT>0,f=y0&&!y1?K[1]:y1&&!y0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
+      if(!crossed&&(sl.carryT>0||sl.limpT>0||hi>lo*1.5+0.3)){sl.carryT=0.14;sl.limpT=0.35;
         const v=bladeVel(f,f===K[0]?r[1]:r[2],h),rx=Math.cos(sl.yaw),rz=-Math.sin(sl.yaw);sl.vx=(v[0]*rx+v[2]*rz)*1.05;sl.vy=v[1]*1.05;f.vx*=0.985;f.vy*=0.985;}
       else for(const k of K){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.15;k.vy*=-0.15;}}
     return;}
@@ -848,7 +848,7 @@ function step(h){
     k.pax=k.ax;k.pay=k.ay;k.pbA=k.pose.bA;k.pbB=k.pose.bB;k.pressAge+=h;
     if(k.dead){k.in=[0,0];k.fall=Math.min(1.45,k.fall+h*(0.6+k.fall*4));}
     else if(state==='ko'){k.in=[0,0];}
-    else if(practice&&k.i===1){k.in=[0,0];k.regenT=(k.regenT||0)-h;if(k.regenT<=0&&k.hp<HPMAX){k.hp=Math.min(HPMAX,k.hp+60*h);if(k.hp>=HPMAX&&!k.helmOn){k.helmOn=true;k.helm=HELM_MAX;}}}
+    else if(practice&&k.i===1){k.in=[0,0];k.kvx=k.kvz=0;k.regenT=(k.regenT||0)-h;if(k.regenT<=0&&k.hp<HPMAX){k.hp=Math.min(HPMAX,k.hp+60*h);if(k.hp>=HPMAX&&!k.helmOn){k.helmOn=true;k.helm=HELM_MAX;}}}
     else if(k.cpu)aiThink(k,o,h);else readInput(k);
     k.mv=k.in;if(k.cpu&&!k.dead&&state==='fight'){const dd=Math.hypot(o.x-k.x,o.z-k.z),wt=(w.dist+WEAPONS[o.weapon].dist)/2;k.mv=[0,clamp((dd-wt)*2.5,-1,1)];} // footwork input; with a phone connected the keys only move the feet and the phone moves the weapon
     const ph=k.phone&&!k.cpu&&!k.dead&&state!=='ko'&&performance.now()-k.phone.last<700?k.phone:null;
@@ -864,7 +864,7 @@ function step(h){
       const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1),Ks=w.pk*g,C=2*Math.sqrt(Ks);
       k.vx+=((ph.tx-k.ax)*Ks-k.vx*C)*h;k.vy+=((ph.ty-k.ay)*Ks-k.vy*C)*h;
       // the weapon has weight: however fast the phone is flicked, it cannot outrun what the same weapon does on the keys
-      {const vm=w.acc/DAMP*0.9*(k.tired?0.6:1),sp=Math.hypot(k.vx,k.vy);if(sp>vm){k.vx*=vm/sp;k.vy*=vm/sp;}}
+      {const vm=w.acc/DAMP*1.5*(1+0.7*k.charge)*(k.tired?0.6:1),sp=Math.hypot(k.vx,k.vy);if(sp>vm){k.vx*=vm/sp;k.vy*=vm/sp;}}
     }else{
       const ctl=(k.carryT>0?0.12:1)*(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
       // pressing against the motion kills it at once, so reversals are crisp
