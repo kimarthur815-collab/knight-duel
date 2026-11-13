@@ -1096,8 +1096,9 @@ function whooshUpdate(){if(!AC)return;K.forEach((k,i)=>{const w=whoosh[i];if(!w)
 /* ================= render ================= */
 let views=[],pxScale=1,extCam=null,replay=null,replayDone=false;const hist=[];
 const SNAP=['headOff','armOff','legOff','armArmor','legArmor','x','z','yaw','ax','ay','lunge','ext','dip','guard','fall','flinch','capeA','skirtA','helmOn','dead','shPush','charge','flash'];
-const snap=t=>({t,k:K.map(k=>{const o={hoff:k.hoff.slice(),feet:[k.feet[0].slice(),k.feet[1].slice()],fh:k.fh?k.fh.slice():null,edge:k.edge.slice()};for(const n of SNAP)o[n]=k[n];return o;})});
-const unsnap=sn=>{K.forEach((k,i)=>{const o=sn.k[i];for(const n of SNAP)k[n]=o[n];k.hoff=o.hoff.slice();k.feet=[o.feet[0].slice(),o.feet[1].slice()];k.fh=o.fh?o.fh.slice():null;k.edge=o.edge.slice();k.trail=[];computePose(k);});};
+const snap=t=>({t,d:debris.map(q=>({q,p:q.p.slice(),r:q.r.slice()})),k:K.map(k=>{const o={hoff:k.hoff.slice(),feet:[k.feet[0].slice(),k.feet[1].slice()],fh:k.fh?k.fh.slice():null,edge:k.edge.slice()};for(const n of SNAP)o[n]=k[n];return o;})});
+const unsnap=sn=>{for(const q of debris)q.hide=true;for(const o of sn.d){o.q.hide=false;o.q.p=o.p.slice();o.q.r=o.r.slice();} // flying pieces are replayed too, and are absent before they came off
+  K.forEach((k,i)=>{const o=sn.k[i];for(const n of SNAP)k[n]=o[n];k.hoff=o.hoff.slice();k.feet=[o.feet[0].slice(),o.feet[1].slice()];k.fh=o.fh?o.fh.slice():null;k.edge=o.edge.slice();k.trail=[];computePose(k);});};
 const soloIdx=()=>practice||K[1].cpu&&!K[0].cpu?0:K[0].cpu&&!K[1].cpu?1:-1;
 function resize(){
   const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
@@ -1150,7 +1151,7 @@ function render(){
     gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.uniform1f(U.uEmis,1);draw(sky,mT(cam[12],cam[13]*0.5,cam[14]));
     gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.uniform1f(U.uEmis,0);draw(arena,mI());
     for(const kk of K)drawKnight(kk,!dbg&&kk===k&&!k.headOff);
-    for(const q of debris){if(!dbg&&q===k.headDeb)continue;draw(q.m,mMulN(mT(q.p[0],q.p[1],q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0),mT(q.off[0],q.off[1],q.off[2])));}
+    for(const q of debris){if(q.hide||(!dbg&&q===k.headDeb))continue;draw(q.m,mMulN(mT(q.p[0],q.p[1],q.p[2]),mRY(q.r[1]),mRX(q.r[0]),mRZ(q.r[2]||0),mT(q.off[0],q.off[1],q.off[2])));}
     // blob shadows
     gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.uniform1f(U.uEmis,1);gl.uniform1f(U.uAlpha,0.38);
     for(const kk of K)draw(shadowMesh,mMulN(mT(kk.x+0.12,0.012,kk.z-0.1),mS(0.42,1,0.42)));
