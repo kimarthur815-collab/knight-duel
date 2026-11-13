@@ -104,6 +104,8 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
 #fullGame{position:absolute;right:8px;bottom:28px;display:none;font-size:18px;line-height:1;padding:4px 8px;box-shadow:none;border-width:2px;opacity:.6}.playing #fullGame{display:block}
+#exitGame{position:absolute;top:64px;left:calc(50% + 26px);display:none;font-size:16px;line-height:1;padding:5px 9px;box-shadow:none;border-width:2px;opacity:.6;white-space:nowrap}.touch.playing #exitGame{display:block}#exitGame.arm{opacity:1;background:var(--crimson);color:#fff}
+.touch.playing #fullGame{right:auto;bottom:auto;left:50%;top:64px;transform:translateX(-50%)}
 button small{font-size:12px;opacity:.7;margin-left:6px}
 #tut{position:absolute;left:50%;top:84px;transform:translateX(-50%);width:min(92%,560px);display:flex;gap:10px;align-items:center;padding:8px 12px;background:rgba(34,31,41,.88);border:2px solid var(--gold);font-size:15px;line-height:1.45}
 #tutText{flex:1}#tutSkip{font-size:13px;padding:5px 9px;box-shadow:none;border-width:2px;white-space:nowrap}
@@ -203,7 +205,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="sub2"><div class="stm" title="스태미나"><i></i></div><span class="gear helm">투구<em><i></i></em></span><span class="gear shld" hidden>방패<em><i></i></em></span></div>
     <div class="pops"></div>
     <div class="power" title="칼 속도"><i></i></div>
-    <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>회전</span><kbd>Q</kbd><kbd>E</kbd><span>특수</span><kbd>R</kbd></div>
+    <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>걷기</span><kbd>Shift</kbd><span>막기</span><kbd>V</kbd><span>회전</span><kbd>Q</kbd><kbd>E</kbd><span>특수</span><kbd>R</kbd></div>
     <div class="tpad"><div class="tz l"><i class="tst"><em class="ar u">▲</em><em class="ar l">◀</em><em class="ar r">▶</em><em class="ar d">▼</em><b></b></i><span class="d">이동 · 두 번 톡톡 = 특수 · 톡 후 휙 = 대시</span><span class="s">같은 방향 두 번 = 대시 · 가운데 두 번 = 특수</span></div><div class="tz r"><i class="tst"><b></b></i><span>무기 · 아래 대각선 끝 = 막기</span></div></div>
   </div>
   <div class="view" id="v1">
@@ -212,7 +214,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="sub2"><div class="stm" title="스태미나"><i></i></div><span class="gear helm">투구<em><i></i></em></span><span class="gear shld" hidden>방패<em><i></i></em></span></div>
     <div class="pops"></div>
     <div class="power" title="칼 속도"><i></i></div>
-    <div class="keys"><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span>회전</span><kbd>,</kbd><kbd>.</kbd><span>특수</span><kbd>/</kbd></div>
+    <div class="keys"><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><span>걷기</span><kbd>우Shift</kbd><span>막기</span><kbd>M</kbd><span>회전</span><kbd>,</kbd><kbd>.</kbd><span>특수</span><kbd>/</kbd></div>
     <div class="tpad"><div class="tz l"><i class="tst"><em class="ar u">▲</em><em class="ar l">◀</em><em class="ar r">▶</em><em class="ar d">▼</em><b></b></i><span class="d">이동 · 두 번 톡톡 = 특수 · 톡 후 휙 = 대시</span><span class="s">같은 방향 두 번 = 대시 · 가운데 두 번 = 특수</span></div><div class="tz r"><i class="tst"><b></b></i><span>무기 · 아래 대각선 끝 = 막기</span></div></div>
   </div>
   <div id="divider"></div>
@@ -232,6 +234,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <path d="M5 5.5H43M5 74.5H43" stroke="#d2a94e" stroke-width="1.2"/><circle cx="24" cy="5.5" r="1.6" fill="#d2a94e"/><circle cx="24" cy="74.5" r="1.6" fill="#d2a94e"/></svg></div>
   <div id="diag" aria-hidden="true"></div>
   <button type="button" class="fullBtn" id="fullGame" aria-label="전체 화면">⛶</button>
+  <button type="button" id="exitGame" aria-label="처음 화면으로">✕</button>
   <div id="tut" hidden><span id="tutText" role="status"></span><button type="button" id="tutSkip">건너뛰기</button></div>
 
   <section id="title">
@@ -336,7 +339,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -1450,9 +1453,9 @@ function step(h){
     k.st=STMAX;k.tired=false; // the old all-round stamina stays switched off; the stamina below is only for heavy blows and guarding
     k.staMsg-=h;
     if(fight&&!k.dead){
-      if(k.charge>0.5&&(k.wind||0)<k.charge-0.08&&k.tipSp>5&&!k.heavyPaid){k.heavyPaid=true;spendSta(k,HEAVY_COST);} // a charged blow is let go
+      if(k.charge>0.5&&!k.sp&&(k.wind||0)<k.charge-0.08&&k.tipSp>5&&!k.heavyPaid){k.heavyPaid=true;spendSta(k,HEAVY_COST);} // a charged blow is let go
       if(k.charge<0.15&&(k.wind||0)<0.15)k.heavyPaid=false;
-      if(k.tipSp>6&&!k.swingPaid&&!k.thr){k.swingPaid=true;if(!k.heavyPaid)spendSta(k,1.5);}else if(k.tipSp<2)k.swingPaid=false;
+      if(k.tipSp>6&&!k.swingPaid&&!k.thr&&!k.sp){k.swingPaid=true;if(!k.heavyPaid)spendSta(k,1.5);}else if(k.tipSp<2)k.swingPaid=false;
       if(k.guard>0.5)spendSta(k,GUARD_DRAIN*h);
       k.staDelay-=h;if(k.staDelay<=0&&k.guard<0.3)k.sta=Math.min(STMAX,k.sta+STA_REGEN*h);
       if(k.gas&&k.sta>=STA_BACK){k.gas=false;popFix(k.i,'숨을 골랐다');}}
@@ -1482,7 +1485,7 @@ function step(h){
     // wind-up: drawing the weapon far back to the side or over the head charges the next blow for a moment
     {const wind=Math.max(k.hg>0.5?0:clamp((Math.abs(k.ax)-1)/1.2,0,1),clamp((k.ay-1)/1.5,0,1)),can=!k.gas&&(k.sta>=HEAVY_COST||k.heavyPaid);
       if(wind>0.5&&!can&&fight&&!k.dead&&k.staMsg<=0&&!k.cpu){k.staMsg=2;popFix(k.i,'스태미나가 부족해 힘을 실을 수 없다');}
-      k.wind=wind;k.charge=Math.max(k.charge-h/0.9,can?wind:0);if(!can&&!k.heavyPaid)k.charge=Math.min(k.charge,0.3);}
+      k.wind=wind;k.charge=Math.max(k.charge-h/0.9,can?wind:0);if(!can&&!k.heavyPaid&&!k.sp)k.charge=Math.min(k.charge,0.3);}
     {const lev=ph&&!k.thr&&!k.dead&&Math.abs(ph.tx)>0.85&&ph.ty>-0.35&&ph.ty<0.75; // once raised into the guard it holds for as long as the weapon stays level and sideways
       k.hgOn=false; // the lift-triggered high guard proved unreliable on real phones and is switched off
       k.hg+=((k.hgOn?1:0)-k.hg)*Math.min(1,12*h);}
@@ -1821,20 +1824,23 @@ function startPractice(){tut=null;tutShow();practice=true;K[1].cpu=false;K[0].cp
 // tutorial: practice opponent plus a list of small tasks, each ticked off when the game sees it done
 let tut=null;
 const TUT=[
-  {k:'A와 D를 번갈아 눌러 무기를 좌우 끝까지 움직여 보세요.',p:'폰을 좌우로 돌려 무기를 양쪽 끝까지 움직여 보세요.',ok:(k,t)=>{if(k.ax<-0.8)t.f.l=1;if(k.ax>0.8)t.f.r=1;return t.f.l&&t.f.r;}},
-  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면의 조이스틱을 위로 밀어 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
-  {k:'옆으로 베기: A를 눌러 무기를 옆으로 보냈다가 D로 휘둘러 맞혀 보세요.',p:'옆으로 베기: 폰을 옆으로 뺐다가 휘둘러 상대를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&!e.thr)},
-  {k:'내려치기: W로 무기를 들었다가 S로 내려쳐 머리를 맞혀 보세요.',p:'내려치기: 폰을 위로 들었다가 내려쳐 머리를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.p==='head')},
-  {k:'크게 젖히기: W나 A를 길게 눌러 머리 뒤나 옆으로 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',p:'크게 젖히기: 칼끝을 머리 뒤나 어깨 뒤까지 넘겼다가 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.ch>0.5)},
-  {k:'찌르기: 칼을 앞으로 겨눈 채 Shift+W를 빠르게 두 번 눌러 앞으로 대시하세요.',p:'찌르기: 폰을 칼끝 방향으로 짧고 빠르게 내지르세요.',ok:(k,t)=>{if(k.thr)t.f.th=1;return t.f.th;}},
-  {k:'막기: V를 1초 동안 누르고 있으세요.',p:'막기: 칼끝을 비스듬히 아래로 내린 채 1초 동안 버티세요.',ok:(k,t,dt)=>{t.f.g=k.guard>0.5?(t.f.g||0)+dt:0;return t.f.g>1;}},
-  {k:'돌기: Q와 E로 몸을 좌우로 돌려 보세요.',p:null,ok:(k,t)=>{if(k.turn>0.5)t.f.a=1;if(k.turn<-0.5)t.f.b=1;return t.f.a&&t.f.b;}}];
+  {k:'A와 D를 번갈아 눌러 무기를 좌우 끝까지 움직여 보세요.',t:'오른쪽 무기 조이스틱을 좌우 끝까지 밀어 무기를 양쪽으로 움직여 보세요.',p:'폰을 좌우로 돌려 무기를 양쪽 끝까지 움직여 보세요.',ok:(k,t)=>{if(k.ax<-0.8)t.f.l=1;if(k.ax>0.8)t.f.r=1;return t.f.l&&t.f.r;}},
+  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',t:'왼쪽 이동 조이스틱의 ▲ 쪽을 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면의 조이스틱을 위로 밀어 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
+  {k:'옆으로 베기: A를 눌러 무기를 옆으로 보냈다가 D로 휘둘러 맞혀 보세요.',t:'옆으로 베기: 무기 조이스틱을 옆으로 보냈다가 반대쪽으로 휘둘러 맞혀 보세요.',p:'옆으로 베기: 폰을 옆으로 뺐다가 휘둘러 상대를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&!e.thr)},
+  {k:'내려치기: W로 무기를 들었다가 S로 내려쳐 머리를 맞혀 보세요.',t:'내려치기: 무기 조이스틱을 위로 올렸다가 아래로 내려쳐 머리를 맞혀 보세요.',p:'내려치기: 폰을 위로 들었다가 내려쳐 머리를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.p==='head')},
+  {k:'크게 젖히기: W나 A를 길게 눌러 머리 뒤나 옆으로 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',t:'크게 젖히기: 무기 조이스틱을 위나 옆 끝까지 잠깐 밀어 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',p:'크게 젖히기: 칼끝을 머리 뒤나 어깨 뒤까지 넘겼다가 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.ch>0.5)},
+  {k:'찌르기: 칼을 앞으로 겨눈 채 Shift+W를 빠르게 두 번 눌러 앞으로 대시하세요.',t:'찌르기: 이동 조이스틱의 ▲를 빠르게 두 번 눌러 앞으로 대시하세요.',p:'찌르기: 폰을 칼끝 방향으로 짧고 빠르게 내지르세요.',ok:(k,t)=>{if(k.thr)t.f.th=1;return t.f.th;}},
+  {k:'막기: V를 1초 동안 누르고 있으세요.',t:'막기: 무기 조이스틱을 아래 대각선 끝까지 당겨 1초 동안 버티세요.',p:'막기: 칼끝을 비스듬히 아래로 내린 채 1초 동안 버티세요.',ok:(k,t,dt)=>{t.f.g=k.guard>0.5?(t.f.g||0)+dt:0;return t.f.g>1;}},
+  {k:'돌기: Q와 E로 몸을 좌우로 돌려 보세요.',t:null,p:null,ok:(k,t)=>{if(k.turn>0.5)t.f.a=1;if(k.turn<-0.5)t.f.b=1;return t.f.a&&t.f.b;}}];
 function tutShow(){const el=$('tut');if(!tut){el.hidden=true;return;}el.hidden=false;
-  if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(폰은 다시 하기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
-  const st=TUT[tut.i],ph=K[0].phLive;$('tutSkip').hidden=false;$('tutText').textContent=(tut.done>0?'좋아요! ':'')+'('+(tut.i+1)+'/'+TUT.length+') '+(ph?st.p:st.k);}
-function tutNext(){if(!tut)return;tut.i++;tut.f={};tut.ev=[];tut.done=0.9;while(tut.i<TUT.length&&K[0].phLive&&!TUT[tut.i].p)tut.i++;sfx.tick();tutShow();}
+  if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(터치는 위쪽 ✕를 두 번, 폰은 다시 하기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
+  const st=TUT[tut.i],ph=K[0].phLive;$('tutSkip').hidden=false;$('tutText').textContent=(tut.done>0?'좋아요! ':'')+'('+(tut.i+1)+'/'+TUT.length+') '+(ph?st.p:tutTouch()&&st.t?st.t:st.k);}
+// touch play (no phone hilt): its own wording; steps it cannot do are skipped
+const tutTouch=()=>!K[0].phLive&&stage.classList.contains('touch')&&!K[0].pad,tutSkip=st=>(K[0].phLive&&!st.p)||(tutTouch()&&st.t===null);
+function tutNext(){if(!tut)return;tut.i++;tut.f={};tut.ev=[];tut.done=0.9;while(tut.i<TUT.length&&tutSkip(TUT[tut.i]))tut.i++;sfx.tick();tutShow();}
 function tutStep(dt){if(!tut||tut.i>=TUT.length||state!=='fight')return;if(tut.done>0){tut.done-=dt;if(tut.done<=0)tutShow();}
   if(tut.ph!==K[0].phLive){tut.ph=K[0].phLive;tutShow();}
+  if(tutSkip(TUT[tut.i])){tutNext();return;}
   if(TUT[tut.i].ok(K[0],tut,dt))tutNext();else tut.ev=[];}
 function startTutorial(){practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();stage.classList.add('practice');tut={i:0,f:{},ev:[],done:0,ph:null};tutShow();}
 function startMatch(){tut=null;tutShow();practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';K[0].cpu=false;
@@ -1872,7 +1878,7 @@ function touchStick(zone,on){const st=zone.querySelector('.tst'),kn=st.querySele
   const fixed=()=>stage.classList.contains('solo');
   const at=e=>{let x=(e.clientX-o[0])/R(),y=-(e.clientY-o[1])/R();const l=Math.hypot(x,y);if(l>1){x/=l;y/=l;}return [x,y];};
   const show=(x,y)=>{kn.style.transform='translate('+(x*R()*0.8).toFixed(0)+'px,'+(-y*R()*0.8).toFixed(0)+'px)';};
-  zone.addEventListener('pointerdown',e=>{if(id!==null||on.off())return;id=e.pointerId;try{zone.setPointerCapture(id);}catch(_){}stage.classList.add('touch');
+  zone.addEventListener('pointerdown',e=>{if(id!==null||on.off()||e.pointerType==='mouse')return;id=e.pointerId;try{zone.setPointerCapture(id);}catch(_){}stage.classList.add('touch');
     if(fixed()){const r=st.getBoundingClientRect();o=[r.left+r.width/2,r.top+r.height/2];const [x,y]=at(e);show(x,y);on.start(x,y,true);on.move(x,y,st);} // fixed stick: the circle's centre is the middle
     else{const r=zone.getBoundingClientRect();o=[e.clientX,e.clientY];st.style.left=(e.clientX-r.left)+'px';st.style.top=(e.clientY-r.top)+'px';st.style.display='block';kn.style.transform='';on.start(0,0,false);}
     e.preventDefault();});
@@ -1910,6 +1916,9 @@ function toggleFull(){if(!allows('fullscreen')){$('fullMsg').textContent='이 �
       // one player on a touch phone: hold the screen sideways even if auto-rotate is off (works where the browser allows it, e.g. Android Chrome)
       if(pr&&pr.then&&$('stage').classList.contains('solo')&&matchMedia('(pointer:coarse)').matches)pr.then(()=>{try{const o=screen.orientation;if(o&&o.lock)o.lock('landscape').catch(()=>{});}catch(_){}});}}catch(_){}}
 document.querySelectorAll('.fullBtn').forEach(b=>b.addEventListener('click',toggleFull));
+// touch play has no Esc key: a small exit button, pressed twice within 2 seconds so a stray tap does not end the match
+{const x=$('exitGame');let armT=0;x.addEventListener('click',()=>{const t=performance.now();if(t-armT<2000){armT=0;x.classList.remove('arm');x.textContent='✕';toTitle();return;}
+  armT=t;x.classList.add('arm');x.textContent='한 번 더 누르면 나가기';setTimeout(()=>{if(performance.now()-armT>=1990){x.classList.remove('arm');x.textContent='✕';}},2000);});}
 addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT'))toggleFull();});
 addEventListener('resize',resize);
 function probe(A,D){const pa=A.pose,pd=D.pose,inv=mInvRigid(pd.shM),la=mP(inv,pa.bA),lb=mP(inv,pa.bB);la[1]+=0.02;lb[1]+=0.02;if(D.shieldOn&&segBox(la,lb,[0.26,0.39,0.05])>=0)return'#';
