@@ -44,6 +44,7 @@ body{background:var(--stone);color:var(--parchment);font-family:var(--font-body)
 @keyframes low{50%{border-color:#ff6b5e}}
 .hpn{position:absolute;right:6px;top:-2px;font-size:15px;line-height:18px;font-variant-numeric:tabular-nums;text-shadow:1px 1px 0 #000}
 .pips{display:flex;gap:4px}.pips b{width:12px;height:12px;border:2px solid var(--parchment);background:#15131a;box-shadow:2px 2px 0 rgba(0,0,0,.55)}.pips b.on{background:var(--gold)}
+.stm{visibility:hidden}.gear.crowd{display:none!important}
 .sub2{position:absolute;left:12px;right:12px;top:36px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:12px;text-shadow:1px 1px 0 #000}
 .stm{flex:1;height:8px;background:#15131a;border:2px solid rgba(242,231,208,.8)}.stm i{display:block;height:100%;width:100%;background:var(--gold)}.stm.tired i{background:#8d8496}.stm.tired{animation:low .4s steps(2) infinite}
 .gear{display:flex;align-items:center;gap:4px;white-space:nowrap}.gear em{display:block;width:30px;height:7px;background:#15131a;border:1.5px solid rgba(242,231,208,.8)}.gear em i{display:block;height:100%;background:var(--parchment)}.gear.broken{opacity:.45;text-decoration:line-through}
@@ -198,11 +199,11 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>빠르게 벨수록 피해가 크다. 머리 1.8배, 몸통 1배, 다리 0.7배, 팔 0.5배. 3판 2선승.</li>
         <li>같은 키를 빠르게 두 번 누르면 그 방향으로 찌른다. 터치는 두 번 두드린다.</li>
         <li>무기가 부딪히는 순간 반대 방향 키를 누르면 패링. 상대가 크게 휘청인다.</li>
-        <li>아래 대각선(S+A, S+D / 폰은 칼끝을 비스듬히 아래로)으로 잡으면 머리 위에서 비스듬히 내려 막는 자세가 된다. 막는 동안 스태미나가 닳는다.</li>
+        <li>아래 대각선(S+A, S+D / 폰은 칼끝을 비스듬히 아래로)으로 잡으면 머리 위에서 비스듬히 내려 막는 자세가 된다.</li>
         <li>옆이나 머리 뒤로 크게 젖혔다가 휘두르면 최대 1.6배로 세게 들어간다.</li>
-        <li>무기가 맞물렸을 때 앞으로 걸으면 밀치기. 다리를 다치면 걸음이, 팔을 다치면 무기가 느려진다. 큰 타격과 패링은 환호를 모아 스태미나 회복을 빠르게 한다.</li>
+        <li>무기가 맞물렸을 때 앞으로 걸으면 밀치기. 다리를 다치면 걸음이, 팔을 다치면 무기가 느려진다.</li>
         <li>빨간 화살표는 상대 무기가 날아오는 쪽이다. 연습에서는 서 있는 상대에게 속도와 피해가 표시된다.</li>
-        <li>휘두르면 스태미나가 닳고, 바닥나면 느려진다. 투구는 맞다 보면 벗겨진다.</li>
+        <li>투구는 맞다 보면 벗겨진다.</li>
       </ul>
     </div>
   </section>
@@ -915,11 +916,11 @@ function step(h){
     if(fight&&!k.dead&&!practice){let hot=false;for(const f of fires)if(Math.hypot(k.x-f[0],k.z-f[2])<1.7)hot=true;
       if(hot){k.hp=Math.max(1,k.hp-5*h);k.heatT-=h;if(k.heatT<=0){k.heatT=1.2;popFix(k.i,'화로가 뜨겁다');sparks([k.x,1.2,k.z],4,'hot',1.5,0.02);}}}
     if(ph){k.in=asp>1.5?[k.vx/asp,k.vy/asp]:[0,0];inm=asp>1.6?1:0;if(asp>3&&k.pAsp<=3)k.pressAge=0;k.pAsp=asp;}
-    // stamina: swinging spends it, resting restores it
+    k.st=STMAX;k.tired=false; // stamina is switched off: nothing drains and nobody tires
     if(fight&&!k.dead){
       if(inm>0.2&&asp>1.6&&!k.thr){k.st-=asp*4.6*w.st*inm*h;k.stDelay=0.45;}else{k.stDelay-=h;if(k.stDelay<=0)k.st+=(k.tired?17:24)*(1+k.crowd/100)*h;}
       if(k.guard>0.5){k.st-=9*h;k.stDelay=0.4;}
-      if(k.st<=0){k.st=0;if(!k.tired){k.tired=true;popFix(k.i,'지쳤다');}}if(k.st>STMAX)k.st=STMAX;if(k.tired&&k.st>=35)k.tired=false;
+      k.st=STMAX;if(k.st>STMAX)k.st=STMAX;if(k.tired&&k.st>=35)k.tired=false;
     }
     // footwork follows the keys: up = step in, down = step back, left/right = sidestep
     const dx=o.x-k.x,dz=o.z-k.z,dist=Math.hypot(dx,dz)||1,ux=dx/dist,uz=dz/dist;
