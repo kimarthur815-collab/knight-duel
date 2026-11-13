@@ -328,7 +328,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -1823,6 +1823,8 @@ addEventListener('keyup',e=>{const m=KEYMAP[e.code];if(m){K[m[0]].keys[m[1]]=0;e
 addEventListener('blur',()=>K.forEach(k=>{k.keys={u:0,d:0,l:0,r:0};}));
 // touch (one device): a floating stick under each thumb. left half: feet (double tap = special, tap then flick = dash);
 // right half: weapon (held at the end of a lower diagonal for a moment = guard on that side)
+// any finger on the screen switches the touch controls on (some touch devices do not report themselves as touch-first)
+stage.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')stage.classList.add('touch');},true);
 function touchStick(zone,on){const st=zone.querySelector('.tst'),kn=st.querySelector('b');let id=null,o=[0,0];
   const R=()=>st.offsetWidth/2||55;
   zone.addEventListener('pointerdown',e=>{if(id!==null||on.off())return;id=e.pointerId;try{zone.setPointerCapture(id);}catch(_){}stage.classList.add('touch');
