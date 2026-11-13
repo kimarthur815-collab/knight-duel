@@ -247,6 +247,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>폰 위쪽 끝이 칼끝입니다. 게임 화면을 겨누세요.</li>
         <li>폰의 얇은 옆면이 칼날입니다. 날을 세워 베면 더 세게 들어갑니다(장검).</li>
         <li>화면을 겨눈 채 아래 버튼을 누르면 그 방향이 정면이 됩니다.</li>
+        <li>상단 막기: 손을 머리 위로 들어 올린 뒤 폰을 옆으로 눕혀 가로로 들면, 머리 위에서 가로로 막습니다.</li>
       </ol>
       <button type="button" id="padHowOk">이렇게 쥐었어요 (정면 맞추기)</button>
     </div>
@@ -335,7 +336,7 @@ function runPad(code,p){
   document.body.classList.add('padmode');$('title').hidden=true;$('pad').hidden=false;
   $('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;
   const say=t=>{$('padStatus').textContent=t;};
-  let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0;const hv=[0,0,0],hp=[0,0,0];
+  let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0,lift=0;const hv=[0,0,0],hp=[0,0,0];
   let devId='';try{devId=sessionStorage.getItem('kdId')||'';if(!devId){devId=Math.random().toString(36).slice(2,10);sessionStorage.setItem('kdId',devId);}}catch(_){devId=Math.random().toString(36).slice(2,10);}
   say('화면 기기에 연결하는 중…');let tries=0;
   const watchdog=()=>setTimeout(()=>{if(conn)return;tries++;if(tries<=3){say('연결이 늦어지고 있습니다. 다시 시도하는 중… ('+tries+'/3)');join();}else say('연결하지 못했습니다. 화면 기기와 같은 와이파이인지 확인하고 이 페이지를 새로 고치세요.');},9000);
@@ -369,7 +370,7 @@ function runPad(code,p){
     const t=performance.now();if(conn&&t-lastSend>15){lastSend=t;const cy=Math.cos(yaw0),sy=Math.sin(yaw0);
       // hand offset in the player's frame: right, up, forward
       const g2=(e.gamma||0)*PI/180,cG=Math.cos(g2),sG=Math.sin(g2),sB=Math.sin(b),cA=Math.cos(a),sA=Math.sin(a),ex=cA*cG-sA*sB*sG,ey=cG*sA+cA*sB*sG,ez=-cb*sG; // the phone's thin side is the cutting edge
-      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),e:[+(ex*cy+ey*sy).toFixed(2),+ez.toFixed(2),+(-ex*sy+ey*cy).toFixed(2)],h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
+      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),l:+lift.toFixed(2),e:[+(ex*cy+ey*sy).toFixed(2),+ez.toFixed(2),+(-ex*sy+ey*cy).toFixed(2)],h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
   }
   function onMot(e){ // a sharp push along the phone's length with little rotation is a thrust
     const ac=e.acceleration,rr=e.rotationRate;if(!ac||ac.y==null)return;
@@ -382,7 +383,8 @@ function runPad(code,p){
       // when the hand is nearly still the speed estimate is reset, which stops leftover drift
       quiet=Math.hypot(w[0],w[1],w[2])<0.7?quiet+dt:0;
       const fv=Math.exp(-dt/(quiet>0.12?0.06:0.45)),fp=Math.exp(-dt/0.8);
-      for(let i=0;i<3;i++){const a=Math.abs(w[i])<0.25?0:w[i];hv[i]=(hv[i]+a*dt)*fv;hp[i]=clamp((hp[i]+hv[i]*dt)*fp,-0.4,0.4);}}
+      for(let i=0;i<3;i++){const a=Math.abs(w[i])<0.25?0:w[i];hv[i]=(hv[i]+a*dt)*fv;hp[i]=clamp((hp[i]+hv[i]*dt)*fp,-0.4,0.4);}
+      lift=clamp((lift+hv[2]*dt)*Math.exp(-dt/7),-0.5,0.6);}
     if(ac.y>11&&rot<240&&t-lastJab>600){lastJab=t;if(conn)conn.send({t:'th'});}
   }
   $('padOn').addEventListener('click',async()=>{
@@ -394,11 +396,11 @@ function runPad(code,p){
     $('padOn').hidden=true;$('padHow').hidden=false;$('padVibInfo').textContent=canVib?'':'이 브라우저는 진동을 지원하지 않아 폰 스피커의 둔탁한 소리로 대신합니다.';say(conn?'연결됨. 화면을 겨누고 정면 맞추기를 누르세요.':'센서 켜짐. 컴퓨터 연결을 기다리는 중…');
     setTimeout(()=>{if(!gotEvent)say('동작 센서 값이 들어오지 않습니다. https 주소로 열었는지, 센서가 있는 기기인지 확인하세요.');},1800);
   });
-  $('padHowOk').addEventListener('click',()=>{$('padHow').hidden=true;$('padPlay').hidden=false;yaw0=yaw;});
+  $('padHowOk').addEventListener('click',()=>{lift=0;$('padHow').hidden=true;$('padPlay').hidden=false;yaw0=yaw;});
   $('padHowAgain').addEventListener('click',()=>{$('padPlay').hidden=true;$('padHow').hidden=false;});
   $('padVib').addEventListener('click',()=>{feel([120,60,120]);$('padVibInfo').textContent=canVib?'진동을 보냈습니다. 안 울리면 폰의 진동 설정(무음·방해 금지·절전)을 확인하세요.':'이 브라우저는 진동을 지원하지 않아 소리로 대신합니다.';});
   $('padRestart').addEventListener('click',()=>{if(conn)conn.send({t:'rs'});});
-  $('padCenter').addEventListener('click',()=>{yaw0=yaw;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
+  $('padCenter').addEventListener('click',()=>{yaw0=yaw;lift=0;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
   const joy=$('padJoy'),nub=$('padNub');let jid=null,jo=[0,0],lastMv=0;
   const mv=(x,y,force)=>{nub.style.transform='translate('+(x*60)+'px,'+(-y*60)+'px)';const t=performance.now();if(conn&&(force||t-lastMv>40)){lastMv=t;conn.send({t:'m',x:+x.toFixed(2),y:+y.toFixed(2)});}};
   joy.addEventListener('pointerdown',e=>{e.preventDefault();if(jid!=null)return;jid=e.pointerId;jo=[e.clientX,e.clientY];try{joy.setPointerCapture(jid);}catch(_){}mv(0,0,true);});
@@ -717,7 +719,7 @@ const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,i
 let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,armA:ARM_MAX,armArmor:true,armOff:false,shA:SH_MAX,shArmor:true,shOff:false,legA:LEG_MAX,legArmor:true,legOff:false,headOff:false,headDeb:null,cutT:0,shield:0,shieldOn:false,
-    lunge:0,dip:0,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
+    lunge:0,dip:0,hg:0,hgOn:false,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
   k.fh=null;computePose(k);if(k.weapon===1){k.fh=add(k.pose.hand,mulS(k.pose.dir,FL_A+FL_L));k.fhp=k.fh.slice();computePose(k);}k.pbA=k.pose.bA;k.pbB=k.pose.bB;
@@ -738,12 +740,13 @@ function computePose(k){
   // weapon hand and striking segment
   let sh=[0.29,1.43,0],hl=[0.12+0.30*axc,1.20+0.30*ayc+over*0.12+side*0.08,-0.42-0.06*(1-axc*axc)-k.ext*0.3+over*0.34+side*0.22];
   hl=[hl[0]+ho[0]*0.8,hl[1]+ho[1]*0.9,hl[2]-ho[2]*0.8];
-  if(g>0)hl=lerp3(hl,[0.10-0.2*gs,1.78,-0.38],g);
+  const hg=k.hg||0;
+  if(g>0)hl=lerp3(hl,hg>0.5?[0.12-0.3*gs,1.86,-0.34]:[0.10-0.2*gs,1.78,-0.38],g);
   // the shoulder rolls toward a far reach before the arm runs out of length
   {const d0=sub(hl,sh),l0=len(d0);if(l0>0.45)sh=add(sh,mulS(d0,Math.min(0.14,(l0-0.45)*0.6)/l0));}
   const dh=sub(hl,sh),dl0=len(dh);if(dl0>0.59)hl=add(sh,mulS(dh,0.59/dl0));
   const tx=ax*1.05-0.08+k.ext*0.5,ty=0.10+ay*1.05-k.dip;
-  let dl=[Math.sin(tx)*Math.cos(ty),Math.sin(ty),-Math.cos(tx)*Math.cos(ty)];if(g>0)dl=norm(lerp3(dl,[gs*0.75,-0.55,-0.35],g));
+  let dl=[Math.sin(tx)*Math.cos(ty),Math.sin(ty),-Math.cos(tx)*Math.cos(ty)];if(g>0)dl=norm(lerp3(dl,hg>0.5?[gs,0.04,-0.12]:[gs*0.75,-0.55,-0.35],g)); // high guard: level across the top of the head; hanging guard: slanting down
   const hand=mP(Um,hl),dir=norm(mD(Um,dl));const lh2=add(hand,mulS(dir,-0.11)); // off hand grips just below the main hand
   const bA=add(hand,mulS(dir,w.a)),bB=add(hand,mulS(dir,w.b));
   // shield
@@ -1008,8 +1011,10 @@ function step(h){
     // a fast sideways cut lays the weapon flatter, so cuts from the guard land at head and shoulder height
     {const ht=ph?ph.h:[0,0,0],hr=Math.min(1,18*h);for(let i=0;i<3;i++)k.hoff[i]+=(ht[i]-k.hoff[i])*hr;}
     // wind-up: drawing the weapon far back to the side or over the head charges the next blow for a moment
-    k.charge=Math.max(k.charge-h/0.9,clamp((Math.abs(k.ax)-1)/1.2,0,1),clamp((k.ay-1)/1.5,0,1));
-    k.guard+=((k.thr||k.dead?0:clamp((-k.ay-0.2)/0.3,0,1)*clamp((Math.abs(k.ax)-0.2)/0.3,0,1))-k.guard)*Math.min(1,14*h);
+    k.charge=Math.max(k.charge-h/0.9,k.hg>0.5?0:clamp((Math.abs(k.ax)-1)/1.2,0,1),clamp((k.ay-1)/1.5,0,1));
+    {const lev=ph&&!k.thr&&!k.dead&&Math.abs(ph.tx)>0.85&&ph.ty>-0.35&&ph.ty<0.75; // once raised into the guard it holds for as long as the weapon stays level and sideways
+      k.hgOn=lev&&(k.hgOn||ph.l>0.06);k.hg+=((k.hgOn?1:0)-k.hg)*Math.min(1,12*h);}
+    k.guard+=((k.thr||k.dead?0:Math.max(k.hg,clamp((-k.ay-0.2)/0.3,0,1)*clamp((Math.abs(k.ax)-0.2)/0.3,0,1)))-k.guard)*Math.min(1,14*h);
     k.dip+=((k.thr||k.guard>0.3?0:clamp((Math.abs(k.vx)-2)/3,0,1)*0.30)-k.dip)*Math.min(1,22*h);
     k.flinch*=Math.exp(-5*h);k.shPush*=Math.exp(-9*h);
     k.cutT-=h;k.stun-=h;k.stag-=h;k.carryT-=h;k.limpT-=h;k.buzzT-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
@@ -1304,7 +1309,7 @@ function pairOpen(p){
         let pp=id?K.findIndex(k=>k.phone&&k.phone.id===id):-1;if(pp<0)pp=free(want)?want:free(1-want)?1-want:want;
         c.send({t:'slot',p:pp});const ph={c,id,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);}
