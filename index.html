@@ -67,6 +67,8 @@ kbd{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 
 .stick b{position:absolute;left:50%;top:50%;width:40px;height:40px;border-radius:50%;background:rgba(242,231,208,.7);transform:translate(-50%,-50%)}
 #banner{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-family:var(--font-display);font-size:clamp(44px,9vw,96px);color:var(--parchment);text-shadow:5px 5px 0 #000;pointer-events:none;letter-spacing:.04em}
 #banner.go{color:var(--gold)}
+#banner.rep{top:12%;font-size:clamp(22px,4vw,40px);color:var(--gold)}
+.replay .view{visibility:hidden!important}
 
 /* ---- title ---- */
 #title,#ko{position:absolute;inset:0;display:flex;overflow-y:auto}
@@ -196,6 +198,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>무기가 부딪히는 순간 반대 방향 키를 누르면 패링. 상대가 크게 휘청인다.</li>
         <li>아래 대각선(S+A, S+D / 폰은 칼끝을 비스듬히 아래로)으로 잡으면 머리 위에서 비스듬히 내려 막는 자세가 된다. 막는 동안 스태미나가 닳는다.</li>
         <li>옆이나 머리 뒤로 크게 젖혔다가 휘두르면 최대 1.6배로 세게 들어간다.</li>
+        <li>무기가 맞물렸을 때 앞으로 걸으면 밀치기. 다리를 다치면 걸음이, 팔을 다치면 무기가 느려진다. 큰 타격과 패링은 환호를 모아 스태미나 회복을 빠르게 한다. 화로 근처는 뜨겁다.</li>
         <li>빨간 화살표는 상대 무기가 날아오는 쪽이다. 연습에서는 서 있는 상대에게 속도와 피해가 표시된다.</li>
         <li>휘두르면 스태미나가 닳고, 바닥나면 느려진다. 투구는 맞다 보면 벗겨진다.</li>
       </ul>
@@ -315,7 +318,8 @@ function runPad(code,p){
     $('padDot').style.transform='translate('+(clamp(x/2.2,-1,1)*50)+'%,'+(-clamp(y>0?y/3:y,-1,1)*50)+'%)';
     const t=performance.now();if(conn&&t-lastSend>15){lastSend=t;const cy=Math.cos(yaw0),sy=Math.sin(yaw0);
       // hand offset in the player's frame: right, up, forward
-      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
+      const g2=(e.gamma||0)*PI/180,cG=Math.cos(g2),sG=Math.sin(g2),sB=Math.sin(b),cA=Math.cos(a),sA=Math.sin(a),ex=cA*cG-sA*sB*sG,ey=cG*sA+cA*sB*sG,ez=-cb*sG; // the phone's thin side is the cutting edge
+      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),e:[+(ex*cy+ey*sy).toFixed(2),+ez.toFixed(2),+(-ex*sy+ey*cy).toFixed(2)],h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
   }
   function onMot(e){ // a sharp push along the phone's length with little rotation is a thrust
     const ac=e.acceleration,rr=e.rotationRate;if(!ac||ac.y==null)return;
@@ -648,15 +652,15 @@ const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.5
 const WEAPONS=[
   {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:1100,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
   {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:900,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
-  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:750,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3},
-  {name:'해머',desc:'가장 무겁고 느리다. 머리로 맞히면 피해가 크고 투구가 금방 깨진다',a:0.15,b:1.14,head:0.72,acc:27,pk:600,dmg:1.4,shaft:0.3,thr:0.4,ext:0.34,dist:1.55,st:1.5,brk:2.5,trail:0.3}];
+  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:28,pk:750,dmg:0.56,shaft:0.28,thr:1.4,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3},
+  {name:'해머',desc:'가장 무겁고 느리다. 머리로 맞히면 피해가 크고 투구가 금방 깨진다',a:0.15,b:1.14,head:0.72,acc:27,pk:600,dmg:1.6,shaft:0.3,thr:0.4,ext:0.34,dist:1.55,st:1.5,brk:2.5,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
-let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,clashD=9,clashSide=0,crossT=0;
+let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,shield:0,shieldOn:false,
-    lunge:0,dip:0,charge:0,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
+    lunge:0,dip:0,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
   k.fh=null;computePose(k);if(k.weapon===1){k.fh=add(k.pose.hand,mulS(k.pose.dir,FL_A+FL_L));k.fhp=k.fh.slice();computePose(k);}k.pbA=k.pose.bA;k.pbB=k.pose.bB;
@@ -779,12 +783,20 @@ function attackCore(A,D,h){
   const sp=thrusting?Math.abs(dot(bladeVel(A,best.s,h),pa.dir)):bladeSpeed(A,best.s,h);if(sp<(thrusting?2:MINSP))return;
   const pn=best.hb.p,part=PARTS[pn],bare=pn==='head'&&!D.helmOn;
   const f=Math.pow(thrusting?clamp((sp-2)/6.5,0,1.25):clamp((sp-MINSP)/9,0,1.25),1.15);
-  const dmg=Math.round(11*f*(bare?2.5:part.m)*w.dmg*(thrusting?w.thr:best.s>=w.head?1:w.shaft)*(thrusting?1:1+0.6*A.charge));if(dmg<2)return;
+  // a short flick counts for less than a full swing; a bare head and a wind-up do not fully stack; no blow exceeds 40
+  const travel=thrusting?1:clamp(0.35+0.65*A.trav/1.3,0.35,1);
+  let edgeF=1;if(A.phLive&&A.phone&&A.phone.e&&A.weapon===0&&!thrusting){const v=bladeVel(A,best.s,h),vp=sub(v,mulS(pa.dir,dot(v,pa.dir))),ep=sub(A.edge,mulS(pa.dir,dot(A.edge,pa.dir)));
+    if(len(vp)>0.5&&len(ep)>0.1)edgeF=0.6+0.55*Math.abs(dot(norm(vp),norm(ep)));} // phone only: striking with the edge beats striking with the flat
+  const dmg=Math.min(40,Math.round(11*f*(bare?2.2:part.m)*w.dmg*(thrusting?w.thr:best.s>=w.head?1:w.shaft)*(thrusting?1:1+0.6*A.charge*(bare?0.4:1))*travel*edgeF));if(dmg<2)return;
   const isArm=pn==='arm';D.hp=Math.max(0,D.hp-dmg);if(isArm){A.armCd=0.45;A.vx*=0.85;A.vy*=0.85;}else{A.hitCd=0.5;A.armCd=0.3;A.vx*=0.3;A.vy*=0.3;}endThrust(A);
   // the harder the hit, the longer the pause, the push and the shake
   const big=dmg>=20;
   D.flinch=Math.min(1,0.3+dmg/30);D.flash=1;D.vig=Math.min(1,0.5+dmg/40);D.stun=Math.max(D.stun,0.12+dmg*0.008);D.shake=Math.min(1.4,0.3+dmg/22);A.shake=Math.max(A.shake,0.2+dmg/60);
-  knock(A,D,0.7+dmg*0.11);freeze=Math.min(0.16,0.03+dmg*0.0042);if(big&&!REDUCED){slowT=0.22;slowS=0.45;}
+  knock(A,D,0.4+dmg*0.05);knock(D,A,-0.35);
+  if(pn==='leg'){const b=D.legHurt;D.legHurt+=dmg;if(b<18&&D.legHurt>=18)popFix(D.i,'다리 부상: 걸음이 느려진다');}
+  if(isArm){const b=D.armHurt;D.armHurt+=dmg;if(b<10&&D.armHurt>=10)popFix(D.i,'팔 부상: 무기가 느려진다');}
+  A.crowd=Math.min(100,A.crowd+dmg*1.3);
+  freeze=Math.min(0.16,0.03+dmg*0.0042);if(big&&!REDUCED){slowT=0.22;slowS=0.45;}
   sparks(best.pt,5+Math.floor(dmg/5),'steel',2+dmg*0.04,0.02);sparks(best.pt,3+Math.floor(dmg/3),'red',2.4+dmg*0.04,0.028);sparks(best.pt,3,'hot',3,0.018);
   buzz(D,big?[60+dmg*6,40,120]:60+dmg*6);buzz(A,big?[40,30,60]:35);sfx.hit(clamp(dmg/36,0.25,1),big);if(big)sfx.cheer(clamp(dmg/40,0.5,1));
   popAt(A.i,best.pt,(bare?'맨머리':part.n)+' -'+dmg+(practice?' · '+sp.toFixed(1)+'m/s':''),big?'dmg big':'dmg');popFix(D.i,'-'+dmg+' '+part.n);
@@ -807,7 +819,10 @@ function clashCheck(h){
   if(clashCd>0||rel<2.8||K[0].carryT>0||K[1].carryT>0||K[0].limpT>0||K[1].limpT>0){if(closing){const y0=K[0].carryT>0||K[0].limpT>0,y1=K[1].carryT>0||K[1].limpT>0,f=y0&&!y1?K[1]:y1&&!y0?K[0]:s0>s1?K[0]:K[1],sl=K[1-f.i],hi=Math.max(s0,s1),lo=Math.min(s0,s1);
       if(!crossed&&(sl.carryT>0||sl.limpT>0||hi>lo*1.5+0.3)){sl.carryT=0.14;sl.limpT=0.35;
         const v=bladeVel(f,f===K[0]?r[1]:r[2],h),rx=Math.cos(sl.yaw),rz=-Math.sin(sl.yaw);sl.vx=(v[0]*rx+v[2]*rz)*1.05;sl.vy=v[1]*1.05;f.vx*=0.985;f.vy*=0.985;}
-      else for(const k of K){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.15;k.vy*=-0.15;}}
+      else{for(const k of K){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.15;k.vy*=-0.15;}
+        // locked weapons: stepping in shoves the other knight back and off balance
+        for(const k of K){const o=K[1-k.i];if(k.mv[1]>0.5&&k.shoveCd<=0&&k.st>15&&!(o.mv[1]>0.5&&o.shoveCd<=0&&o.st>15)){k.shoveCd=1.2;k.st-=15;knock(k,o,2.6);o.stag=Math.max(o.stag,0.4);o.flinch=0.6;o.shake=0.8;
+            sfx.block(0.8);buzz(o,[60,40,90]);buzz(k,30);popAt(k.i,r[3],'밀치기','big');popFix(o.i,'밀렸다');if(LOG)LOG.push(['shove',k.i]);break;}}}}
     return;}
   // parry: a fresh key press pushing against the incoming weapon
   const par=[0,1].map(i=>{const me=K[i],op=K[1-i],v=bladeVel(op,i?r[1]:r[2],h),ox=v[0]*Math.cos(me.yaw)-v[2]*Math.sin(me.yaw),oy=v[1],m=Math.hypot(ox,oy);
@@ -816,7 +831,7 @@ function clashCheck(h){
   if(par[0]!==par[1]){const P=par[0]?K[0]:K[1],V=K[1-P.i];
     V.stag=0.8;V.stun=0.8;V.vx=-P.in[0]*5.5;V.vy=P.in[1]*5.5;V.hitCd=Math.max(V.hitCd,0.6);V.armCd=Math.max(V.armCd,0.6);V.flinch=0.7;V.shake=1;V.st=Math.max(0,V.st-22);P.st=Math.min(STMAX,P.st+10);endThrust(V);
     clashCd=0.3;freeze=0.07;if(!REDUCED){slowT=0.25;slowS=0.45;}
-    sparks(r[3],16,'hot',3.4,0.022);sparks(r[3],10,'spark',3,0.025);sfx.parry();buzz(V,[120,50,220]);buzz(P,[30,30,30]);
+    sparks(r[3],16,'hot',3.4,0.022);sparks(r[3],10,'spark',3,0.025);P.crowd=Math.min(100,P.crowd+25);sfx.parry();buzz(V,[120,50,220]);buzz(P,[30,30,30]);
     popAt(P.i,r[3],'패링!','big');popFix(V.i,'휘청');if(LOG)LOG.push(['parry',P.i]);return;}
   const fast=s0>s1?K[0]:K[1],slow=K[1-fast.i],sf=Math.max(s0,s1),ss=Math.min(s0,s1);
   if(slow.guard>0.5&&!slow.thr){ // a hanging guard stops the blow outright
@@ -869,12 +884,12 @@ function step(h){
       k.vx+=((T.tx-k.ax)*220-k.vx*26)*h;k.vy+=((T.ty-k.ay)*220-k.vy*26)*h;
       if(T.t>=0.44){k.thr=null;k.thrCd=0.22;k.ext=0;}
     }else if(ph){k.mv=[clamp(k.mv[0]+ph.mx,-1,1),clamp(k.mv[1]+ph.my,-1,1)]; // the weapon chases where the phone points; a heavier weapon lags more
-      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1),Ks=w.pk*g,C=2*Math.sqrt(Ks);
+      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1)*(1-Math.min(0.4,k.armHurt/40)),Ks=w.pk*g,C=2*Math.sqrt(Ks);
       k.vx+=((ph.tx-k.ax)*Ks-k.vx*C)*h;k.vy+=((ph.ty-k.ay)*Ks-k.vy*C)*h;
       // the weapon has weight: however fast the phone is flicked, it cannot outrun what the same weapon does on the keys
       {const vm=w.acc/DAMP*3.2*(k.tired?0.6:1),sp=Math.hypot(k.vx,k.vy);if(sp>vm){k.vx*=vm/sp;k.vy*=vm/sp;}}
     }else{
-      const ctl=(k.carryT>0?0.12:1)*(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
+      const ctl=(1-Math.min(0.4,k.armHurt/40))*(k.carryT>0?0.12:1)*(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
       // pressing against the motion kills it at once, so reversals are crisp
       if(k.in[0]*k.vx<0)k.vx*=Math.exp(-24*h);if(k.in[1]*k.vy<0)k.vy*=Math.exp(-24*h);
       k.vx+=(k.in[0]*w.acc*ctl-k.vx*DAMP)*h;k.vy+=(k.in[1]*w.acc*ctl-k.vy*DAMP)*h;
@@ -884,10 +899,14 @@ function step(h){
     k.ax+=k.vx*h;k.ay+=k.vy*h;
     {const ry=k.ay>0?AY_UP:1,rx=AX_SIDE,al=Math.hypot(k.ax/rx,k.ay/ry);if(al>1){k.ax/=al;k.ay/=al;const nl=Math.hypot(k.ax/(rx*rx),k.ay/(ry*ry))||1,nx=k.ax/(rx*rx)/nl,ny=k.ay/(ry*ry)/nl,vn=k.vx*nx+k.vy*ny;if(vn>0){k.vx-=vn*nx;k.vy-=vn*ny;}}}
     const asp=Math.hypot(k.vx,k.vy);
+    if(asp>2){k.trav+=asp*h;k.travQ=0;}else{k.travQ+=h;if(k.travQ>0.1)k.trav=0;}
+    k.crowd=Math.max(0,k.crowd-3*h);k.shoveCd-=h;k.phLive=!!ph;
+    if(fight&&!k.dead&&!practice){let hot=false;for(const f of fires)if(Math.hypot(k.x-f[0],k.z-f[2])<1.7)hot=true;
+      if(hot){k.hp=Math.max(1,k.hp-5*h);k.heatT-=h;if(k.heatT<=0){k.heatT=1.2;popFix(k.i,'화로가 뜨겁다');sparks([k.x,1.2,k.z],4,'hot',1.5,0.02);}}}
     if(ph){k.in=asp>1.5?[k.vx/asp,k.vy/asp]:[0,0];inm=asp>1.6?1:0;if(asp>3&&k.pAsp<=3)k.pressAge=0;k.pAsp=asp;}
     // stamina: swinging spends it, resting restores it
     if(fight&&!k.dead){
-      if(inm>0.2&&asp>1.6&&!k.thr){k.st-=asp*4.6*w.st*inm*h;k.stDelay=0.45;}else{k.stDelay-=h;if(k.stDelay<=0)k.st+=(k.tired?17:24)*h;}
+      if(inm>0.2&&asp>1.6&&!k.thr){k.st-=asp*4.6*w.st*inm*h;k.stDelay=0.45;}else{k.stDelay-=h;if(k.stDelay<=0)k.st+=(k.tired?17:24)*(1+k.crowd/100)*h;}
       if(k.guard>0.5){k.st-=9*h;k.stDelay=0.4;}
       if(k.st<=0){k.st=0;if(!k.tired){k.tired=true;popFix(k.i,'지쳤다');}}if(k.st>STMAX)k.st=STMAX;if(k.tired&&k.st>=35)k.tired=false;
     }
@@ -899,8 +918,8 @@ function step(h){
       let dy=Math.atan2(-dx,-dz)+k.turn-k.yaw;while(dy>PI)dy-=TAU;while(dy<-PI)dy+=TAU;k.yaw+=dy*Math.min(1,10*h);
       const want=o.dead?2.3:(w.dist+WEAPONS[o.weapon].dist)/2;
       const mr=Math.min(1,8*h),ctlM=(k.stun>0||k.thr)?0.4:1;k.mix+=((fight?k.mv[0]*ctlM:0)-k.mix)*mr;k.miy+=((fight?k.mv[1]*ctlM:0)-k.miy)*mr;
-      const vr=dist<1.1?clamp((dist-1.1)*7,-2.2,0)*0.5:0,vf=k.miy*1.3*(k.miy<0&&asp>3?0.15:1); // a downward cut does not walk you backwards
-      const rx=Math.cos(k.yaw),rz=-Math.sin(k.yaw),vs=k.mix*1.2;
+      const vr=dist<1.1?clamp((dist-1.1)*7,-2.2,0)*0.5:0,leg=1-Math.min(0.5,k.legHurt/60),vf=k.miy*1.3*leg*(k.miy<0&&asp>3?0.15:1); // a downward cut does not walk you backwards
+      const rx=Math.cos(k.yaw),rz=-Math.sin(k.yaw),vs=k.mix*1.2*leg;
       k.mvx=ux*vr-Math.sin(k.yaw)*vf+rx*vs+k.kvx;k.mvz=uz*vr-Math.cos(k.yaw)*vf+rz*vs+k.kvz;
       k.x+=k.mvx*h;k.z+=k.mvz*h;
       const pr=Math.hypot(k.x,k.z);if(pr>8.3){k.x*=8.3/pr;k.z*=8.3/pr;}
@@ -925,7 +944,8 @@ function step(h){
       if(f[1]<0.08)f[1]=0.08;computePose(k);}
     if(k.weapon!==1&&k.pose.bB[1]<0.03&&k.pose.bB[1]<k.pbB[1]&&!k.dead){k.ax=k.pax;k.ay=k.pay;k.vx*=-0.1;k.vy*=-0.1;computePose(k);}
     if(k.weapon!==1&&k.pose.bB[1]<0&&!k.dead&&!(k.guard>0.3)){k.ay+=4*h;if(k.vy<0)k.vy=0;computePose(k);} // a crouch or lean pushed the tip under: lift it back out
-    const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipV=mulS(tv,1/h);k.tipSp=tl/h;if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
+    const tv=sub(k.pose.bB,k.pbB),tl=len(tv);k.tipV=mulS(tv,1/h);k.tipSp=tl/h;if(ph&&ph.e&&k.weapon===0){const e=ph.e,c=Math.cos(k.yaw),sn=Math.sin(k.yaw);k.edge=norm([c*e[0]-sn*e[2],e[1],-sn*e[0]-c*e[2]]);}
+    else if(k.tipSp>1.2&&!k.thr)k.edge=norm(lerp3(k.edge,mulS(tv,1/tl),Math.min(1,20*h)));
     if(subN%6===0){k.trail.push({a:lerp3(k.pose.bA,k.pose.bB,1-w.trail),b:k.pose.bB,s:k.tipSp});if(k.trail.length>10)k.trail.shift();}
   }
   clashCd-=h;
@@ -938,7 +958,7 @@ function updateFeet(k,dt){
   if(k.step){const s=k.step;s.t+=dt/0.17;const u=Math.min(1,s.t),e=u*u*(3-2*u);const p=lerp3(s.from,ideal[s.f],e);p[1]=Math.sin(PI*u)*0.09;k.feet[s.f]=p;if(u>=1){k.feet[s.f][1]=0;k.step=null;}}
   else{const e0=len(sub(k.feet[0],ideal[0])),e1=len(sub(k.feet[1],ideal[1])),f=e0>e1?0:1;if(Math.max(e0,e1)>0.19)k.step={f,from:k.feet[f].slice(),t:0};}
 }
-function knockOut(A,D){
+function knockOut(A,D){koTime=time;replayDone=false;
   buzz(D,[300,80,400]);buzz(A,[80,60,80,60,200]);
   D.dead=true;A.rounds++;state='ko';stateT=0;koPhase=0;koWinner=A;slowT=1.5;slowS=0.3;sfx.cheer(1);sfx.bell();knock(A,D,1.5);banner('');
   if(LOG)LOG.push(['ko',A.i]);
@@ -947,6 +967,7 @@ function knockOut(A,D){
 /* ================= HUD ================= */
 const stage=$('stage');
 K.forEach(k=>{const r=$('v'+k.i),q=s=>r.querySelector(s);const inc=document.createElement('i');inc.className='inc';r.appendChild(inc);k.inc=inc;k.el={root:r,hp:q('.hp i'),hpn:q('.hpn'),pips:r.querySelectorAll('.pips b'),vig:q('.vig'),pops:q('.pops'),pow:q('.power i'),stick:q('.stick'),knob:q('.stick b'),
+  crowd:(()=>{const g=document.createElement('span');g.className='gear crowd';g.innerHTML='환호<em><i></i></em>';q('.sub2').appendChild(g);return g.querySelector('em i');})(),
   st:q('.stm i'),helm:q('.helm'),helmB:q('.helm em i'),shld:q('.shld'),shldB:q('.shld em i')};});
 function project(v,p){const m=K[v].VP,w=m[3]*p[0]+m[7]*p[1]+m[11]*p[2]+m[15];if(w<0.05)return null;
   const x=(m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12])/w,y=(m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13])/w,r=K[v].el.root;
@@ -961,7 +982,7 @@ function hud(){for(const k of K){const e=k.el;
       if(state==='fight'&&near&&m>6&&!o.dead&&o.limpT<=0){const R=Math.min(e.root.clientWidth,e.root.clientHeight)*0.36;k.inc.style.opacity=clamp((m-6)/5,0.35,1).toFixed(2);
         k.inc.style.transform='translate('+(-mx/m*R).toFixed(0)+'px,'+(-my/m*R).toFixed(0)+'px) rotate('+Math.atan2(mx,-my).toFixed(2)+'rad)';}else k.inc.style.opacity='0';}e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.hp<=30);e.hpn.textContent=Math.ceil(k.hp);
     e.pips.forEach((b,i)=>b.classList.toggle('on',i<k.rounds));e.vig.style.opacity=k.vig.toFixed(2);e.pow.style.width=clamp(k.tipSp/12,0,1)*100+'%';e.pow.classList.toggle('hot',k.tipSp>7);
-    e.st.style.width=(k.st/STMAX*100)+'%';e.st.parentNode.classList.toggle('tired',k.tired);
+    e.crowd.style.width=k.crowd+'%';e.st.style.width=(k.st/STMAX*100)+'%';e.st.parentNode.classList.toggle('tired',k.tired);
     e.helmB.style.width=(k.helm/HELM_MAX*100)+'%';e.helm.classList.toggle('broken',!k.helmOn);e.shldB.style.width=(Math.max(0,k.shield)/SHIELD_MAX*100)+'%';e.shld.classList.toggle('broken',!k.shieldOn);}}
 
 /* ================= audio ================= */
@@ -992,7 +1013,10 @@ const sfx={
 function whooshUpdate(){if(!AC)return;K.forEach((k,i)=>{const w=whoosh[i];if(!w)return;const s=state==='title'?0:clamp((k.tipSp-3)/8,0,1);w.g.gain.setTargetAtTime(s*s*0.22,AC.currentTime,0.03);w.b.frequency.setTargetAtTime(350+s*900,AC.currentTime,0.03);});}
 
 /* ================= render ================= */
-let views=[],pxScale=1;
+let views=[],pxScale=1,extCam=null,replay=null,replayDone=false;const hist=[];
+const SNAP=['x','z','yaw','ax','ay','lunge','ext','dip','guard','fall','flinch','capeA','skirtA','helmOn','dead','shPush','charge','flash'];
+const snap=t=>({t,k:K.map(k=>{const o={hoff:k.hoff.slice(),feet:[k.feet[0].slice(),k.feet[1].slice()],fh:k.fh?k.fh.slice():null,edge:k.edge.slice()};for(const n of SNAP)o[n]=k[n];return o;})});
+const unsnap=sn=>{K.forEach((k,i)=>{const o=sn.k[i];for(const n of SNAP)k[n]=o[n];k.hoff=o.hoff.slice();k.feet=[o.feet[0].slice(),o.feet[1].slice()];k.fh=o.fh?o.fh.slice():null;k.edge=o.edge.slice();k.trail=[];computePose(k);});};
 const soloIdx=()=>practice||K[1].cpu&&!K[0].cpu?0:K[0].cpu&&!K[1].cpu?1:-1;
 function resize(){
   const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
@@ -1001,7 +1025,7 @@ function resize(){
   const cw=Math.ceil(w/pxScale),ch=Math.ceil(h/pxScale);
   if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch;}
   // one human against the computer (or practice) gets the whole screen; two humans split it
-  const solo=state==='title'||window.__duel&&window.__duel.cam?-1:soloIdx();stage.classList.toggle('solo',solo>=0);stage.dataset.solo=solo;
+  const solo=extCam?0:state==='title'||window.__duel&&window.__duel.cam?-1:soloIdx();stage.classList.toggle('solo',solo>=0);stage.dataset.solo=solo;
   views=solo>=0?[{x:0,y:0,w:cw,h:ch,k:solo}]:land?[{x:0,y:0,w:cw>>1,h:ch,k:0},{x:cw-(cw>>1),y:0,w:cw>>1,h:ch,k:1}]:[{x:0,y:0,w:cw,h:ch>>1,k:0},{x:0,y:ch-(ch>>1),w:cw,h:ch>>1,k:1}];
 }
 const trails=[0,1].map(()=>({b:gl.createBuffer(),n:0}));
@@ -1037,7 +1061,7 @@ function render(){
   gl.enable(gl.SCISSOR_TEST);
   for(const vp of views){
     const v=vp.k,k=K[v];gl.viewport(vp.x,vp.y,vp.w,vp.h);gl.scissor(vp.x,vp.y,vp.w,vp.h);
-    const dbg=window.__duel.cam,cam=dbg?dbg(v):camMatrix(k),asp=vp.w/vp.h,fov=dbg?0.8:(asp<1?1.5:1.5-Math.min(0.35,(asp-1)*0.4));
+    const dbg=window.__duel.cam||extCam,cam=dbg?dbg(v):camMatrix(k),asp=vp.w/vp.h,fov=dbg?0.8:(asp<1?1.5:1.5-Math.min(0.35,(asp-1)*0.4));
     const VP=mMul(mPersp(fov,asp,0.07,600),mInvRigid(cam));k.VP=VP;
     gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3f(U.uCam,cam[12],cam[13],cam[14]);gl.uniform3f(U.uTint,0,0,0);gl.uniform1f(U.uAlpha,1);
     gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.uniform1f(U.uEmis,1);draw(sky,mT(cam[12],cam[13]*0.5,cam[14]));
@@ -1079,6 +1103,13 @@ function frame(ts){
     if(koPhase===1&&A.rounds<2&&stateT>3.6){round++;startRound();}
   }
   const ts2=slowT>0?slowS:1;slowT-=dt;
+  // replay of the finishing blow from outside, at half speed, before the result is shown
+  if(state==='ko'&&koPhase===0&&!replay&&!replayDone&&stateT>1.2&&hist.length>30&&!REDUCED){const end=hist[hist.length-1];replay={t:Math.max(hist[0].t,koTime-1.6),end,ang:rr(0.5,1.1)*(rnd()<0.5?-1:1)};
+    extCam=()=>{const mx=(K[0].x+K[1].x)/2,mz=(K[0].z+K[1].z)/2,base=Math.atan2(-(K[1].x-K[0].x),-(K[1].z-K[0].z))+PI/2;return mMulN(mT(mx,1.25,mz),mRY(base+replay.ang+(replay.t-koTime)*0.25),mT(0,0.15,3.4),mRX(-0.1));};
+    stage.classList.add('replay');banner('다시 보기','rep');particles=[];}
+  if(replay){replay.t+=dt*0.5;let sn=hist[0];for(const hsn of hist){if(hsn.t<=replay.t)sn=hsn;else break;}unsnap(sn);
+    if(replay.t>=Math.min(replay.end.t,koTime+0.9)){unsnap(replay.end);replay=null;replayDone=true;extCam=null;stage.classList.remove('replay');banner('');stateT=1.8;}
+    else{stateT=1.3;render();return;}}
   if(freeze>0){freeze-=dt;dt=0;}
   acc+=dt*ts2;let n=0;while(acc>=H&&n<36){step(H);acc-=H;n++;}if(n===36)acc=0;
   const sd=dt*ts2;
@@ -1089,9 +1120,11 @@ function frame(ts){
   for(let i=particles.length-1;i>=0;i--){const q=particles[i];q.l-=sd;if(q.l<=0){particles.splice(i,1);continue;}q.v[1]-=9*sd;q.p[0]+=q.v[0]*sd;q.p[1]+=q.v[1]*sd;q.p[2]+=q.v[2]*sd;if(q.p[1]<0.02){q.p[1]=0.02;q.v[1]*=-0.3;q.v[0]*=0.6;q.v[2]*=0.6;}}
   for(const q of debris){if(q.rest)continue;q.v[1]-=9.8*sd;q.p[0]+=q.v[0]*sd;q.p[1]+=q.v[1]*sd;q.p[2]+=q.v[2]*sd;q.r[0]+=q.w[0]*sd;q.r[1]+=q.w[1]*sd;
     if(q.p[1]<0.14){q.p[1]=0.14;if(Math.abs(q.v[1])<1.2){q.rest=true;q.r[0]=PI/2;}else{q.v[1]*=-0.35;q.v[0]*=0.5;q.v[2]*=0.5;q.w[0]*=0.5;q.w[1]*=0.5;}}}
+  if(state==='fight'||state==='ko'){hist.push(snap(time));if(hist.length>260)hist.shift();}
   render();hud();whooshUpdate();
 }
 function startRound(){
+  hist.length=0;replay=null;replayDone=false;extCam=null;stage.classList.remove('replay');
   K.forEach(resetKnight);particles=[];debris=[];state='intro';stateT=0;introStage=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
   $('title').hidden=true;$('ko').hidden=true;banner('');K.forEach(k=>k.el.pops.textContent='');stage.classList.add('playing');
 }
@@ -1101,7 +1134,7 @@ function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu
   if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.seen<6000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
   try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
   audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
-function toTitle(){state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
+function toTitle(){replay=null;extCam=null;stage.classList.remove('replay');state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
 
 /* ================= input ================= */
 const KEYMAP={KeyQ:[0,'tl'],KeyE:[0,'tr'],Comma:[1,'tl'],Period:[1,'tr'],KeyW:[0,'u'],KeyS:[0,'d'],KeyA:[0,'l'],KeyD:[0,'r'],ArrowUp:[1,'u'],ArrowDown:[1,'d'],ArrowLeft:[1,'l'],ArrowRight:[1,'r']};
@@ -1153,7 +1186,7 @@ function pairRefresh(){document.querySelectorAll('.plink').forEach(el=>{const p=
 function pairOpen(p){
   if(!pairCode){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';pairCode='';for(let i=0;i<5;i++)pairCode+=A[Math.floor(Math.random()*A.length)];
     netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        c.on=d=>{if(!d)return;ph.seen=performance.now();if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);}
