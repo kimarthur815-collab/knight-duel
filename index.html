@@ -292,7 +292,8 @@ function runPad(code,p){
   const say=t=>{$('padStatus').textContent=t;};
   let conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0;const hv=[0,0,0],hp=[0,0,0];
   say('컴퓨터에 연결하는 중…');
-  netJoin(code,{p},c=>{conn=c;say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
+  setInterval(()=>{if(conn)conn.send({t:'hb'});},1000); // tells the screen this phone is still there even before its sensors are on
+  netJoin(code,{p},c=>{conn=c;c.send({t:'hb'});say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
     d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}
       if(d&&d.t==='c'&&sensing&&gotEvent&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
@@ -1090,7 +1091,7 @@ function startRound(){
 function startPractice(){practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
 function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';K[0].cpu=false;
   // a screen with no keyboard and only one phone connected: the computer plays the other knight
-  if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.last<4000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
+  if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.seen<6000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
   try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
   audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
 function toTitle(){state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
@@ -1137,15 +1138,15 @@ function probe(A,D){const pa=A.pose,pd=D.pose,inv=mInvRigid(pd.shM),la=mP(inv,pa
 window.__duel={K,probe,WEAPONS,REST,set log(v){LOG=v;},get log(){return LOG;},step,render,startMatch,setWeapon,mMulN,mT,mRY,mRX,cam:null,get state(){return state;},set state(v){state=v;},computePose,PARTS};
 // phone pairing (host side)
 let pairCode=null,pairState='';
-const pairText=p=>{const k=K[p];return k.phone&&performance.now()-k.phone.last<3000?'폰 연결됨. 폰 위쪽이 칼끝입니다.':pairState==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':pairState==='error'?'연결 서버 오류입니다. 새로 고친 뒤 다시 시도하세요.':pairState!=='ready'?'연결 서버에 접속하는 중…':/^https?:/.test(location.protocol)?'폰 카메라로 QR을 찍거나, 폰에서 이 주소를 열고 코드 '+pairCode+'를 입력하세요.':'이 파일을 웹(https)에 올려야 폰이 접속할 수 있습니다. 코드 '+pairCode;};
+const pairText=p=>{const k=K[p];return k.phone&&performance.now()-k.phone.seen<6000?(performance.now()-k.phone.last<3000?'폰 연결됨. 폰 위쪽이 칼끝입니다.':'폰 연결됨. 폰에서 센서 켜기를 눌러 주세요.'):pairState==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':pairState==='error'?'연결 서버 오류입니다. 새로 고친 뒤 다시 시도하세요.':pairState!=='ready'?'연결 서버에 접속하는 중…':/^https?:/.test(location.protocol)?'폰 카메라로 QR을 찍거나, 폰에서 이 주소를 열고 코드 '+pairCode+'를 입력하세요.':'이 파일을 웹(https)에 올려야 폰이 접속할 수 있습니다. 코드 '+pairCode;};
 function drawQR(cv,text){try{if(typeof qrcode!=='function')return false;const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),sz=Math.floor(cv.width/(n+4)),o=Math.floor((cv.width-n*sz)/2),g=cv.getContext('2d');
     g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#000';for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))g.fillRect(o+c*sz,o+r*sz,sz,sz);return true;}catch(e){return false;}}
 function pairRefresh(){document.querySelectorAll('.plink').forEach(el=>{const p=+el.dataset.p,box=el.querySelector('.pbox');if(box.hidden)return;el.querySelector('.pinfo').textContent=pairText(p);
     const cv=el.querySelector('canvas'),url=location.href.split('#')[0]+'#j='+pairCode+'&p='+p+(HASH.has('bc')?'&bc=1':'');if(cv.dataset.u!==url&&pairCode){cv.dataset.u=url;cv.hidden=!drawQR(cv,url);}});}
 function pairOpen(p){
   if(!pairCode){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';pairCode='';for(let i=0;i<5;i++)pairCode+=A[Math.floor(Math.random()*A.length)];
-    netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:performance.now()};K[pp].phone=ph;
-        c.on=d=>{if(!d)return;if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+    netHost(pairCode,c=>{const pp=c.meta&&c.meta.p===1?1:0,ph={c,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
+        c.on=d=>{if(!d)return;ph.seen=performance.now();if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th')K[pp].thrustReq='p';else if(d.t==='rs'){if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);}
