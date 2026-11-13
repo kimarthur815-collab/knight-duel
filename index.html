@@ -215,6 +215,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
       <div id="padAim" aria-hidden="true"><i id="padDot"></i></div>
       <p class="padHelp">폰 위쪽 끝이 칼끝입니다. 손잡이처럼 쥐고 컴퓨터 화면을 겨눈 뒤 정면 맞추기를 누르세요. 앞으로 짧게 내지르면 찌르기입니다.</p>
       <div class="padRow"><button type="button" id="padCenter">정면 맞추기</button><button type="button" id="padRestart">결투 시작 · 다시 하기</button></div>
+      <div class="padRow"><button type="button" id="padVib">진동 시험</button></div><p class="padHelp" id="padVibInfo"></p>
       <div id="padJoy" aria-label="이동 조이스틱"><i id="padNub"></i><span>여기를 누른 채 끌어서 이동</span></div>
     </div>
   </section>
@@ -299,10 +300,14 @@ function runPad(code,p){
   say('컴퓨터에 연결하는 중…');
   setInterval(()=>{if(conn)conn.send({t:'hb'});},1000); // tells the screen this phone is still there even before its sensors are on
   netJoin(code,{p},c=>{conn=c;c.send({t:'hb'});say(sensing?'연결됨. 휘두르세요.':'연결됨. 센서 켜기를 누르세요.');},
-    d=>{if(d&&d.t==='v'&&navigator.vibrate){try{navigator.vibrate(d.ms);}catch(_){}}
+    d=>{if(d&&d.t==='v')feel(d.ms);
       if(d&&d.t==='pg'&&conn)conn.send({t:'po',ts:d.ts});
       if(d&&d.t==='c'&&sensing&&gotEvent&&route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'));
+  let pac=null;const canVib=typeof navigator.vibrate==='function';
+  function thump(ms){if(!pac)return;try{const t=pac.currentTime,o=pac.createOscillator(),g=pac.createGain(),dur=clamp(ms/1000,0.04,0.3);o.type='sine';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(50,t+dur);
+      g.gain.setValueAtTime(0.9,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g);g.connect(pac.destination);o.start(t);o.stop(t+dur+0.02);}catch(_){}}
+  function feel(ms){let ok=false;if(canVib){try{ok=navigator.vibrate(ms);}catch(_){}}if(!ok)thump(Array.isArray(ms)?ms.reduce((a,b,i)=>a+(i%2?0:b),0):ms);}
   function onOri(e){
     if(e.alpha==null||e.beta==null)return;gotEvent=true;
     const a=e.alpha*PI/180,b=e.beta*PI/180,cb=Math.cos(b);ang=[a,b,(e.gamma||0)*PI/180];
@@ -343,9 +348,11 @@ function runPad(code,p){
       if(typeof DeviceMotionEvent!=='undefined'&&DeviceMotionEvent.requestPermission){try{await DeviceMotionEvent.requestPermission();}catch(_){}}}catch(_){}
     if(!sensing){addEventListener('deviceorientation',onOri);addEventListener('devicemotion',onMot);sensing=true;}
     try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
-    $('padOn').hidden=true;$('padPlay').hidden=false;say(conn?'연결됨. 화면을 겨누고 정면 맞추기를 누르세요.':'센서 켜짐. 컴퓨터 연결을 기다리는 중…');
+    try{pac=pac||new(window.AudioContext||window.webkitAudioContext)();if(pac.state==='suspended')pac.resume();}catch(_){}
+    $('padOn').hidden=true;$('padPlay').hidden=false;$('padVibInfo').textContent=canVib?'':'이 브라우저는 진동을 지원하지 않아 폰 스피커의 둔탁한 소리로 대신합니다.';say(conn?'연결됨. 화면을 겨누고 정면 맞추기를 누르세요.':'센서 켜짐. 컴퓨터 연결을 기다리는 중…');
     setTimeout(()=>{if(!gotEvent)say('동작 센서 값이 들어오지 않습니다. https 주소로 열었는지, 센서가 있는 기기인지 확인하세요.');},1800);
   });
+  $('padVib').addEventListener('click',()=>{feel([120,60,120]);$('padVibInfo').textContent=canVib?'진동을 보냈습니다. 안 울리면 폰의 진동 설정(무음·방해 금지·절전)을 확인하세요.':'이 브라우저는 진동을 지원하지 않아 소리로 대신합니다.';});
   $('padRestart').addEventListener('click',()=>{if(conn)conn.send({t:'rs'});});
   $('padCenter').addEventListener('click',()=>{yaw0=yaw;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
   const joy=$('padJoy'),nub=$('padNub');let jid=null,jo=[0,0],lastMv=0;
@@ -663,7 +670,7 @@ const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,i
 let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,shield:0,shieldOn:false,
-    lunge:0,dip:0,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
+    lunge:0,dip:0,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
     trail:[],thrustReq:null,pressAge:9,pAsp:0,ai:{t:0.6,seq:[],wait:0},pose:null});
   const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];
   k.fh=null;computePose(k);if(k.weapon===1){k.fh=add(k.pose.hand,mulS(k.pose.dir,FL_A+FL_L));k.fhp=k.fh.slice();computePose(k);}k.pbA=k.pose.bA;k.pbB=k.pose.bB;
@@ -747,7 +754,7 @@ function attack(A,D,h){
   attackCore(A,D,h);
   // a thrust that is still buried shoves the two knights apart like a pole
   if(deep&&deep.pen>0.05&&!D.dead&&A.ext>0.03){const dx=D.x-A.x,dz=D.z-A.z,dl=Math.hypot(dx,dz)||1,p=Math.min(0.02,(deep.pen-0.05)*0.5);A.x-=dx/dl*p;A.z-=dz/dl*p;D.x+=dx/dl*p;D.z+=dz/dl*p;}
-  if(deep&&deep.vin>0.2&&!D.dead){endThrust(A);
+  if(deep&&deep.vin>0.2&&!D.dead){endThrust(A);if(A.buzzT<=0){A.buzzT=0.25;buzz(A,40);}
     if(A.weapon===1&&A.fh){const d=sub(A.fh,deep.q),dl=len(d)||1,R=deep.hb.r+0.09;if(dl<R){A.fh=add(deep.q,mulS(d,R/dl));A.fhp=A.fh.slice();}}
     else{A.ax=A.pax;A.ay=A.pay;A.vx*=-0.12;A.vy*=-0.12;}
     computePose(A);}
@@ -802,7 +809,7 @@ function attackCore(A,D,h){
   A.crowd=Math.min(100,A.crowd+dmg*1.3);
   freeze=Math.min(0.16,0.03+dmg*0.0042);if(big&&!REDUCED){slowT=0.22;slowS=0.45;}
   sparks(best.pt,5+Math.floor(dmg/5),'steel',2+dmg*0.04,0.02);sparks(best.pt,3+Math.floor(dmg/3),'red',2.4+dmg*0.04,0.028);sparks(best.pt,3,'hot',3,0.018);
-  buzz(D,big?[60+dmg*6,40,120]:60+dmg*6);buzz(A,big?[40,30,60]:35);sfx.hit(clamp(dmg/36,0.25,1),big);if(big)sfx.cheer(clamp(dmg/40,0.5,1));
+  buzz(D,big?[60+dmg*6,40,120]:60+dmg*6);buzz(A,big?[60,30,80]:50);A.buzzT=0.25;sfx.hit(clamp(dmg/36,0.25,1),big);if(big)sfx.cheer(clamp(dmg/40,0.5,1));
   popAt(A.i,best.pt,(bare?'맨머리':part.n)+' -'+dmg+(practice?' · '+sp.toFixed(1)+'m/s':''),big?'dmg big':'dmg');popFix(D.i,'-'+dmg+' '+part.n);
   if(LOG)LOG.push(['hit',A.i,pn,dmg,+sp.toFixed(1),thrusting?'thrust':'swing']);
   if(pn==='head'&&D.helmOn){D.helm-=dmg*w.brk;if(D.helm<=0){D.helmOn=false;D.helm=0;fling(D.model.head,pd.headC,A,D,[0,-1.7,0]);sfx.brk();popAt(A.i,pd.headC,'투구 파괴','big');if(LOG)LOG.push(['helmbreak',D.i]);}}
@@ -938,7 +945,7 @@ function step(h){
     k.guard+=((k.thr||k.dead?0:clamp((-k.ay-0.2)/0.3,0,1)*clamp((Math.abs(k.ax)-0.2)/0.3,0,1))-k.guard)*Math.min(1,14*h);
     k.dip+=((k.thr||k.guard>0.3?0:clamp((Math.abs(k.vx)-2)/3,0,1)*0.30)-k.dip)*Math.min(1,22*h);
     k.flinch*=Math.exp(-5*h);k.shPush*=Math.exp(-9*h);
-    k.stun-=h;k.stag-=h;k.carryT-=h;k.limpT-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
+    k.stun-=h;k.stag-=h;k.carryT-=h;k.limpT-=h;k.buzzT-=h;k.hitCd-=h;k.armCd-=h;k.blockCd-=h;k.thrCd-=h;
     computePose(k);
     if(k.weapon===1&&k.fh){ // chain: the head coasts, falls, and is only pulled when the chain goes taut
       const an=add(k.pose.hand,mulS(k.pose.dir,FL_A)),f=k.fh,pv=k.fhp;k.fhp=f.slice();
