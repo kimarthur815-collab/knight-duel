@@ -637,9 +637,9 @@ const NAMES=['1P 청기사','2P 성전기사'];
 const PARTS={head:{n:'머리',m:1.8},torso:{n:'몸통',m:1.0},arm:{n:'팔',m:0.5},leg:{n:'다리',m:0.7}};
 // a..b: part of the weapon that collides (metres from the hand); head: where the striking end starts (0..1 along a..b)
 const WEAPONS=[
-  {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:520,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
-  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:380,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
-  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:280,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
+  {name:'장검',desc:'균형 잡힌 기본 무기',a:0.10,b:1.10,head:0,acc:48,pk:170,dmg:1.0,shaft:1,thr:0.6,ext:0.38,dist:1.5,st:1.0,brk:1.0,trail:0.45},
+  {name:'철퇴',desc:'사슬 끝의 쇠뭉치가 늦게 따라오며 크게 휘둘린다. 한 방이 무겁다',a:0.18,b:0.86,head:0.6,acc:40,pk:120,dmg:1.0,shaft:0.35,thr:0.4,ext:0.32,dist:1.3,st:1.3,brk:2.2,trail:0.5},
+  {name:'창',desc:'멀리 닿고 찌르기가 강하지만 휘두르기는 약하다',a:0.15,b:1.78,head:0.8,acc:32,pk:95,dmg:0.6,shaft:0.3,thr:1.5,ext:0.5,dist:1.98,st:1.1,brk:0.8,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],touch:[0,0],tprev:[0,0],keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9},lastTap:-9}));
@@ -848,8 +848,10 @@ function step(h){
       k.vx+=((T.tx-k.ax)*220-k.vx*26)*h;k.vy+=((T.ty-k.ay)*220-k.vy*26)*h;
       if(T.t>=0.44){k.thr=null;k.thrCd=0.22;k.ext=0;}
     }else if(ph){k.mv=[clamp(k.mv[0]+ph.mx,-1,1),clamp(k.mv[1]+ph.my,-1,1)]; // the weapon chases where the phone points; a heavier weapon lags more
-      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1),Ks=w.pk*g,C=1.8*Math.sqrt(Ks);
+      const g=(k.stag>0?0.15:k.stun>0?0.55:1)*(k.tired?0.5:1)*(k.carryT>0?0.12:1),Ks=w.pk*g,C=2*Math.sqrt(Ks);
       k.vx+=((ph.tx-k.ax)*Ks-k.vx*C)*h;k.vy+=((ph.ty-k.ay)*Ks-k.vy*C)*h;
+      // the weapon has weight: however fast the phone is flicked, it cannot outrun what the same weapon does on the keys
+      {const vm=w.acc/DAMP*0.9*(k.tired?0.6:1),sp=Math.hypot(k.vx,k.vy);if(sp>vm){k.vx*=vm/sp;k.vy*=vm/sp;}}
     }else{
       const ctl=(k.carryT>0?0.12:1)*(k.stag>0?0.12:k.stun>0?0.3:1)*(state==='intro'?0.6:1)*(k.tired?0.45:0.8+0.2*Math.min(1,k.st/40));
       // pressing against the motion kills it at once, so reversals are crisp
