@@ -29,6 +29,8 @@ body{background:var(--stone);color:var(--parchment);font-family:var(--font-body)
 .land #v1{left:50%;top:0;width:50%;height:100%}
 .port #v1{left:0;top:0;width:100%;height:50%}
 .port #v0{left:0;top:50%;width:100%;height:50%}
+.solo #divider{display:none!important}.solo .view{left:0!important;top:0!important;width:100%!important;height:100%!important}
+.solo[data-solo="0"] #v1,.solo[data-solo="1"] #v0{display:none}
 #divider{position:absolute;background:var(--stone);display:none}
 .playing #divider{display:block}
 .land #divider{left:calc(50% - 2px);top:0;width:4px;height:100%}
@@ -970,13 +972,16 @@ function whooshUpdate(){if(!AC)return;K.forEach((k,i)=>{const w=whoosh[i];if(!w)
 
 /* ================= render ================= */
 let views=[],pxScale=1;
+const soloIdx=()=>practice||K[1].cpu&&!K[0].cpu?0:K[0].cpu&&!K[1].cpu?1:-1;
 function resize(){
   const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
   const land=w>=h;stage.classList.toggle('land',land);stage.classList.toggle('port',!land);
-  pxScale=Math.max(1,Math.floor(Math.min(w,h)*(land?1:0.5)/300));
+  pxScale=Math.max(1,Math.floor(Math.min(w,h)*(land||soloIdx()>=0&&state!=='title'?1:0.5)/300));
   const cw=Math.ceil(w/pxScale),ch=Math.ceil(h/pxScale);
   if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch;}
-  views=land?[{x:0,y:0,w:cw>>1,h:ch},{x:cw-(cw>>1),y:0,w:cw>>1,h:ch}]:[{x:0,y:0,w:cw,h:ch>>1},{x:0,y:ch-(ch>>1),w:cw,h:ch>>1}];
+  // one human against the computer (or practice) gets the whole screen; two humans split it
+  const solo=state==='title'||window.__duel&&window.__duel.cam?-1:soloIdx();stage.classList.toggle('solo',solo>=0);stage.dataset.solo=solo;
+  views=solo>=0?[{x:0,y:0,w:cw,h:ch,k:solo}]:land?[{x:0,y:0,w:cw>>1,h:ch,k:0},{x:cw-(cw>>1),y:0,w:cw>>1,h:ch,k:1}]:[{x:0,y:0,w:cw,h:ch>>1,k:0},{x:0,y:ch-(ch>>1),w:cw,h:ch>>1,k:1}];
 }
 const trails=[0,1].map(()=>({b:gl.createBuffer(),n:0}));
 function buildTrail(){
@@ -1009,8 +1014,8 @@ function render(){
   resize();buildTrail();
   gl.disable(gl.SCISSOR_TEST);gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0.1,0.09,0.12,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.SCISSOR_TEST);
-  for(let v=0;v<2;v++){
-    const vp=views[v],k=K[v];gl.viewport(vp.x,vp.y,vp.w,vp.h);gl.scissor(vp.x,vp.y,vp.w,vp.h);
+  for(const vp of views){
+    const v=vp.k,k=K[v];gl.viewport(vp.x,vp.y,vp.w,vp.h);gl.scissor(vp.x,vp.y,vp.w,vp.h);
     const dbg=window.__duel.cam,cam=dbg?dbg(v):camMatrix(k),asp=vp.w/vp.h,fov=dbg?0.8:(asp<1?1.5:1.5-Math.min(0.35,(asp-1)*0.4));
     const VP=mMul(mPersp(fov,asp,0.07,600),mInvRigid(cam));k.VP=VP;
     gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3f(U.uCam,cam[12],cam[13],cam[14]);gl.uniform3f(U.uTint,0,0,0);gl.uniform1f(U.uAlpha,1);
@@ -1069,8 +1074,12 @@ function startRound(){
   K.forEach(resetKnight);particles=[];debris=[];state='intro';stateT=0;introStage=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
   $('title').hidden=true;$('ko').hidden=true;banner('');K.forEach(k=>k.el.pops.textContent='');stage.classList.add('playing');
 }
-function startPractice(){practice=true;K[1].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
-function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
+function startPractice(){practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
+function startMatch(){practice=false;stage.classList.remove('practice');K[1].cpu=$('mC').getAttribute('aria-pressed')==='true';K[0].cpu=false;
+  // a screen with no keyboard and only one phone connected: the computer plays the other knight
+  if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.last<4000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
+  try{if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
+  audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
 function toTitle(){state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
 
 /* ================= input ================= */
@@ -1089,7 +1098,7 @@ const ptrs=new Map();
 stage.addEventListener('pointerdown',e=>{
   if(e.pointerType==='mouse'||state==='title'||e.target.closest('button'))return;
   const r=stage.getBoundingClientRect(),land=stage.classList.contains('land');
-  const pi=land?(e.clientX-r.left<r.width/2?0:1):(e.clientY-r.top>r.height/2?0:1),k=K[pi];if(k.cpu)return;
+  const so=+stage.dataset.solo,pi=so>=0?so:land?(e.clientX-r.left<r.width/2?0:1):(e.clientY-r.top>r.height/2?0:1),k=K[pi];if(k.cpu)return;
   for(const p of ptrs.values())if(p.pi===pi)return;
   const t=performance.now()/1000;if(t-k.lastTap<0.3)k.thrustReq='c';k.lastTap=t;
   ptrs.set(e.pointerId,{pi,ox:e.clientX,oy:e.clientY});stage.classList.add('touch');
