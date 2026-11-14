@@ -495,7 +495,7 @@ function runPad(code,p){
   document.body.classList.add('padmode');$('title').hidden=true;$('pad').hidden=false;
   $('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;
   const say=t=>{$('padStatus').textContent=t;};
-  let centerAt=0,salT=0,salSent=false,conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0,lift=0;const hv=[0,0,0],hp=[0,0,0];
+  let hzP=0,tnS=0,centerAt=0,salT=0,salSent=false,conn=null,sensing=false,yaw0=null,yaw=0,lastSend=0,gotEvent=false,lastJab=0,ang=null,lastMot=0,quiet=0,route='f',elPrev=0,lastPit=0,lift=0;const hv=[0,0,0],hp=[0,0,0];
   let devId='';try{devId=sessionStorage.getItem('kdId')||'';if(!devId){devId=Math.random().toString(36).slice(2,10);sessionStorage.setItem('kdId',devId);}}catch(_){devId=Math.random().toString(36).slice(2,10);}
   say('화면 기기에 연결하는 중…');let tries=0;
   const watchdog=()=>setTimeout(()=>{if(conn)return;tries++;if(tries<=3){say('연결이 늦어지고 있습니다. 다시 시도하는 중… ('+tries+'/3)');join();}else say('연결하지 못했습니다. 화면 기기와 같은 와이파이인지 확인하고 이 페이지를 새로 고치세요.');},9000);
@@ -564,12 +564,17 @@ function runPad(code,p){
     if(route==='top'){ // elevation counted continuously over the top, so hanging the blade down the back keeps counting up
       let el=Math.atan2(up,fw);while(el-elPrev>PI)el-=TAU;while(el-elPrev<-PI)el+=TAU;el=clamp(el,-1.4,3.6);elPrev=el;
       x=clamp(-lf/0.82*clamp(Math.cos(el)*4,-1,1),-1.3,1.3);y=clamp((el-0.1)/0.95,-1.3,3.4);
-    }else{elPrev=pit;x=clamp(-Math.atan2(lf,route==='f'?Math.max(fw,0.001):fw)/1.05,-2.4,2.4);y=clamp((pit-0.1)/0.95,-1.3,1.6);}
+    }else{elPrev=pit;
+      // the side angle is followed continuously, so going past straight behind does not jump to the other side
+      let hz=Math.atan2(lf,route==='f'?Math.max(fw,0.001):fw);if(route==='f')hzP=hz;else{while(hz-hzP>PI)hz-=TAU;while(hz-hzP<-PI)hz+=TAU;hz=clamp(hz,-3.3,3.3);hzP=hz;}
+      // turned past where the weapon can go: the view turns that way instead
+      tnS=Math.abs(hz)>2.05?Math.sign(hz)*clamp((Math.abs(hz)-2.05)/0.6,0,1):0;
+      x=clamp(-hz/1.05,-2.4,2.4);y=clamp((pit-0.1)/0.95,-1.3,1.6);}
     $('padDot').style.transform='translate('+(clamp(x/2.2,-1,1)*50)+'%,'+(-clamp(y>0?y/3:y,-1,1)*50)+'%)';
     const t=performance.now();if(conn&&t-lastSend>15){lastSend=t;const cy=Math.cos(yaw0),sy=Math.sin(yaw0);
       // hand offset in the player's frame: right, up, forward
       const g2=(e.gamma||0)*PI/180,cG=Math.cos(g2),sG=Math.sin(g2),sB=Math.sin(b),cA=Math.cos(a),sA=Math.sin(a),ex=cA*cG-sA*sB*sG,ey=cG*sA+cA*sB*sG,ez=-cb*sG; // the phone's thin side is the cutting edge
-      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),l:+lift.toFixed(2),e:[+(ex*cy+ey*sy).toFixed(2),+ez.toFixed(2),+(-ex*sy+ey*cy).toFixed(2)],h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
+      conn.send({t:'o',x:+x.toFixed(3),y:+y.toFixed(3),tn:route==='top'?0:+tnS.toFixed(2),l:+lift.toFixed(2),e:[+(ex*cy+ey*sy).toFixed(2),+ez.toFixed(2),+(-ex*sy+ey*cy).toFixed(2)],h:[+(hp[0]*cy+hp[1]*sy).toFixed(3),+hp[2].toFixed(3),+(-hp[0]*sy+hp[1]*cy).toFixed(3)]});}
   }
   function onMot(e){ // a sharp push along the phone's length with little rotation is a thrust
     const ac=e.acceleration,rr=e.rotationRate;if(!ac||ac.y==null)return;
@@ -1516,7 +1521,7 @@ function step(h){
     const dx=o.x-k.x,dz=o.z-k.z,dist=Math.hypot(dx,dz)||1,ux=dx/dist,uz=dz/dist;
     if(!k.dead){
       // turn keys swing the body up to about 75 degrees off the opponent; letting go turns it back
-      const tk=k.cpu||state!=='fight'?0:(k.keys.tl||0)-(k.keys.tr||0)+(k.pad?k.pad.turn:0);if(tk)k.turn=clamp(k.turn+tk*2.0*h,-1.3,1.3);else k.turn*=Math.exp(-4*h);
+      const tk=k.cpu||state!=='fight'?0:(k.keys.tl||0)-(k.keys.tr||0)+(k.pad?k.pad.turn:0)+(k.phLive&&k.phone&&k.phone.tn?k.phone.tn*1.4:0);if(tk)k.turn=clamp(k.turn+tk*2.0*h,-1.3,1.3);else k.turn*=Math.exp(-4*h);
       let dy=Math.atan2(-dx,-dz)+k.turn-k.yaw;while(dy>PI)dy-=TAU;while(dy<-PI)dy+=TAU;k.yaw+=dy*Math.min(1,10*h);
       const want=o.dead?2.3:(w.dist+WEAPONS[o.weapon].dist)/2;
       const mr=Math.min(1,8*h),ctlM=(k.stun>0||k.thr)?0.4:1;k.mix+=((fight?k.mv[0]*ctlM:0)-k.mix)*mr;k.miy+=((fight?k.mv[1]*ctlM:0)-k.miy)*mr;
@@ -2079,7 +2084,7 @@ function pairOpen(p){
         let pp=id?K.findIndex(k=>k.phone&&k.phone.id===id):-1;if(pp<0)pp=free(want)?want:free(1-want)?1-want:want;
         c.send({t:'slot',p:pp});const ph={c,id,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th'){if(K[pp].bindT>0)ph.pushU=performance.now()+350;else K[pp].thrustReq='p';}else if(d.t==='sal'){const k=K[pp];if(state==='intro'&&!k.saluted){k.saluted=true;buzz(k,[40,40,90],'salute');popFix(k.i,'경례!');sfx.tick();}}else if(d.t==='sp'){if(d.n==null||d.n!==ph.spN){ph.spN=d.n;K[pp].spReq=true;}}else if(d.t==='qs'){if(d.n!==ph.qsN&&'udlr'.includes(d.d)&&d.d.length===1){ph.qsN=d.n;K[pp].qsReq=d.d;}}else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.tn=clamp(+d.tn||0,-1,1);ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th'){if(K[pp].bindT>0)ph.pushU=performance.now()+350;else K[pp].thrustReq='p';}else if(d.t==='sal'){const k=K[pp];if(state==='intro'&&!k.saluted){k.saluted=true;buzz(k,[40,40,90],'salute');popFix(k.i,'경례!');sfx.tick();}}else if(d.t==='sp'){if(d.n==null||d.n!==ph.spN){ph.spN=d.n;K[pp].spReq=true;}}else if(d.t==='qs'){if(d.n!==ph.qsN&&'udlr'.includes(d.d)&&d.d.length===1){ph.qsN=d.n;K[pp].qsReq=d.d;}}else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}
           else if(d.t==='dt'){if(d.n!==ph.dtN){ph.dtN=d.n;const k=K[pp];if(fightOn()&&spOk(k)&&k.spCd<=0&&!k.sp&&k.tele<=0)k.spReq=true;else k.qsReq='u';}} // two taps in place: the special when it is ready, otherwise a dash forward
           else if(d.n!=null&&d.n===ph.actN&&(d.t==='w'||d.t==='cpu'||d.t==='go')){} // a repeat of the same press
           else if(d.t==='w'){ph.actN=d.n;const w=+d.w;if(state==='title'&&w>=0&&w<WEAPONS.length)setWeapon(pp,w);phoneUi();}
