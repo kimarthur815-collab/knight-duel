@@ -270,6 +270,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <button type="button" class="fullBtn">전체 화면<small>F</small></button>
         <button type="button" id="notesBtn">패치 노트</button>
         <button type="button" id="recBtn">전적</button>
+        <button type="button" id="musicBtn" aria-pressed="true">♪ 음악 켜짐</button>
         <button type="button" id="tutorial">튜토리얼</button>
         <button type="button" id="practice">연습</button>
         <button type="button" id="start">결투 시작<small>Space</small></button>
@@ -339,7 +340,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>튜토리얼에 스태미나·옆으로 피하기·특수 공격 단계 추가</li><li>버그 수정: 칼이 상대 몸에 닿아 멈출 때 폰 손잡이가 진동하지 않던 문제(원래부터 있던 문제)</li><li>무기마다 부딪힘 소리가 다르다: 장검은 맑고 길게 울리고, 철퇴는 묵직한 쇳소리에 사슬이 짤랑이고, 창은 나무 자루가 딱 부딪히고, 해머는 둔탁하게 쿵</li><li>중세풍 배경음악: 경기 중엔 북과 금관에 나팔 신호가 도는 행진곡, 라운드 시작과 승리 때 나팔 팡파르. 처음 화면의 음악 버튼으로 끄고 켤 수 있다</li><li>관중 소리를 사람 목소리로: 함성(와아)·탄성(오오)·야유(우우)를 여러 목소리로 겹치고, KO 때는 박수와 휘파람까지. 경기장 돌벽 울림 추가</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -1109,7 +1110,7 @@ function sparks(pt,n,key,sp,size){for(let i=0;i<n&&particles.length<70;i++)parti
 const buzz=(k,ms,kind,v)=>{if(k.phone)k.phone.c.send({t:'v',ms:Array.isArray(ms)?ms:Math.round(ms),k:kind,w:k.weapon,v:v==null?0:Math.round(v)});};let rattleT=0;
 // the crowd: a shout over the views, the stands jumping (hype) and the noise swelling
 const SHOUT={cheer:['와아아!','좋다!','멋지다!'],ooh:['오오오!','우와!'],gasp:['헉!','저런!'],boo:['우우~ 싸워라!','뭐 하냐!'],roar:['와아아아아!!','끝났다!!']};
-function crowdEv(kind,v){hype=Math.max(hype,v);quietT=0;if(kind==='boo')sfx.boo();else if(kind==='ooh'||kind==='gasp')sfx.ooh(v);else sfx.cheer(v);
+function crowdEv(kind,v){hype=Math.max(hype,v);quietT=0;if(kind==='boo')sfx.boo();else if(kind==='ooh'||kind==='gasp')sfx.ooh(v);else if(kind==='roar')sfx.roar();else sfx.cheer(v);
   if(crowdCd>0&&kind!=='roar')return;crowdCd=1.1;const a=SHOUT[kind],t=a[Math.floor(Math.random()*a.length)];
   for(const k of K)popMid(k.i,t,'crowd',0.24);}
 // a weapon knocked out of the hand lands beside its owner, who takes it up again when standing near it
@@ -1151,7 +1152,7 @@ function attack(A,D,h){
     // the one who is closing in takes the push; if neither is walking (a thrust, a turn) or the weapon has no strength, both give way
     let fA=0.5,fD=0.5;if(A.weapon!==1&&A.limpT<=0&&A.carryT<=0&&A.stag<=0&&A.ps&&D.ps){const mD=Math.max(0,-((D.x-D.ps.x)*ux+(D.z-D.ps.z)*uz)),mA=Math.max(0,(A.x-A.ps.x)*ux+(A.z-A.ps.z)*uz);if(mD+mA>1e-5){fD=mD/(mD+mA);fA=1-fD;}}
     A.x-=ux*p*2*fA;A.z-=uz*p*2*fA;D.x+=ux*p*2*fD;D.z+=uz*p*2*fD;poseDirty=true;}
-  if(deep&&deep.vin>0.2&&!D.dead&&A.cutT<=0&&!(A.thr&&A.thr.t<0.25&&A.hitCd<0.3)){endThrust(A); // a thrust still driving in is not stopped until it has landedif(A.buzzT<=0){A.buzzT=0.25;buzz(A,40,'touch');}
+  if(deep&&deep.vin>0.2&&!D.dead&&A.cutT<=0&&!(A.thr&&A.thr.t<0.25&&A.hitCd<0.3)){endThrust(A);if(A.buzzT<=0){A.buzzT=0.25;buzz(A,40,'touch');} /* a thrust still driving in is not stopped until it has landed */
     if(A.weapon===1&&A.fh){const d=sub(A.fh,deep.q),dl=len(d)||1,R=deep.hb.r+0.09;if(dl<R){A.fh=add(deep.q,mulS(d,R/dl));A.fhp=A.fh.slice();}}
     else{if(Math.hypot(A.vx,A.vy)>3)A.stun=Math.max(A.stun,0.1);A.ax=A.pax;A.ay=A.pay;A.vx*=-0.4;A.vy*=-0.4;}
     computePose(A);}
@@ -1180,7 +1181,7 @@ function attackCore(A,D,h){
   if(D.guard>0.5&&!D.thr&&!D.tired){const r=segSeg(pa.bA,pa.bB,pd.bA,pd.bB);
     if(r[0]<0.24){const sp=bladeSpeed(A,r[1],h);
       if(sp>2.5&&A.blockCd<=0){A.blockCd=0.14;bounce(A,0.55,0.32);endThrust(A);A.st=Math.max(0,A.st-4);D.st=Math.max(0,D.st-7);D.stDelay=0.4;spendSta(D,5+sp*0.7);D.shake=Math.max(D.shake,0.3);A.shake=Math.max(A.shake,0.25);
-        sparks(r[3],8+Math.floor(sp),'spark',2.6,0.022);quietT=0;sfx.clang(clamp(sp/12,0.3,1));buzz(A,35,'block');buzz(D,35,'block');popAt(A.i,r[3],'막힘','blk');if(LOG)LOG.push(['guard',A.i,+sp.toFixed(1)]);}
+        sparks(r[3],8+Math.floor(sp),'spark',2.6,0.022);quietT=0;sfx.clang(clamp(sp/12,0.3,1),A.weapon,D.weapon);buzz(A,35,'block');buzz(D,35,'block');popAt(A.i,r[3],'막힘','blk');if(LOG)LOG.push(['guard',A.i,+sp.toFixed(1)]);}
       return;}}
   if(A.hitCd>0&&A.armCd>0)return;
   let best=null;
@@ -1311,7 +1312,7 @@ function clashCore(h){
     slow.vx=(v[0]*rx+v[2]*rz)*1.3;slow.vy=v[1]*1.3;slow.stun=Math.max(slow.stun,0.18);slow.limpT=0.4;slow.carryT=0.3;{const keep=0.3+0.35*fast.charge;poseDirty=true;fast.ax=fast.pax;fast.ay=fast.pay;fast.vx*=keep;fast.vy*=keep;}buzz(fast,45,'clash');buzz(slow,[70,30,50],'beaten');clashCd=0.1;{const fw=WEAPONS[fast.weapon],real=fast.weapon===1?Math.min(sf,14):Math.min(sf,Math.hypot(fast.vx,fast.vy)/(0.3+0.35*fast.charge)*fw.b*1.1+1),F=real*(0.4+0.6*fw.dmg)*(1+0.4*fast.charge); // only a real, deliberate swing counts, not a weapon that was itself knocked about
       if(F>=DISARM_F&&fast.stag<=0&&fast.stun<=0&&fast.limpT<=0)disarm(fast,slow,r[3]);} // the stronger blow wins but is checked and loses most of its speed // knocked ahead of the blow, never passed through
   }else{clashCd=0.12;bounce(K[0],0.35,0.1);bounce(K[1],0.35,0.1);endThrust(K[0]);endThrust(K[1]);buzz(K[0],60,'clash');buzz(K[1],60,'clash');}
-  sparks(r[3],8+Math.floor(rel),'spark',2.6,0.022);sparks(r[3],4,'hot',3.2,0.016);quietT=0;sfx.clang(clamp(rel/19,0.25,1));if(LOG)LOG.push(['clash',+rel.toFixed(1),sf>ss*1.7+1?'beat':'bind']);
+  sparks(r[3],8+Math.floor(rel),'spark',2.6,0.022);sparks(r[3],4,'hot',3.2,0.016);quietT=0;sfx.clang(clamp(rel/19,0.25,1),K[0].weapon,K[1].weapon);if(LOG)LOG.push(['clash',+rel.toFixed(1),sf>ss*1.7+1?'beat':'bind']);
 }
 
 /* ================= simulation ================= */
@@ -1322,7 +1323,7 @@ function waveStep(h){
     if(D.dead)continue;
     const a=[q.p[0],0.25,q.p[2]],b=[q.p[0],1.95,q.p[2]],pd=D.pose,mid=[q.p[0],1.2,q.p[2]];
     if(!D.armOff&&!D.dis){const r=segSeg(a,b,pd.bA,pd.bB);
-      if(r[0]<0.2&&(D.guard>0.5||bladeSpeed(D,r[2],h)>4)){waves.splice(i,1);sparks(r[3],14,'hot',3,0.025);sparks(r[3],8,'spark',3,0.022);sfx.clang(0.7);buzz(D,[60,30,60],'block');const pry=D.guard<=0.5&&D.pressAge<0.3;popAt(D.i,r[3],D.guard>0.5?'막힘':pry?'검기 패링!':'검기 베어냄',pry?'big':'blk'); // cut apart on a fresh key press: a parry
+      if(r[0]<0.2&&(D.guard>0.5||bladeSpeed(D,r[2],h)>4)){waves.splice(i,1);sparks(r[3],14,'hot',3,0.025);sparks(r[3],8,'spark',3,0.022);sfx.clang(0.7,0,D.weapon);buzz(D,[60,30,60],'block');const pry=D.guard<=0.5&&D.pressAge<0.3;popAt(D.i,r[3],D.guard>0.5?'막힘':pry?'검기 패링!':'검기 베어냄',pry?'big':'blk'); // cut apart on a fresh key press: a parry
         if(pry){A.stag=Math.max(A.stag,1.5);A.stun=Math.max(A.stun,1.5);A.flinch=0.7;poseDirty=true;D.counter=CTR_T;sfx.parry();crowdEv('ooh',1);popMid(D.i,'반격 기회! 다음 공격이 세진다','big',0.6);popFix(A.i,'크게 휘청');if(LOG)LOG.push(['sparry',D.i]);}if(LOG)LOG.push(['waveblock',D.i]);continue;}}
     let best=null;for(const hb of pd.hit){const r=segSeg(a,b,hb.a,hb.b),pen=hb.r+0.1-r[0];if(pen>0&&(!best||pen>best.pen))best={pen,hb,pt:r[3]};}
     if(!best)continue;
@@ -1388,7 +1389,7 @@ function step(h){
     const ph=k.phone&&!k.cpu&&!k.dead&&state!=='ko'&&performance.now()-k.phone.last<700?k.phone:null;
     // quick step: a short hop in the tapped direction, on a cooldown
     if(k.qsReq){const d=k.qsReq;k.qsReq=null;if(fight&&k.qsCd<=0&&!k.dead&&!k.legOff&&k.stag<=0&&k.stun<=0){k.qsCd=0.8;const f=d==='u'?1:d==='d'?-1:0,s=d==='r'?1:d==='l'?-1:0;
-        k.kvx+=(-Math.sin(k.yaw)*f+Math.cos(k.yaw)*s)*5.5;k.kvz+=(-Math.cos(k.yaw)*f-Math.sin(k.yaw)*s)*5.5;sfx.tick();dust(k,7);spendSta(k,3);if(d==='u'&&!k.cpu&&k.charge<0.3&&k.guard<0.5&&Math.abs(k.ax)<0.9&&k.ay>-0.6&&k.ay<1.4)k.thrustReq=thrustDir(k);}}
+        k.lastQs=d;k.kvx+=(-Math.sin(k.yaw)*f+Math.cos(k.yaw)*s)*5.5;k.kvz+=(-Math.cos(k.yaw)*f-Math.sin(k.yaw)*s)*5.5;sfx.tick();dust(k,7);spendSta(k,3);if(d==='u'&&!k.cpu&&k.charge<0.3&&k.guard<0.5&&Math.abs(k.ax)<0.9&&k.ay>-0.6&&k.ay<1.4)k.thrustReq=thrustDir(k);}}
     // thrust: thrust key (aimed with the held direction)
     if(k.thrustReq){if(fight&&!k.thr&&k.thrCd<=0&&k.st>8&&k.stun<=0&&k.stag<=0&&!k.dead&&!k.dis){const t=k.thrustReq==='p'&&ph?[ph.tx,ph.ty]:THRUST_AIM[k.thrustReq]||THRUST_AIM.c;k.thr={t:0,w:0,tx:t[0],ty:t[1]};k.st=Math.max(0,k.st-12*w.st);k.stDelay=0.5;spendSta(k,4);sfx.thrust();}k.thrustReq=null;}
     let inm=Math.hypot(k.in[0],k.in[1]);
@@ -1553,39 +1554,123 @@ e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.h
 
 /* ================= audio ================= */
 const allows=f=>{try{const pp=document.permissionsPolicy||document.featurePolicy;return !pp||pp.allowsFeature(f);}catch(_){return true;}};
-let AC=null,master=null,noise=null,amb=null;const whoosh=[];
+let AC=null,master=null,noise=null,amb=null,crowdBus=null,musicBus=null,steelBus=null,revIn=null,clapBuf=null;const whoosh=[];
+let musicOn=true;try{musicOn=localStorage.getItem('kd_music')!=='0';}catch(_){}
 function audioInit(){if(AC){if(AC.state==='suspended')AC.resume();return;}
   try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.55;master.connect(AC.destination);
     noise=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     const loop=(type,f,q,g)=>{const s=AC.createBufferSource();s.buffer=noise;s.loop=true;const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;const gn=AC.createGain();gn.gain.value=g;s.connect(b);b.connect(gn);gn.connect(master);s.start();return{b,g:gn};};
-    amb=loop('bandpass',420,0.4,0);for(let i=0;i<2;i++)whoosh.push(loop('bandpass',500,1.2,0));
+    for(let i=0;i<2;i++)whoosh.push(loop('bandpass',500,1.2,0));
+    // the arena's stone echo, shared by the crowd, the music and ringing steel
+    revIn=AC.createGain();{const cv=AC.createConvolver(),n=AC.sampleRate*2.2|0,ir=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2);}cv.buffer=ir;const rg=AC.createGain();rg.gain.value=0.3;revIn.connect(cv);cv.connect(rg);rg.connect(master);}
+    const bus=(g,send)=>{const b=AC.createGain();b.gain.value=g;b.connect(master);const sg=AC.createGain();sg.gain.value=send;b.connect(sg);sg.connect(revIn);return b;};
+    crowdBus=bus(1,0.5);steelBus=bus(1,0.22);musicBus=bus(musicOn?0.17:0,0.3);
+    // murmur of many voices: noise shaped by the mouth (vowel formants), swelling and fading on its own; its level follows the crowd's excitement
+    {const s=AC.createBufferSource();s.buffer=noise;s.loop=true;const am=AC.createGain(),g=AC.createGain();g.gain.value=0;
+      [[460,1.4,1],[1050,1.8,0.6],[2500,2.2,0.18]].forEach(([f,q,v])=>{const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=q;const bg=AC.createGain();bg.gain.value=v;s.connect(b);b.connect(bg);bg.connect(am);});
+      [[0.37,0.3],[0.91,0.18],[2.3,0.08]].forEach(([f,d])=>{const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=f;lg.gain.value=d;l.connect(lg);lg.connect(am.gain);l.start();});
+      am.connect(g);g.connect(crowdBus);s.start();amb={g};}
+    // applause: thousands of hand claps rendered once into a buffer, then played through a filter
+    {const n=AC.sampleRate*3|0;clapBuf=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=clapBuf.getChannelData(c);const claps=2400;for(let i=0;i<claps;i++){const u=Math.random(),t0=Math.floor(Math.pow(u,1.6)*n*0.97),a=(0.4+Math.random()*0.6)*(1-t0/n),len=Math.floor(AC.sampleRate*(0.004+Math.random()*0.006));for(let j=0;j<len&&t0+j<n;j++)d[t0+j]+=(Math.random()*2-1)*a*Math.exp(-j/(len*0.3));}}}
+    setInterval(musTick,60);
   }catch(e){AC=null;}}
+function toneAt(t,type,f0,f1,vol,dur,dest){const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dur+0.02);}
+function nburstTo(dest,type,f,q,vol,dur,dl){const t=AC.currentTime+(dl||0),s=AC.createBufferSource();s.buffer=noise;const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;const g=AC.createGain();
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);s.connect(b);b.connect(g);g.connect(dest);s.start(t,Math.random());s.stop(t+dur+0.02);}
+/* ---- crowd voices: each one a throat (sawtooth with a little vibrato) shaped by a vowel's formants, panned somewhere in the stands ---- */
+const VOW={a:[[760,1],[1220,0.55],[2600,0.18]],e:[[500,1],[1750,0.45],[2600,0.2]],o:[[520,1],[880,0.55],[2500,0.12]],u:[[340,1],[760,0.38],[2400,0.08]]};
+let voicesOn=0;
+function voice(t0,f0,vw,dur,vol,g1,g2){if(voicesOn>64)return;voicesOn++;
+  const o=AC.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f0,t0);o.frequency.linearRampToValueAtTime(f0*g1,t0+dur*0.35);o.frequency.linearRampToValueAtTime(f0*g2,t0+dur);
+  const vb=AC.createOscillator(),vg=AC.createGain();vb.frequency.value=rr(4.5,6.8);vg.gain.value=f0*rr(0.012,0.03);vb.connect(vg);vg.connect(o.frequency);
+  const env=AC.createGain(),a=Math.min(0.14,dur*0.25);env.gain.setValueAtTime(0.0001,t0);env.gain.exponentialRampToValueAtTime(vol,t0+a);env.gain.setValueAtTime(vol,t0+dur*0.55);env.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  const fem=f0>175?1.15:1;for(const [f,amp] of VOW[vw]){const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=f*fem*rr(0.92,1.08);b.Q.value=6;const g=AC.createGain();g.gain.value=amp;o.connect(b);b.connect(g);g.connect(env);}
+  let out=env;if(AC.createStereoPanner){const pn=AC.createStereoPanner();pn.pan.value=rr(-0.85,0.85);env.connect(pn);out=pn;}out.connect(crowdBus);
+  o.start(t0);vb.start(t0);o.stop(t0+dur+0.05);vb.stop(t0+dur+0.05);o.onended=()=>{voicesOn--;};}
+const pitchM=()=>rr(95,165),pitchW=()=>rr(185,280),pitch=()=>rnd()<0.7?pitchM():pitchW();
+// the mass of the crowd: breathy noise through the same vowel, swelling and fading
+function crowdMass(vw,dur,vol,att){const t=AC.currentTime,s=AC.createBufferSource();s.buffer=noise;s.loop=true;const env=AC.createGain();env.gain.setValueAtTime(0.0001,t);env.gain.exponentialRampToValueAtTime(vol,t+(att||0.25));env.gain.setValueAtTime(vol,t+dur*0.45);env.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  for(const [f,amp] of VOW[vw]){const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=2.2;const g=AC.createGain();g.gain.value=amp;s.connect(b);b.connect(g);g.connect(env);}env.connect(crowdBus);s.start(t,Math.random());s.stop(t+dur+0.1);}
+function applause(dur,vol){if(!clapBuf)return;const t=AC.currentTime,s=AC.createBufferSource();s.buffer=clapBuf;const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=1700;b.Q.value=0.7;const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.setValueAtTime(vol,t+dur*0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(b);b.connect(g);g.connect(crowdBus);s.start(t);s.stop(t+dur+0.05);}
+function whistle(dl){const t=AC.currentTime+dl,o=AC.createOscillator(),g=AC.createGain(),f=rr(1900,2500);o.type='sine';o.frequency.setValueAtTime(f*0.85,t);o.frequency.linearRampToValueAtTime(f*1.18,t+0.18);o.frequency.linearRampToValueAtTime(f,t+0.55);
+  const vb=AC.createOscillator(),vg=AC.createGain();vb.frequency.value=9;vg.gain.value=f*0.02;vb.connect(vg);vg.connect(o.frequency);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.05,t+0.05);g.gain.setValueAtTime(0.05,t+0.4);g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);
+  o.connect(g);g.connect(crowdBus);o.start(t);vb.start(t);o.stop(t+0.65);vb.stop(t+0.65);}
+// a crowd reaction: n voices starting within `spread` seconds of each other
+function crowdWave(n,vws,dur,vol,g1,g2,spread,pf){const t=AC.currentTime;for(let i=0;i<n;i++)voice(t+rr(0,spread),(pf||pitch)(),vws[Math.floor(rnd()*vws.length)],dur*rr(0.75,1.25),vol*rr(0.6,1),g1*rr(0.96,1.04),g2*rr(0.96,1.04));}
+/* ---- weapons ringing against each other: each weapon has its own voice ---- */
+const CLASH=[
+  v=>{const t=AC.currentTime,f=rr(980,1220);[[1,0.12,0.95],[2.76,0.06,0.65],[5.4,0.035,0.4],[8.9,0.015,0.25]].forEach(([m,a,d])=>toneAt(t,'triangle',f*m,f*m*0.995,a*v,d,steelBus));nburstTo(steelBus,'highpass',4500,0.7,0.3*v,0.05);}, // longsword: a long, bright ring
+  v=>{const t=AC.currentTime,f=rr(360,450);[[1,0.13,0.4],[1.83,0.07,0.3],[2.94,0.045,0.2]].forEach(([m,a,d])=>toneAt(t,'square',f*m,f*m*0.98,a*v,d,steelBus));nburstTo(steelBus,'lowpass',800,0.8,0.55*v,0.12);
+      for(let i=0;i<5;i++)toneAt(t+0.03+i*rr(0.025,0.04),'triangle',rr(2600,4200),rr(2500,4000),0.03*v,0.05,steelBus);}, // flail: a heavy iron knock and the chain jingling
+  v=>{const t=AC.currentTime;nburstTo(steelBus,'bandpass',950,3,0.6*v,0.06);toneAt(t,'sine',320,210,0.35*v,0.09,steelBus);toneAt(t,'triangle',rr(1900,2300),rr(1850,2250),0.05*v,0.16,steelBus);}, // spear: the wooden shaft knocks, a small tick of iron
+  v=>{const t=AC.currentTime,f=rr(210,260);toneAt(t,'sine',120,62,0.85*v,0.36,steelBus);nburstTo(steelBus,'lowpass',320,0.8,1.0*v,0.28);[[1,0.13,0.45],[1.6,0.07,0.3]].forEach(([m,a,d])=>toneAt(t,'square',f*m,f*m*0.97,a*v,d,steelBus));} // hammer: a dull, heavy thud
+];
 function nburst(type,f,q,vol,dur){const t=AC.currentTime,s=AC.createBufferSource();s.buffer=noise;const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;const g=AC.createGain();
   g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);s.connect(b);b.connect(g);g.connect(master);s.start(t,Math.random());s.stop(t+dur+0.02);}
 function tone(type,f0,f1,vol,dur){const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);
   g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+0.02);}
-function crowdN(f0,f1,vol,dur){const t=AC.currentTime,s=AC.createBufferSource();s.buffer=noise;s.loop=true;const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.setValueAtTime(f0,t);b.frequency.linearRampToValueAtTime(f1,t+dur);b.Q.value=0.6;const g=AC.createGain();
-  g.gain.setValueAtTime(0.001,t);g.gain.linearRampToValueAtTime(vol,t+0.2);g.gain.exponentialRampToValueAtTime(0.001,t+dur);s.connect(b);b.connect(g);g.connect(master);s.start(t);s.stop(t+dur+0.1);}
 const sfx={
-  clang(v){if(!AC)return;const f=rr(560,760);[1,1.47,2.31,3.17].forEach((m,i)=>tone(i%2?'square':'triangle',f*m,f*m*0.985,0.09*v/(i+1),0.22+0.12*i));nburst('highpass',3500,0.7,0.3*v,0.06);},
+  clang(v,wa,wb){if(!AC)return;if(wa!=null){const G=[1.6,1.5,1.7,0.6];wb=wb==null?wa:wb;CLASH[wa](v*0.8*G[wa]);CLASH[wb](v*(wb===wa?0.45:0.7)*G[wb]);return;} /* per-weapon loudness evened out */const f=rr(560,760);[1,1.47,2.31,3.17].forEach((m,i)=>tone(i%2?'square':'triangle',f*m,f*m*0.985,0.09*v/(i+1),0.22+0.12*i));nburst('highpass',3500,0.7,0.3*v,0.06);},
   block(v){if(!AC)return;nburst('lowpass',420,0.8,0.7*v,0.16);tone('sine',120,60,0.5*v,0.16);tone('triangle',rr(380,460),300,0.07*v,0.2);},
   hit(v,big){if(!AC)return;nburst('bandpass',1300-v*500,0.8,0.35+0.45*v,0.08+0.08*v);tone('sine',170-v*40,45,0.35+0.5*v,0.16+0.16*v);tone('square',rr(820,980),700,0.05*v,0.12);
     if(big){tone('sine',70,32,0.8,0.45);nburst('lowpass',240,0.7,0.8,0.3);}},
   parry(){if(!AC)return;tone('sine',1850,1800,0.3,0.6);tone('sine',2770,2700,0.16,0.45);tone('triangle',925,900,0.14,0.3);nburst('highpass',5000,0.7,0.35,0.05);},
   brk(){if(!AC)return;nburst('lowpass',900,0.6,0.9,0.28);nburst('highpass',2500,0.8,0.4,0.12);tone('square',240,70,0.2,0.25);},
   thrust(){if(!AC)return;nburst('bandpass',1500,1.4,0.22,0.12);},
-  cheer(v){if(!AC)return;const t=AC.currentTime,s=AC.createBufferSource();s.buffer=noise;s.loop=true;const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=850;b.Q.value=0.6;const g=AC.createGain();
-    g.gain.setValueAtTime(0.001,t);g.gain.linearRampToValueAtTime(0.16*v,t+0.25);g.gain.exponentialRampToValueAtTime(0.001,t+1.6);s.connect(b);b.connect(g);g.connect(master);s.start(t);s.stop(t+1.7);},
+  cheer(v){if(!AC)return;crowdWave(Math.round(10+12*v),['a','a','e'],1.1+0.5*v,0.05*v,rr(1.08,1.2),0.88,0.25);crowdMass('a',1.5+0.4*v,0.16*v);if(v>0.65)applause(1.6,0.32*v);}, // "waaah!"
+  roar(){if(!AC)return;crowdWave(26,['a','a','e','o'],2.2,0.055,1.15,0.9,0.5);setTimeout(()=>{if(AC)crowdWave(18,['a','e'],1.8,0.045,1.1,0.85,0.4);},1100);crowdMass('a',3.2,0.24,0.35);applause(3,0.5);for(let i=0;i<3;i++)whistle(rr(0.2,1.8));}, // a knockout: the whole arena
   heart(){if(!AC)return;tone('sine',62,38,0.55,0.13);setTimeout(()=>{if(AC)tone('sine',55,36,0.35,0.12);},170);},
   breath(){if(!AC)return;nburst('bandpass',780,0.7,0.06,0.55);},
   bell(){if(!AC)return;tone('triangle',660,655,0.25,1.2);tone('sine',990,985,0.12,0.9);},
   tick(){if(!AC)return;tone('square',330,320,0.08,0.12);},
-  ooh(v){if(!AC)return;crowdN(640,330,0.14*v,1.1);},
-  boo(){if(!AC)return;crowdN(270,200,0.13,1.7);tone('sawtooth',150,115,0.03,1.3);},
+  ooh(v){if(!AC)return;crowdWave(Math.round(8+10*v),['o','o','u'],1.15,0.12*v,1.28,0.78,0.15);crowdMass('o',1.2,0.3*v,0.18);}, // "ooOOoh"
+  boo(){if(!AC)return;crowdWave(16,['u','u','o'],1.8,0.12,0.97,0.8,0.35,()=>rr(85,150));crowdMass('u',2,0.32,0.3);}, // "boooo"
   warn(){if(!AC)return;tone('square',740,740,0.1,0.1);tone('square',990,990,0.09,0.24);},
   fin(){if(!AC)return;tone('sine',95,28,0.9,1.5);nburst('lowpass',180,0.7,0.7,0.9);}
 };
-function whooshUpdate(){if(!AC)return;K.forEach((k,i)=>{const w=whoosh[i];if(!w)return;const s=state==='title'||k.phLive?0:clamp((k.tipSp-3)/8,0,1);w.g.gain.setTargetAtTime(s*s*0.22,AC.currentTime,0.03);w.b.frequency.setTargetAtTime(350+s*900,AC.currentTime,0.03);});if(amb)amb.g.gain.setTargetAtTime((state==='title'?0:hype*0.09),AC.currentTime,0.15);}
+/* ================= music ================= */
+const NOTE=m=>440*Math.pow(2,(m-69)/12);
+function trumpet(t,m,dur,vol){const f=NOTE(m),o1=AC.createOscillator(),o2=AC.createOscillator(),vb=AC.createOscillator(),vg=AC.createGain(),lp=AC.createBiquadFilter(),g=AC.createGain();
+  o1.type=o2.type='sawtooth';for(const [o,d] of [[o1,1],[o2,1.004]]){o.frequency.setValueAtTime(f*d*0.965,t);o.frequency.exponentialRampToValueAtTime(f*d,t+0.045);} // a little scoop up into each note
+  vb.frequency.value=5.3;vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(f*0.007,t+Math.min(0.35,dur));vb.connect(vg);vg.connect(o1.frequency);vg.connect(o2.frequency);
+  lp.type='lowpass';lp.Q.value=1.8;lp.frequency.setValueAtTime(f*1.3,t);lp.frequency.exponentialRampToValueAtTime(f*7.5,t+0.05);lp.frequency.exponentialRampToValueAtTime(f*4.2,t+0.3); // the brassy blare at the attack
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.035);g.gain.setValueAtTime(vol*0.82,t+Math.max(0.06,dur-0.07));g.gain.exponentialRampToValueAtTime(0.0001,t+dur+0.05);
+  o1.connect(lp);o2.connect(lp);lp.connect(g);g.connect(musicBus);for(const o of [o1,o2,vb]){o.start(t);o.stop(t+dur+0.12);}}
+function horn(t,m,dur,vol){const f=NOTE(m),o=AC.createOscillator(),lp=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.frequency.value=f*3;lp.Q.value=0.7;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.6);g.gain.setValueAtTime(vol,t+dur-0.8);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(lp);lp.connect(g);g.connect(musicBus);o.start(t);o.stop(t+dur+0.05);}
+function timpani(t,m,vol){const f=NOTE(m),o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(f*1.5,t);o.frequency.exponentialRampToValueAtTime(f,t+0.06);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+1.1);o.connect(g);g.connect(musicBus);o.start(t);o.stop(t+1.15);
+  const s=AC.createBufferSource();s.buffer=noise;const b=AC.createBiquadFilter();b.type='lowpass';b.frequency.value=380;const ng=AC.createGain();ng.gain.setValueAtTime(vol*0.7,t);ng.gain.exponentialRampToValueAtTime(0.0001,t+0.12);s.connect(b);b.connect(ng);ng.connect(musicBus);s.start(t,Math.random());s.stop(t+0.15);}
+function tabor(t,vol){const s=AC.createBufferSource();s.buffer=noise;const b=AC.createBiquadFilter();b.type='bandpass';b.frequency.value=2300;b.Q.value=0.9;const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);s.connect(b);b.connect(g);g.connect(musicBus);s.start(t,Math.random());s.stop(t+0.1);
+  const o=AC.createOscillator(),og=AC.createGain();o.type='triangle';o.frequency.setValueAtTime(240,t);o.frequency.exponentialRampToValueAtTime(170,t+0.06);og.gain.setValueAtTime(vol*0.5,t);og.gain.exponentialRampToValueAtTime(0.0001,t+0.07);o.connect(og);og.connect(musicBus);o.start(t);o.stop(t+0.08);}
+// an 8-bar march in D (sixteenth steps, 100 beats a minute): the trumpets call in the first half of every other pass, the band answers
+const SIX=0.15,LOOP=128;
+const TR1=[[0,62,2],[2,62,2],[4,69,4],[8,69,2],[10,71,2],[12,74,4],[16,72,4],[20,71,2],[22,69,2],[24,66,8],[32,69,2],[34,69,2],[36,74,4],[40,78,4],[44,76,2],[46,74,2],[48,76,8],[56,69,8]];
+const TR2=[[32,66,2],[34,66,2],[36,69,4],[40,74,4],[44,72,2],[46,71,2],[48,72,8],[56,66,8]];
+const TR3=[[96,69,2],[98,69,2],[100,74,4],[104,74,2],[106,76,2],[108,78,4],[112,81,10],[124,74,4]];
+const HORN=[[0,50,64],[0,57,64],[64,48,32],[64,55,32],[96,50,32],[96,57,32]];
+const MUS={on:false,next:0,step:0,pass:0,resume:0};
+function musStep(st,t){const bar=st>>4,b=st&15;
+  if(b===0)timpani(t,bar===7?45:38,0.5);if(b===8&&bar!==7)timpani(t,33,0.38);
+  if(bar===7&&b>=8&&b%2===0)timpani(t,b>=14?38:45,0.18+0.03*(b-8)); // a roll back into the top
+  if([0,4,6,8,12,14].includes(b))tabor(t,b===0?0.2:0.12);
+  for(const [s0,m,l] of HORN)if(s0===st)horn(t,m,l*SIX,0.12);
+  if(MUS.pass%2===0){for(const [s0,m,l] of TR1)if(s0===st)trumpet(t,m,l*SIX*0.92,0.3);for(const [s0,m,l] of TR2)if(s0===st)trumpet(t,m,l*SIX*0.92,0.2);}
+  else for(const [s0,m,l] of TR3)if(s0===st)trumpet(t,m,l*SIX*0.92,0.26);}
+function musTick(){if(!AC)return;const want=musicOn&&(state==='intro'||state==='fight');if(!want){MUS.on=false;return;}
+  const now=AC.currentTime;if(!MUS.on){MUS.on=true;MUS.next=Math.max(now+0.1,MUS.resume);MUS.step=0;MUS.pass=0;}
+  if(MUS.next<now-0.2)MUS.next=now+0.05; // the tab was asleep: skip what was missed instead of playing it all at once
+  while(MUS.next<now+0.35){musStep(MUS.step,MUS.next);MUS.next+=SIX;MUS.step=(MUS.step+1)%LOOP;if(MUS.step===0)MUS.pass++;}}
+// fanfares: a call for the start of a round, a flourish for the winner
+function fanfare(kind){if(!AC||!musicOn)return;const t=AC.currentTime+0.05;let at=t;
+  const seq=kind==='win'?[[69,0.14],[69,0.14],[74,0.14],[78,0.55],[76,0.18],[78,0.18],[81,1.3]]:[[62,0.13],[62,0.13],[62,0.13],[69,0.42],[66,0.18],[69,0.18],[74,1.1]];
+  for(const [m,d] of seq){trumpet(at,m,d*0.94,0.34);if(d>0.4)trumpet(at,m-(kind==='win'?7:5),d*0.94,0.2);at+=d;}
+  timpani(t,38,0.5);for(let i=0;i<8;i++)timpani(at-0.9+i*0.08,i%2?45:38,0.12+i*0.03);timpani(at-0.1,38,0.6);
+  MUS.on=false;MUS.resume=at+0.6;}
+function setMusic(on){musicOn=on;try{localStorage.setItem('kd_music',on?'1':'0');}catch(_){}if(musicBus)musicBus.gain.setTargetAtTime(on?0.17:0,AC.currentTime,0.1);const b=$('musicBtn');if(b){b.textContent=on?'♪ 음악 켜짐':'♪ 음악 꺼짐';b.setAttribute('aria-pressed',on?'true':'false');}}
+function whooshUpdate(){if(!AC)return;K.forEach((k,i)=>{const w=whoosh[i];if(!w)return;const s=state==='title'||k.phLive?0:clamp((k.tipSp-3)/8,0,1);w.g.gain.setTargetAtTime(s*s*0.22,AC.currentTime,0.03);w.b.frequency.setTargetAtTime(350+s*900,AC.currentTime,0.03);});if(amb)amb.g.gain.setTargetAtTime((state==='title'?0:hype*0.11),AC.currentTime,0.15);
+  if(state==='fight'&&hype>0.35&&rnd()<hype*0.035)voice(AC.currentTime,pitch(),['a','e','o'][Math.floor(rnd()*3)],rr(0.25,0.6),0.04*hype,rr(1.05,1.2),rr(0.8,0.95));}
 
 /* ================= render ================= */
 let views=[],pxScale=1,extCam=null,replay=null,replayDone=false;const hist=[];
@@ -1778,7 +1863,7 @@ function frame(ts){
   }
   if(state==='fight'&&introStage===2&&stateT>0.7){banner('');introStage=3;}
   if(state==='ko'){const A=koWinner;
-    if(koPhase===0&&stateT>1.8){koPhase=1;banner('');celebrate(A);
+    if(koPhase===0&&stateT>1.8){koPhase=1;banner('');celebrate(A);fanfare('win');
       if(A.rounds>=2){A.wins++;recAdd(A);$('koRec').textContent=recLine();$('koName').textContent=NAMES[A.i]+' 승리';$('ko').className='p'+(A.i+1);$('koScore').textContent='라운드 '+K[0].rounds+' : '+K[1].rounds;$('ko').hidden=false;$('again').focus();}
       else banner(NAMES[A.i]+' 라운드 승');}
     if(koPhase===1&&A.rounds<2&&stateT>3.6){round++;startRound();}
@@ -1817,7 +1902,7 @@ function frame(ts){
 }
 function startRound(){
   hist.length=0;replay=null;replayDone=false;extCam=null;stage.classList.remove('replay');
-  K.forEach(resetKnight);particles=[];debris=[];waves=[];hype=0;crowdCd=0;quietT=0;state='intro';stateT=0;introStage=0;salAsked=false;celebT=0;flagUp=0;grayT=0;rings.forEach(q=>q.el.forEach(e=>e.remove()));rings=[];if(round===1)marks.length=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
+  K.forEach(resetKnight);particles=[];debris=[];waves=[];hype=0;crowdCd=0;quietT=0;state='intro';stateT=0;introStage=0;salAsked=false;fanfare('start');celebT=0;flagUp=0;grayT=0;rings.forEach(q=>q.el.forEach(e=>e.remove()));rings=[];if(round===1)marks.length=0;freeze=0;slowT=0;acc=0;clashCd=0;koPhase=0;
   $('title').hidden=true;$('ko').hidden=true;banner('');K.forEach(k=>k.el.pops.textContent='');stage.classList.add('playing');
 }
 function startPractice(){tut=null;tutShow();practice=true;K[1].cpu=false;K[0].cpu=false;audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();K[0].x=-0.78;K[1].x=0.78;K.forEach(k=>{const M=mMul(mT(k.x,0,k.z),mRY(k.yaw));k.feet=[mP(M,[0.18,0,0.12]),mP(M,[-0.18,0,-0.10])];});stage.classList.add('practice');}
@@ -1825,12 +1910,15 @@ function startPractice(){tut=null;tutShow();practice=true;K[1].cpu=false;K[0].cp
 let tut=null;
 const TUT=[
   {k:'A와 D를 번갈아 눌러 무기를 좌우 끝까지 움직여 보세요.',t:'오른쪽 무기 조이스틱을 좌우 끝까지 밀어 무기를 양쪽으로 움직여 보세요.',p:'폰을 좌우로 돌려 무기를 양쪽 끝까지 움직여 보세요.',ok:(k,t)=>{if(k.ax<-0.8)t.f.l=1;if(k.ax>0.8)t.f.r=1;return t.f.l&&t.f.r;}},
-  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',t:'왼쪽 이동 조이스틱의 ▲ 쪽을 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면의 조이스틱을 위로 밀어 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
+  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',t:'왼쪽 이동 조이스틱의 ▲ 쪽을 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면 방향판의 ▲를 눌러 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
   {k:'옆으로 베기: A를 눌러 무기를 옆으로 보냈다가 D로 휘둘러 맞혀 보세요.',t:'옆으로 베기: 무기 조이스틱을 옆으로 보냈다가 반대쪽으로 휘둘러 맞혀 보세요.',p:'옆으로 베기: 폰을 옆으로 뺐다가 휘둘러 상대를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&!e.thr)},
   {k:'내려치기: W로 무기를 들었다가 S로 내려쳐 머리를 맞혀 보세요.',t:'내려치기: 무기 조이스틱을 위로 올렸다가 아래로 내려쳐 머리를 맞혀 보세요.',p:'내려치기: 폰을 위로 들었다가 내려쳐 머리를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.p==='head')},
   {k:'크게 젖히기: W나 A를 길게 눌러 머리 뒤나 옆으로 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',t:'크게 젖히기: 무기 조이스틱을 위나 옆 끝까지 잠깐 밀어 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',p:'크게 젖히기: 칼끝을 머리 뒤나 어깨 뒤까지 넘겼다가 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.ch>0.5)},
   {k:'찌르기: 칼을 앞으로 겨눈 채 Shift+W를 빠르게 두 번 눌러 앞으로 대시하세요.',t:'찌르기: 이동 조이스틱의 ▲를 빠르게 두 번 눌러 앞으로 대시하세요.',p:'찌르기: 폰을 칼끝 방향으로 짧고 빠르게 내지르세요.',ok:(k,t)=>{if(k.thr)t.f.th=1;return t.f.th;}},
   {k:'막기: V를 1초 동안 누르고 있으세요.',t:'막기: 무기 조이스틱을 아래 대각선 끝까지 당겨 1초 동안 버티세요.',p:'막기: 칼끝을 비스듬히 아래로 내린 채 1초 동안 버티세요.',ok:(k,t,dt)=>{t.f.g=k.guard>0.5?(t.f.g||0)+dt:0;return t.f.g>1;}},
+  {k:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. V로 막아서 막대가 줄어드는 걸 보세요.',t:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. 무기 조이스틱을 아래 대각선으로 당겨 막아서 막대가 줄어드는 걸 보세요.',p:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. 칼끝을 비스듬히 내려 막아서 막대가 줄어드는 걸 보세요.',ok:(k)=>k.sta<82},
+  {k:'옆으로 피하기: Shift를 누른 채 A나 D를 빠르게 두 번 눌러 옆으로 대시하세요.',t:'옆으로 피하기: 이동 조이스틱의 ◀나 ▶를 빠르게 두 번 누르세요.',p:'옆으로 피하기: 방향판의 ◀나 ▶를 빠르게 두 번 누르세요.',ok:(k)=>k.qsCd>0.2&&(k.lastQs==='l'||k.lastQs==='r')},
+  {k:'특수 공격: R을 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',t:'특수 공격: 이동 조이스틱 가운데를 빠르게 두 번 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',p:'특수 공격: 방향판 가운데를 빠르게 두 번 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',ok:(k)=>k.tele>0||!!k.sp},
   {k:'돌기: Q와 E로 몸을 좌우로 돌려 보세요.',t:null,p:null,ok:(k,t)=>{if(k.turn>0.5)t.f.a=1;if(k.turn<-0.5)t.f.b=1;return t.f.a&&t.f.b;}}];
 function tutShow(){const el=$('tut');if(!tut){el.hidden=true;return;}el.hidden=false;
   if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(터치는 위쪽 ✕를 두 번, 폰은 다시 하기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
@@ -1916,6 +2004,7 @@ function toggleFull(){if(!allows('fullscreen')){$('fullMsg').textContent='이 �
       // one player on a touch phone: hold the screen sideways even if auto-rotate is off (works where the browser allows it, e.g. Android Chrome)
       if(pr&&pr.then&&$('stage').classList.contains('solo')&&matchMedia('(pointer:coarse)').matches)pr.then(()=>{try{const o=screen.orientation;if(o&&o.lock)o.lock('landscape').catch(()=>{});}catch(_){}});}}catch(_){}}
 document.querySelectorAll('.fullBtn').forEach(b=>b.addEventListener('click',toggleFull));
+$('musicBtn').addEventListener('click',()=>{audioInit();setMusic(!musicOn);});setMusic(musicOn);
 // touch play has no Esc key: a small exit button, pressed twice within 2 seconds so a stray tap does not end the match
 {const x=$('exitGame');let armT=0;x.addEventListener('click',()=>{const t=performance.now();if(t-armT<2000){armT=0;x.classList.remove('arm');x.textContent='✕';toTitle();return;}
   armT=t;x.classList.add('arm');x.textContent='한 번 더 누르면 나가기';setTimeout(()=>{if(performance.now()-armT>=1990){x.classList.remove('arm');x.textContent='✕';}},2000);});}
