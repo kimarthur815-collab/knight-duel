@@ -185,6 +185,16 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
 
 /* ---- knockout ---- */
 #ko{background:rgba(20,17,26,.55)}
+#pause{position:absolute;inset:0;display:flex;overflow-y:auto;touch-action:pan-y;background:rgba(20,17,26,.7);z-index:40}
+#pause .kin{min-width:min(340px,92vw)}#pause h2{margin:0;font-family:var(--font-display);font-weight:400;font-size:36px;text-shadow:3px 3px 0 #000}
+#pause .pcol{display:flex;flex-direction:column;gap:10px;width:100%}#pause .pcol>button{width:100%}
+#pause .pset{width:100%;display:grid;gap:10px;padding-top:12px;border-top:2px solid rgba(242,231,208,.25)}
+#pause .pset h3{margin:0;font-family:var(--font-display);font-weight:400;font-size:18px;color:var(--gold)}
+#pause label{display:flex;align-items:center;gap:10px;font-size:15px}#pause input[type=range]{flex:1;accent-color:var(--gold)}
+#pause .pseg{display:flex}#pause .pseg button{flex:1;font-size:15px;padding:6px 2px;box-shadow:none;border-width:2px}#pause .pseg button+button{border-left:0}
+#pause .pseg button[aria-pressed="true"]{background:var(--parchment);color:var(--stone)}
+#pauseHint{margin:0;font-size:13px;opacity:.7}
+#padPause{display:flex;flex-direction:column;gap:10px}#padPauseBtn{width:100%}
 .kin{margin:auto;padding:22px 28px;display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--stone);border:4px solid var(--gold);box-shadow:8px 8px 0 rgba(0,0,0,.6)}
 #ko.p1 .kin{border-color:var(--blue)} #ko.p2 .kin{border-color:var(--crimson)}
 #koName{margin:0;font-family:var(--font-display);font-weight:400;font-size:clamp(30px,6vw,56px);text-shadow:3px 3px 0 #000}
@@ -237,7 +247,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <path d="M5 5.5H43M5 74.5H43" stroke="#d2a94e" stroke-width="1.2"/><circle cx="24" cy="5.5" r="1.6" fill="#d2a94e"/><circle cx="24" cy="74.5" r="1.6" fill="#d2a94e"/></svg></div>
   <div id="diag" aria-hidden="true"></div>
   <button type="button" class="fullBtn" id="fullGame" aria-label="전체 화면">⛶</button>
-  <button type="button" id="exitGame" aria-label="처음 화면으로">✕</button>
+  <button type="button" id="exitGame" aria-label="일시 정지">⏸</button>
   <button type="button" id="soundOn" hidden>🔇 소리가 꺼져 있어요 · 눌러서 켜기</button>
   <div id="tut" hidden><span id="tutText" role="status"></span><button type="button" id="tutSkip">건너뛰기</button></div>
 
@@ -346,6 +356,8 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <div class="padRow padOpp"><button type="button" id="padPrac">연습</button><button type="button" id="padTut">튜토리얼</button></div>
       </div>
       <div id="padEnd" hidden><button type="button" class="padBig" id="padAgain">다시 결투</button><button type="button" id="padBack">처음으로</button></div>
+      <button type="button" id="padPauseBtn" hidden>⏸ 일시 정지</button>
+      <div id="padPause" hidden><button type="button" class="padBig" id="padResume">계속하기</button><button type="button" id="padRestart">처음부터 다시</button><button type="button" id="padHome">메인 화면으로</button></div>
       <button type="button" id="padQuit" hidden>연습 끝내기</button>
       <div id="padJoy" aria-label="이동 조이스틱 칸"><div id="padBase" hidden><i id="padNub"></i></div><span>아무 곳이나 눌러 이동 · 빠르게 두 번 = 대시(두 번째에 민 쪽으로) · 체력 40 이하면 제자리 두 번 톡톡 = 특수</span></div>
     </div>
@@ -355,7 +367,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>튜토리얼에 스태미나·옆으로 피하기·특수 공격 단계 추가</li><li>버그 수정: 칼이 상대 몸에 닿아 멈출 때 폰 손잡이가 진동하지 않던 문제(원래부터 있던 문제)</li><li>철퇴는 조금만 휘둘러도 스태미나(1.5)가 든다. 쇠뭉치가 사슬 끝에 늦게 따라와서 휘두르기로 잡히지 않던 문제 수정</li><li>특수 공격은 체력 40 이하부터(전에는 30)</li><li>폰 손잡이: 조이스틱이 엄지가 닿은 곳에 생긴다. 빠르게 두 번 누르면 대시(두 번째에 민 쪽으로, 그냥 두 번 톡톡이면 앞으로). 특수 공격이 가능할 때 제자리에서 두 번 톡톡 = 특수</li><li>장검 강공격은 젖힌 채 1초 버텨야 꽉 차고, 해머는 1.5초. 덜 차고 내려치면 그만큼 약하다(무기가 금빛으로 차오르는 정도로 보인다). 해머 강공격 스태미나 22 → 30</li><li>강공격(금빛으로 찬 무기)이 막기·방패·세운 무기에 막히면 친 사람이 0.9초 휘청인다</li><li>배경음악이 처음 화면에서도 나오고 더 크게. 컴퓨터 화면을 한 번도 안 눌러 브라우저가 소리를 막았으면 화면에 '소리 켜기' 버튼이 뜬다</li><li>버그 수정: 무기가 상대 몸에 닿아 있는 동안 떨림이 휘두르기로 잘못 세어져 스태미나가 계속 1.5씩 빠지던 문제</li><li>창: 겨눈 창끝에 상대가 걸어 들어오거나 대시해 오면 가만히 있어도 찔린다(찌르기와 같은 피해, 천천히 다가오면 안 찔림). 창 찌르기 피해 1.4배(특수 공격 연속 찌르기는 그대로)</li><li>폰 손잡이: 결투 밖에서는 폰에 무기·상대 고르기와 결투 시작·연습·튜토리얼 버튼, 결투가 끝나면 다시 결투·처음으로, 연습 중에는 연습 끝내기 버튼이 나온다</li><li>무기마다 부딪힘 소리가 다르다: 장검은 맑고 길게 울리고, 철퇴는 묵직한 쇳소리에 사슬이 짤랑이고, 창은 나무 자루가 딱 부딪히고, 해머는 둔탁하게 쿵</li><li>중세풍 배경음악: 경기 중엔 북과 금관에 나팔 신호가 도는 행진곡, 라운드 시작과 승리 때 나팔 팡파르. 처음 화면의 음악 버튼으로 끄고 켤 수 있다</li><li>관중 소리를 사람 목소리로: 함성(와아)·탄성(오오)·야유(우우)를 여러 목소리로 겹치고, KO 때는 박수와 휘파람까지. 경기장 돌벽 울림 추가</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>Esc(터치는 ⏸ 버튼, 폰 손잡이는 일시 정지 버튼)로 일시 정지. 계속하기·처음부터 다시·메인 화면, 음악·소리 크기·난이도·전체 화면 설정</li><li>폰 손잡이를 옆으로 너무 돌려 등 뒤로 넘기면 칼이 반대쪽으로 튀며 엄청 빨라지던 버그 수정. 더 돌리면 그쪽으로 화면이 돈다</li><li>컴퓨터가 라운드 시작 때 경례. 어려움은 더 빠르고, 거의 다 막고, 크게 젖혀 강공격도 함</li><li>머리 위로 들자마자 내려찍으면 최대 25. 옆 강공격은 덜 젖혀도 꽉 차고 더 셈(최대 1.85배)</li><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>튜토리얼에 스태미나·옆으로 피하기·특수 공격 단계 추가</li><li>버그 수정: 칼이 상대 몸에 닿아 멈출 때 폰 손잡이가 진동하지 않던 문제(원래부터 있던 문제)</li><li>철퇴는 조금만 휘둘러도 스태미나(1.5)가 든다. 쇠뭉치가 사슬 끝에 늦게 따라와서 휘두르기로 잡히지 않던 문제 수정</li><li>특수 공격은 체력 40 이하부터(전에는 30)</li><li>폰 손잡이: 조이스틱이 엄지가 닿은 곳에 생긴다. 빠르게 두 번 누르면 대시(두 번째에 민 쪽으로, 그냥 두 번 톡톡이면 앞으로). 특수 공격이 가능할 때 제자리에서 두 번 톡톡 = 특수</li><li>장검 강공격은 젖힌 채 1초 버텨야 꽉 차고, 해머는 1.5초. 덜 차고 내려치면 그만큼 약하다(무기가 금빛으로 차오르는 정도로 보인다). 해머 강공격 스태미나 22 → 30</li><li>강공격(금빛으로 찬 무기)이 막기·방패·세운 무기에 막히면 친 사람이 0.9초 휘청인다</li><li>배경음악이 처음 화면에서도 나오고 더 크게. 컴퓨터 화면을 한 번도 안 눌러 브라우저가 소리를 막았으면 화면에 '소리 켜기' 버튼이 뜬다</li><li>버그 수정: 무기가 상대 몸에 닿아 있는 동안 떨림이 휘두르기로 잘못 세어져 스태미나가 계속 1.5씩 빠지던 문제</li><li>창: 겨눈 창끝에 상대가 걸어 들어오거나 대시해 오면 가만히 있어도 찔린다(찌르기와 같은 피해, 천천히 다가오면 안 찔림). 창 찌르기 피해 1.4배(특수 공격 연속 찌르기는 그대로)</li><li>폰 손잡이: 결투 밖에서는 폰에 무기·상대 고르기와 결투 시작·연습·튜토리얼 버튼, 결투가 끝나면 다시 결투·처음으로, 연습 중에는 연습 끝내기 버튼이 나온다</li><li>무기마다 부딪힘 소리가 다르다: 장검은 맑고 길게 울리고, 철퇴는 묵직한 쇳소리에 사슬이 짤랑이고, 창은 나무 자루가 딱 부딪히고, 해머는 둔탁하게 쿵</li><li>중세풍 배경음악: 경기 중엔 북과 금관에 나팔 신호가 도는 행진곡, 라운드 시작과 승리 때 나팔 팡파르. 처음 화면의 음악 버튼으로 끄고 켤 수 있다</li><li>관중 소리를 사람 목소리로: 함성(와아)·탄성(오오)·야유(우우)를 여러 목소리로 겹치고, KO 때는 박수와 휘파람까지. 경기장 돌벽 울림 추가</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -427,6 +439,24 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <button type="button" id="again">다시 결투<small>Space</small></button>
         <button type="button" id="back">처음으로</button>
       </div>
+    </div>
+  </section>
+  <section id="pause" hidden aria-label="일시 정지">
+    <div class="kin">
+      <h2>일시 정지</h2>
+      <div class="pcol">
+        <button type="button" id="pResume">계속하기<small>Esc</small></button>
+        <button type="button" id="pRestart">처음부터 다시</button>
+        <button type="button" id="pTitle">메인 화면으로</button>
+      </div>
+      <div class="pset">
+        <h3>설정</h3>
+        <button type="button" id="pMusic">♪ 음악 켜짐</button>
+        <label>소리 크기 <input type="range" id="pVol" min="0" max="1" step="0.05" value="1" aria-label="소리 크기"></label>
+        <div id="pLvWrap"><div class="pseg" id="pLv" role="group" aria-label="컴퓨터 난이도"><button type="button" data-l="0">쉬움</button><button type="button" data-l="1">보통</button><button type="button" data-l="2">어려움</button></div></div>
+        <button type="button" id="pFull">전체 화면</button>
+      </div>
+      <p id="pauseHint">폰 손잡이에서도 일시 정지·계속할 수 있어요</p>
     </div>
   </section>
   <div id="nogl" hidden>이 브라우저에서는 3D 화면(WebGL)을 열 수 없습니다. 다른 브라우저에서 다시 열어 주세요.</div>
@@ -605,7 +635,7 @@ function runPad(code,p){
   $('padVib').addEventListener('click',()=>{feel([120,60,120]);$('padVibInfo').textContent=canVib?'진동을 보냈습니다. 안 울리면 폰의 진동 설정(무음·방해 금지·절전)을 확인하세요.':'이 브라우저는 진동을 지원하지 않아 소리로 대신합니다.';});
   // outside a fight the screen tells the phone what to show: weapons and start buttons, the end of a match, or a way out of practice
   let actN=0;const act=o=>{const n=++actN;for(let i=0;i<3;i++)setTimeout(()=>{if(conn)conn.send(Object.assign({n},o));},i*30);feel(20);}; // sent several times: the link may drop a packet
-  function ui(d){const s=d.s;$('padMenu').hidden=s!=='menu';$('padEnd').hidden=s!=='end';$('padQuit').hidden=s!=='prac';$('padJoy').hidden=s==='menu'||s==='end';
+  function ui(d){const s=d.s;$('padMenu').hidden=s!=='menu';$('padEnd').hidden=s!=='end';$('padQuit').hidden=s!=='prac';$('padJoy').hidden=s==='menu'||s==='end'||s==='pause';$('padPause').hidden=s!=='pause';$('padPauseBtn').hidden=!(s==='fight'||s==='prac');
     document.querySelectorAll('.padW button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===d.w)));$('padWDesc').textContent=d.wd||'';
     document.querySelectorAll('#padOpp button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.c===d.c)));
     $('padOpp').hidden=p!==0;$('padTut').hidden=p!==0;} // the computer always plays 2P and the tutorial is 1P's, so those two are on 1P's phone only
@@ -613,6 +643,7 @@ function runPad(code,p){
   document.querySelectorAll('#padOpp button').forEach(b=>b.addEventListener('click',()=>act({t:'cpu',c:+b.dataset.c})));
   $('padGo').addEventListener('click',()=>act({t:'go',a:'start'}));$('padPrac').addEventListener('click',()=>act({t:'go',a:'prac'}));$('padTut').addEventListener('click',()=>act({t:'go',a:'tut'}));
   $('padAgain').addEventListener('click',()=>act({t:'go',a:'again'}));$('padBack').addEventListener('click',()=>act({t:'go',a:'menu'}));$('padQuit').addEventListener('click',()=>act({t:'go',a:'menu'}));
+  $('padPauseBtn').addEventListener('click',()=>act({t:'go',a:'pause'}));$('padResume').addEventListener('click',()=>act({t:'go',a:'resume'}));$('padRestart').addEventListener('click',()=>act({t:'go',a:'restart'}));$('padHome').addEventListener('click',()=>act({t:'go',a:'menu'}));
   $('padCenter').addEventListener('click',()=>{yaw0=yaw;lift=0;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
   const joy=$('padJoy'),nub=$('padNub'),jbase=$('padBase');let jid=null,lastMv=0;
   const mv=(x,y,force,vx,vy)=>{{const l=Math.hypot(x,y);if(l>0.5){const sc=(Math.round(Math.atan2(y,x)/(PI/4))+8)%8;if(sc!==jSec){jSec=sc;if(canVib&&performance.now()>evUntil){try{navigator.vibrate(12);}catch(_){}}else ptone('square',1400,1300,0.05,0.02);}}else if(l<0.25)jSec=-1;}
@@ -1047,7 +1078,7 @@ const SPECIAL=['검기','철퇴 돌리기','연속 찌르기','내려찍기'],SP
 const FLURRY=[[0,0.04],[0.1,0.32],[-0.12,-0.2],[-0.12,0.3],[0.12,-0.18],[0,0.06]];let ghosts=[];
 const THRUST_AIM={u:[0,0.36],d:[0.05,-0.34],l:[-0.125,0.04],r:[0.11,0.04],c:[0,0.04]};
 const K=[0,1].map(i=>({i,model:buildKnight(i),wins:0,rounds:0,weapon:0,el:null,in:[0,0],tw:[0,0],tm:[0,0],tbl:false,keys:{u:0,d:0,l:0,r:0},cpu:false,phone:null,mv:[0,0],VP:mI(),tap:{code:'',t:-9}}));
-let LOG=null;let practice=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];let hype=0,crowdCd=0,quietT=0,poseDirty=false,xAll=-9;
+let LOG=null;let practice=false;let paused=false;let state='title',stateT=0,freeze=0,slowT=0,slowS=1,clashCd=0,time=0,particles=[],debris=[],round=1,subN=0,koPhase=0,koWinner=null,koTime=0,clashD=9,clashSide=0,crossT=0,clashN=[0,0,0];let hype=0,crowdCd=0,quietT=0,poseDirty=false,xAll=-9;
 function resetKnight(k){
   Object.assign(k,{x:k.i?1.15:-1.15,z:0,yaw:k.i?PI/2:-PI/2,ax:REST[0],ay:REST[1],vx:0,vy:0,pax:0,pay:0,hp:HPMAX,st:STMAX,tired:false,stDelay:0,helm:HELM_MAX,helmOn:true,armA:ARM_MAX,armArmor:true,armOff:false,shA:SH_MAX,shArmor:true,shOff:false,legA:LEG_MAX,legArmor:true,legOff:false,headOff:false,headDeb:null,cutT:0,shield:0,shieldOn:false,
     sp:null,spCd:0,spReq:false,tele:0,counter:0,dis:false,disT:0,wDeb:null,ps:null,heldT:0,bodyT:0,lunge:0,dip:0,hg:0,hgOn:false,charge:0,trav:0,travQ:0,legHurt:0,armHurt:0,crowd:0,shoveCd:0,heatT:0,phLive:false,guard:0,hoff:[0,0,0],ext:0,thr:null,thrCd:0,flinch:0,flash:0,stun:0,stag:0,carryT:0,limpT:0,buzzT:0,hitCd:0,armCd:0,blockCd:0,shake:0,kvx:0,kvz:0,tw:[0,0],tm:[0,0],tbl:false,sta:STMAX,gas:false,staDelay:0,heavyPaid:false,staMsg:0,aura:0,auraOn:false,spMsg:0,zoom:0,fovB:0,hbT:0,hbLast:-9,qsCd:0,bindT:0,bindHint:0,strain:0,saluted:false,qsReq:null,blk:false,blkS:0,fall:0,dead:false,step:null,edge:[1,0,0],vig:0,capeA:0.12,skirtA:0,tipSp:0,shPush:0,mvx:0,mvz:0,mix:0,miy:0,turn:0,
@@ -1609,8 +1640,9 @@ e.hp.style.width=(k.hp/HPMAX*100)+'%';e.hp.parentNode.classList.toggle('low',k.h
 const allows=f=>{try{const pp=document.permissionsPolicy||document.featurePolicy;return !pp||pp.allowsFeature(f);}catch(_){return true;}};
 let AC=null,master=null,noise=null,amb=null,crowdBus=null,musicBus=null,steelBus=null,revIn=null,clapBuf=null;const whoosh=[];
 let musicOn=true;try{musicOn=localStorage.getItem('kd_music')!=='0';}catch(_){}
+let vol=(()=>{try{const v=parseFloat(localStorage.getItem('kd_vol'));return isNaN(v)?1:clamp(v,0,1);}catch(_){return 1;}})();
 function audioInit(){if(AC){if(AC.state==='suspended')AC.resume();return;}
-  try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.55;master.connect(AC.destination);
+  try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.55*vol;master.connect(AC.destination);
     noise=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     const loop=(type,f,q,g)=>{const s=AC.createBufferSource();s.buffer=noise;s.loop=true;const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;const gn=AC.createGain();gn.gain.value=g;s.connect(b);b.connect(gn);gn.connect(master);s.start();return{b,g:gn};};
     for(let i=0;i<2;i++)whoosh.push(loop('bandpass',500,1.2,0));
@@ -1907,7 +1939,7 @@ const H=1/360;
 function frame(ts){
   requestAnimationFrame(frame);
   const now=ts/1000;let dt=Math.min(0.05,now-last);last=now;
-  if(state==='title')return;
+  if(state==='title'||paused)return;
   pollPads();
   time+=dt;stateT+=dt;hype*=Math.exp(-0.9*dt);
   if(state==='intro'){
@@ -1989,7 +2021,7 @@ function startMatch(){tut=null;tutShow();practice=false;stage.classList.remove('
   if(PHONE&&matchMedia('(pointer:coarse)').matches){const lv=K.map(k=>!!k.phone&&performance.now()-k.phone.seen<6000);if(lv[0]!==lv[1]){K[0].cpu=!lv[0];K[1].cpu=!lv[1];}}
   try{if(navigator.wakeLock&&allows('screen-wake-lock'))navigator.wakeLock.request('screen').catch(()=>{});}catch(_){}
   audioInit();round=1;K.forEach(k=>{k.rounds=0;});startRound();}
-function toTitle(){tut=null;tutShow();replay=null;extCam=null;stage.classList.remove('replay');state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
+function toTitle(){if(paused)setPause(false);tut=null;tutShow();replay=null;extCam=null;stage.classList.remove('replay');state='title';$('title').hidden=false;$('ko').hidden=true;banner('');stage.classList.remove('playing');K.forEach(k=>{k.wins=0;k.rounds=0;k.tipSp=0;});whooshUpdate();}
 
 /* ================= input ================= */
 const SPKEY={KeyR:0,Slash:1};
@@ -2005,7 +2037,7 @@ addEventListener('keydown',e=>{
   if(!$('notes').hidden||!$('rec').hidden)return;
   if(e.code==='Space'||e.code==='Enter'){if(e.target&&e.target.closest&&e.target.closest('button'))return;if(state==='title'||(state==='ko'&&!$('ko').hidden)){e.preventDefault();startMatch();}else if(e.code==='Space')e.preventDefault();}
   if(e.code in SPKEY&&!e.repeat){K[SPKEY[e.code]].spReq=true;e.preventDefault();return;}
-  if(e.code==='Escape'&&state!=='title')toTitle();
+  if(e.code==='Escape'&&state!=='title'&&!e.repeat){if(state==='ko'&&!$('ko').hidden)toTitle();else setPause(!paused);}
 });
 addEventListener('keyup',e=>{const m=KEYMAP[e.code];if(m){K[m[0]].keys[m[1]]=0;e.preventDefault();}});
 addEventListener('blur',()=>K.forEach(k=>{k.keys={u:0,d:0,l:0,r:0};}));
@@ -2059,8 +2091,22 @@ function toggleFull(){if(!allows('fullscreen')){$('fullMsg').textContent='이 �
 document.querySelectorAll('.fullBtn').forEach(b=>b.addEventListener('click',toggleFull));
 $('musicBtn').addEventListener('click',()=>{audioInit();setMusic(!musicOn);});setMusic(musicOn);
 // touch play has no Esc key: a small exit button, pressed twice within 2 seconds so a stray tap does not end the match
-{const x=$('exitGame');let armT=0;x.addEventListener('click',()=>{const t=performance.now();if(t-armT<2000){armT=0;x.classList.remove('arm');x.textContent='✕';toTitle();return;}
-  armT=t;x.classList.add('arm');x.textContent='한 번 더 누르면 나가기';setTimeout(()=>{if(performance.now()-armT>=1990){x.classList.remove('arm');x.textContent='✕';}},2000);});}
+$('exitGame').addEventListener('click',()=>{if(state!=='title'&&!(state==='ko'&&!$('ko').hidden))setPause(true);});
+// pause menu: the world stops, sound is held, and settings can be changed
+function setPause(on){if(on&&state==='title')return;if(on===paused)return;paused=on;$('pause').hidden=!on;
+  K.forEach(k=>{k.keys={u:0,d:0,l:0,r:0};k.spReq=false;k.thrustReq=null;k.qsReq=null;k.in=[0,0];});
+  try{if(AC){if(on)AC.suspend();else AC.resume();}}catch(_){}
+  if(on){syncPause();$('pResume').focus();}else last=performance.now()/1000;phoneUi();}
+function syncPause(){$('pMusic').textContent=musicOn?'♪ 음악 켜짐':'♪ 음악 꺼짐';$('pVol').value=vol;
+  $('pLvWrap').hidden=!K.some(k=>k.cpu);document.querySelectorAll('#pLv button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.l===aiLv)));}
+function restartGame(){setPause(false);if(tut)startTutorial();else if(practice)startPractice();else startMatch();}
+$('pResume').addEventListener('click',()=>setPause(false));$('pRestart').addEventListener('click',restartGame);$('pTitle').addEventListener('click',()=>toTitle());
+$('pMusic').addEventListener('click',()=>{setMusic(!musicOn);syncPause();});
+$('pVol').addEventListener('input',e=>{vol=clamp(+e.target.value,0,1);try{localStorage.setItem('kd_vol',String(vol));}catch(_){}if(master)master.gain.value=0.55*vol;});
+document.querySelectorAll('#pLv button').forEach(b=>b.addEventListener('click',()=>{const t=document.querySelector('#lv button[data-l="'+b.dataset.l+'"]');if(t)t.click();syncPause();}));
+$('pFull').addEventListener('click',()=>toggleFull());
+// leaving the tab mid-fight pauses it
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(state==='fight'||state==='intro'))setPause(true);});
 addEventListener('keydown',e=>{if(e.code==='KeyF'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT'))toggleFull();});
 addEventListener('resize',resize);
 function probe(A,D){const pa=A.pose,pd=D.pose,inv=mInvRigid(pd.shM),la=mP(inv,pa.bA),lb=mP(inv,pa.bB);la[1]+=0.02;lb[1]+=0.02;if(D.shieldOn&&segBox(la,lb,[0.26,0.39,0.05])>=0)return'#';
@@ -2070,7 +2116,7 @@ window.__duel={K,probe,WEAPONS,REST,set log(v){LOG=v;},get log(){return LOG;},st
 // phone pairing (host side)
 // what each phone shows outside a fight; sent when it changes and now and then again (the link may drop a packet)
 const fightOn=()=>state==='fight'||state==='intro';
-function phoneUi(again){const s=state==='title'?'menu':state==='ko'&&!$('ko').hidden?'end':practice?'prac':'fight',c=$('mC').getAttribute('aria-pressed')==='true'?1:0;
+function phoneUi(again){const s=state==='title'?'menu':paused?'pause':state==='ko'&&!$('ko').hidden?'end':practice?'prac':'fight',c=$('mC').getAttribute('aria-pressed')==='true'?1:0;
   for(const k of K){const ph=k.phone;if(!ph)continue;const sig=s+k.weapon+c;if(!again&&ph.uiSig===sig)continue;ph.uiSig=sig;try{ph.c.send({t:'ui',s,w:k.weapon,wd:WEAPONS[k.weapon].desc,c});}catch(_){}}}
 let pairCode=null,pairState='';
 const pairText=p=>{const k=K[p];return k.phone&&performance.now()-k.phone.seen<6000?(performance.now()-k.phone.last<3000?'폰 연결됨. 폰 위쪽이 칼끝입니다.':'폰 연결됨. 폰에서 센서 켜기를 눌러 주세요.'):pairState==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':pairState==='error'?'연결 서버 오류입니다. 새로 고친 뒤 다시 시도하세요.':pairState!=='ready'?'연결 서버에 접속하는 중…':/^https?:/.test(location.protocol)?'폰 카메라로 QR을 찍거나, 폰에서 이 주소를 열고 코드 '+pairCode+'를 입력하세요.':'이 파일을 웹(https)에 올려야 폰이 접속할 수 있습니다. 코드 '+pairCode;};
@@ -2091,7 +2137,8 @@ function pairOpen(p){
           else if(d.t==='cpu'){ph.actN=d.n;if(state==='title'&&pp===0)setMode(!!d.c);phoneUi();}
           else if(d.t==='go'){ph.actN=d.n;const end=state==='ko'&&!$('ko').hidden;
             if(d.a==='start'&&state==='title')startMatch();else if(d.a==='prac'&&state==='title')startPractice();else if(d.a==='tut'&&state==='title'&&pp===0)startTutorial();
-            else if(d.a==='again'&&end)startMatch();else if(d.a==='menu'&&(end||(practice&&state!=='title')))toTitle();phoneUi();}};
+            else if(d.a==='again'&&end)startMatch();else if(d.a==='menu'&&(end||paused||(practice&&state!=='title')))toTitle();
+            else if(d.a==='pause'&&state!=='title'&&!end)setPause(true);else if(d.a==='resume')setPause(false);else if(d.a==='restart'&&paused)restartGame();phoneUi();}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
     setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);
