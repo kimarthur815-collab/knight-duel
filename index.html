@@ -164,12 +164,14 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
 .padHelp{margin:0;font-size:13.5px;line-height:1.5;color:var(--muted)}
 .padRow{display:flex;gap:10px}.padRow button{flex:1;font-size:17px;padding:14px 8px}
 #padJoy{position:relative;flex:1;min-height:170px;border:3px solid var(--parchment);background:var(--stone-2);touch-action:none;display:grid;place-items:center}
-#padJoy span{position:absolute;bottom:8px;font-size:13px;color:var(--muted);pointer-events:none}
+#padJoy span{position:absolute;bottom:8px;left:10px;right:10px;text-align:center;font-size:13px;line-height:1.4;color:var(--muted);pointer-events:none}
+#padBase{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border:3px solid var(--parchment);border-radius:50%;display:grid;place-items:center;pointer-events:none;background:rgba(0,0,0,.18)}
 #padNub{width:58px;height:58px;border-radius:50%;background:var(--gold);pointer-events:none;opacity:.85}
-#padJoy .pa{position:absolute;font-size:30px;color:var(--parchment);opacity:.55;pointer-events:none;font-weight:normal}
-#padJoy .pa[data-d=u]{top:6%;left:50%;transform:translateX(-50%)}#padJoy .pa[data-d=d]{bottom:16%;left:50%;transform:translateX(-50%)}
-#padJoy .pa[data-d=l]{left:8%;top:50%;transform:translateY(-50%)}#padJoy .pa[data-d=r]{right:8%;top:50%;transform:translateY(-50%)}
-#padJoy .pa.on{opacity:1;color:var(--gold)}
+#padMenu,#padEnd{display:flex;flex-direction:column;gap:10px}
+.padW{display:flex}.padW button{flex:1;min-width:0;font-size:18px;padding:12px 2px;box-shadow:none;border-width:2px}.padW button+button{border-left:0}
+.padW button[aria-pressed="true"],.padOpp button[aria-pressed="true"]{background:var(--parchment);color:var(--stone)}
+.padOpp button{flex:1;min-width:0}
+.padBig{font-size:22px;padding:16px;background:var(--gold);color:#1c1820;border-color:#1c1820}
 
 /* ---- patch notes ---- */
 #notes,#rec{position:absolute;inset:0;display:flex;overflow-y:auto;touch-action:pan-y;background:rgba(20,17,26,.92)}
@@ -284,7 +286,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>터치: 혼자 할 때는 왼쪽 아래 이동, 오른쪽 아래 무기 조이스틱이 처음부터 고정으로 보인다. 이동 조이스틱의 같은 방향을 빠르게 두 번 누르면 대시(앞으로 대시하면 찌르기), 가운데를 두 번 누르면 특수 공격. 폰 한 대로 둘이 할 때는 엄지를 댄 자리에 조이스틱이 생기고, 두 번 톡톡 = 특수, 톡 후 휙 밀기 = 대시. 무기 조이스틱을 아래 대각선 끝까지 당겨 잠깐 버티면 그쪽으로 막는다.</li>
         <li>게임패드: 왼쪽 스틱 걷기, 오른쪽 스틱 무기, LB 막기, LT·RT 돌기, A 퀵스텝(왼쪽 스틱을 앞으로 하고 누르면 찌르기), X 특수 공격. 첫 번째 패드가 1P, 두 번째가 2P.</li>
         <li>무기가 부딪히는 순간 반대 방향 키를 누르면 패링. 상대가 크게 휘청인다.</li>
-        <li>특수 공격(R, 2P는 /)은 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생긴다(연습에서는 항상 가능). 나가기 직전에 상대 화면에 예고가 뜬다. 예고가 뜬 공격을 패링하면 상대가 훨씬 오래 휘청이고, 내 다음 공격이 1.8배로 들어간다.</li>
+        <li>특수 공격(R, 2P는 /)은 체력이 40 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생긴다(연습에서는 항상 가능). 나가기 직전에 상대 화면에 예고가 뜬다. 예고가 뜬 공격을 패링하면 상대가 훨씬 오래 휘청이고, 내 다음 공격이 1.8배로 들어간다.</li>
         <li>2라운드부터, 4초 동안 아무도 맞히거나 막지 않으면 모래시계가 뜨고, 모래가 다 떨어지면 관중이 물건을 던진다. 한 번에 4씩 피해(체력 1 아래로는 안 떨어짐). 움직이면 피할 수 있다.</li>
         <li>무기나 팔을 아주 세게 맞으면 무기를 놓친다. 1초쯤 뒤 떨어진 무기 가까이에 있으면 다시 잡는다.</li>
         <li>스태미나(금색 막대)는 주로 강공격과 막기에 쓴다. 크게 젖혔다 휘두르면 22, 막는 동안 초당 10, 막아낼 때마다 더 든다. 일반 휘두르기 1.5, 찌르기 4, 대시 3도 조금씩 든다. 바닥나면 40까지 찰 때까지 막기와 강공격을 못 한다. 막기를 풀면 다시 찬다.</li>
@@ -320,8 +322,10 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
         <li>폰 위쪽 끝이 칼끝입니다. 게임 화면을 겨누세요.</li>
         <li>폰의 얇은 옆면이 칼날입니다. 날을 세워 베면 더 세게 들어갑니다(장검).</li>
         <li>화면을 겨눈 채 아래 버튼을 누르면 그 방향이 정면이 됩니다.</li>
-        <li>특수 공격: 방향판 가운데를 빠르게 두 번 두드립니다. 체력이 30 이하일 때만 나갑니다. 무기마다 다릅니다.</li>
-        <li>걷기: 방향판에서 가고 싶은 쪽을 누르세요(대각선도 됩니다). 방향이 바뀔 때마다 짧게 울려서 화면을 안 봐도 됩니다. 같은 방향을 빠르게 두 번 누르면 대시, 칼을 앞으로 겨눈 채 앞으로 대시하면 찌르기입니다.</li>
+        <li>걷기: 조이스틱 칸 아무 곳에나 엄지를 대면 그 자리에 조이스틱이 생깁니다. 미는 쪽으로 걷고, 많이 밀수록 빠릅니다. 방향이 바뀔 때마다 짧게 울려서 화면을 안 봐도 됩니다.</li>
+        <li>대시: 빠르게 두 번 누르고 두 번째에 가고 싶은 쪽으로 밉니다. 그냥 두 번 톡톡이면 앞으로 대시, 칼을 앞으로 겨눈 채 앞으로 대시하면 찌르기입니다.</li>
+        <li>특수 공격: 체력이 40 이하가 되면 몸에 오라가 생깁니다. 그때 제자리에서 두 번 톡톡 누르면 대시 대신 특수 공격이 나갑니다. 무기마다 다릅니다.</li>
+        <li>결투 밖에서는 폰 화면에 무기 고르기와 결투 시작·연습 버튼이 나옵니다.</li>
         <li>라운드 시작: 폰을 똑바로 세워 들어 경례하면 시작합니다. 내리면 그 방향이 다시 정면이 됩니다.</li>
         <li>칼이 맞물리면 폰이 계속 떨립니다. 폰을 앞으로 세게 밀면 상대를 밀쳐 냅니다. 무거운 무기를 너무 빨리 휘두르면 폰이 버티듯 웅웅 울립니다.</li>
       </ol>
@@ -330,9 +334,18 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div id="padPlay" hidden>
       <div id="padAim" aria-hidden="true"><i id="padDot"></i></div>
       <p class="padHelp">폰 위쪽 끝이 칼끝입니다. 손잡이처럼 쥐고 컴퓨터 화면을 겨눈 뒤 정면 맞추기를 누르세요. 앞으로 짧게 내지르면 찌르기입니다.</p>
-      <div class="padRow"><button type="button" id="padCenter">정면 맞추기</button><button type="button" id="padRestart">결투 시작 · 다시 하기</button></div>
+      <div class="padRow"><button type="button" id="padCenter">정면 맞추기</button></div>
       <div class="padRow"><button type="button" id="padVib">진동 시험</button><button type="button" id="padHowAgain">잡는 법 보기</button></div><p class="padHelp" id="padVibInfo"></p>
-      <div id="padJoy" aria-label="이동 방향판"><b class="pa" data-d="u">▲</b><b class="pa" data-d="l">◀</b><b class="pa" data-d="r">▶</b><b class="pa" data-d="d">▼</b><i id="padNub"></i><span>방향을 누르면 이동 · 같은 방향 두 번 = 대시(앞으로 대시하면 찌르기) · 가운데 두 번 = 특수</span></div>
+      <div id="padMenu" hidden>
+        <div class="padW" role="group" aria-label="무기"><button type="button" data-w="0" aria-pressed="true">장검</button><button type="button" data-w="1" aria-pressed="false">철퇴</button><button type="button" data-w="2" aria-pressed="false">창</button><button type="button" data-w="3" aria-pressed="false">해머</button></div>
+        <p class="padHelp" id="padWDesc"></p>
+        <div class="padRow padOpp" id="padOpp" role="group" aria-label="상대"><button type="button" data-c="0" aria-pressed="true">상대: 사람</button><button type="button" data-c="1" aria-pressed="false">상대: 컴퓨터</button></div>
+        <button type="button" class="padBig" id="padGo">결투 시작</button>
+        <div class="padRow padOpp"><button type="button" id="padPrac">연습</button><button type="button" id="padTut">튜토리얼</button></div>
+      </div>
+      <div id="padEnd" hidden><button type="button" class="padBig" id="padAgain">다시 결투</button><button type="button" id="padBack">처음으로</button></div>
+      <button type="button" id="padQuit" hidden>연습 끝내기</button>
+      <div id="padJoy" aria-label="이동 조이스틱 칸"><div id="padBase" hidden><i id="padNub"></i></div><span>아무 곳이나 눌러 이동 · 빠르게 두 번 = 대시(두 번째에 민 쪽으로) · 체력 40 이하면 제자리 두 번 톡톡 = 특수</span></div>
     </div>
   </section>
 
@@ -340,7 +353,7 @@ button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.6)}
     <div class="nin">
       <div class="nhead"><h2>패치 노트</h2><button type="button" id="notesClose">닫기</button></div>
       <h3>11월 14일</h3>
-      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>튜토리얼에 스태미나·옆으로 피하기·특수 공격 단계 추가</li><li>버그 수정: 칼이 상대 몸에 닿아 멈출 때 폰 손잡이가 진동하지 않던 문제(원래부터 있던 문제)</li><li>무기마다 부딪힘 소리가 다르다: 장검은 맑고 길게 울리고, 철퇴는 묵직한 쇳소리에 사슬이 짤랑이고, 창은 나무 자루가 딱 부딪히고, 해머는 둔탁하게 쿵</li><li>중세풍 배경음악: 경기 중엔 북과 금관에 나팔 신호가 도는 행진곡, 라운드 시작과 승리 때 나팔 팡파르. 처음 화면의 음악 버튼으로 끄고 켤 수 있다</li><li>관중 소리를 사람 목소리로: 함성(와아)·탄성(오오)·야유(우우)를 여러 목소리로 겹치고, KO 때는 박수와 휘파람까지. 경기장 돌벽 울림 추가</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
+      <ul><li>찌르기 키(C·N)를 없애고, 칼이 앞을 겨눈 채 앞으로 대시(Shift+W 두 번, 2P 오른쪽 Shift+↑ 두 번)하면 대시하며 찌르게 바꿈. 터치 찌르기 버튼과 게임패드 RB 찌르기도 같은 방식으로</li><li>폰 손잡이 모드의 조이스틱을 방향판(버튼식)으로 바꿈. 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>일반 휘두르기(1.5)·찌르기(4)·대시(3)에도 스태미나가 아주 조금 든다</li><li>첫 라운드에서는 관중이 화내지 않는다(모래시계와 물건 던지기는 2라운드부터)</li><li>폰을 가로로 들어도 시작 화면을 손가락으로 스크롤할 수 있고, 낮은 가로 화면에서는 기사 그림을 숨겨 결투 시작 버튼이 바로 보이게 함. 혼자 할 때 폰에서 전체 화면 버튼을 누르면 가로로 고정(안드로이드 크롬)</li><li>특수 공격을 쓰면 쓰는 사람 화면은 어깨 뒤 3인칭으로 빠지고 위아래 검은 띠(레터박스)가 들어온다. 맞는 사람 화면은 띠만 들어오고 1인칭 그대로라 막을 수 있다</li><li>장검 검기: 지나간 모래가 갈라지고, 맞으면 뒤로 밀려난다 · 철퇴 돌리기: 모래 회오리가 일고 철퇴가 붉게 달아오르며 마지막에 상대 쪽으로 내던진다 · 해머 내려찍기: 바닥이 갈라지며 충격파가 퍼지고 가까운 상대는 휘청인다</li><li>창 특수 공격이 연속 찌르기로: 빠른 찌르기 5번을 여기저기 퍼붓고 마지막에 깊게 한 번. 찌를 때마다 금빛 잔상이 남는다(빠른 찌르기는 한 방 피해가 절반)</li><li>튜토리얼에 스태미나·옆으로 피하기·특수 공격 단계 추가</li><li>버그 수정: 칼이 상대 몸에 닿아 멈출 때 폰 손잡이가 진동하지 않던 문제(원래부터 있던 문제)</li><li>철퇴도 일반 휘두르기에 스태미나(1.5)가 든다. 쇠뭉치가 사슬 끝에 늦게 따라와서 휘두르기로 잡히지 않던 문제 수정</li><li>특수 공격은 체력 40 이하부터(전에는 30)</li><li>폰 손잡이: 조이스틱이 엄지가 닿은 곳에 생긴다. 빠르게 두 번 누르면 대시(두 번째에 민 쪽으로, 그냥 두 번 톡톡이면 앞으로). 특수 공격이 가능할 때 제자리에서 두 번 톡톡 = 특수</li><li>폰 손잡이: 결투 밖에서는 폰에 무기·상대 고르기와 결투 시작·연습·튜토리얼 버튼, 결투가 끝나면 다시 결투·처음으로, 연습 중에는 연습 끝내기 버튼이 나온다</li><li>무기마다 부딪힘 소리가 다르다: 장검은 맑고 길게 울리고, 철퇴는 묵직한 쇳소리에 사슬이 짤랑이고, 창은 나무 자루가 딱 부딪히고, 해머는 둔탁하게 쿵</li><li>중세풍 배경음악: 경기 중엔 북과 금관에 나팔 신호가 도는 행진곡, 라운드 시작과 승리 때 나팔 팡파르. 처음 화면의 음악 버튼으로 끄고 켤 수 있다</li><li>관중 소리를 사람 목소리로: 함성(와아)·탄성(오오)·야유(우우)를 여러 목소리로 겹치고, KO 때는 박수와 휘파람까지. 경기장 돌벽 울림 추가</li><li>버그 수정: 특수 공격이 스태미나를 쓰고 스태미나가 적으면 위력이 들쭉날쭉하던 문제, 터치로 튜토리얼을 하면 키보드 안내만 나오고 돌기 단계에서 막히던 문제, 터치스크린 노트북에서 마우스 클릭이 조이스틱으로 잡히던 문제, 터치로 할 때 연습·튜토리얼에서 나갈 방법이 없던 문제(위쪽 ✕를 두 번 누르면 처음 화면). 키 안내에 걷기(Shift)·막기(V) 추가</li><li>혼자 할 때 터치 조이스틱을 화면 아래 양쪽에 고정하고 처음부터 보이게 함. 이동 조이스틱에 ▲◀▶▼ 표시, 같은 방향 두 번 = 대시, 가운데 두 번 = 특수</li><li>다시 보기 카메라가 벽이나 화로 기둥 너머로 들어가 기사들이 가려지던 문제 수정(카메라가 항상 경기장 안쪽에 머묾)</li><li>터치 우선으로 인식되지 않는 기기(태블릿·터치스크린 노트북 등)에서도 화면에 손가락이 한 번 닿으면 조이스틱이 나오게 수정</li><li>터치(기기 한 대) 조작을 버튼 대신 조이스틱 두 개로: 왼쪽 이동(두 번 톡톡 = 특수, 톡 후 휙 = 대시), 오른쪽 무기(아래 대각선 끝까지 당겨 버티면 막기)</li></ul>
       <h3>11월 13일 (늦은 밤)</h3>
       <ul><li>칼을 머리 위로 들 때 팔이 투구를 뚫고 지나가던 자세 수정. 팔이 머리에 닿으면 손이 머리 위쪽으로 비켜 간다(내 화면에서는 시야를 가리지 않게 예전 팔 모양 그대로)</li><li>스태미나 추가: 강공격(크게 젖혔다 휘두르기)과 막기에만 든다. 바닥나면 탈진해서 40까지 찰 때까지 막기와 강공격 불가. 일반 공격·찌르기·이동·특수 공격은 무료</li></ul>
       <h3>11월 13일 (밤)</h3>
@@ -491,6 +504,7 @@ function runPad(code,p){
       if(d&&d.t==='salq'){say('폰을 똑바로 세워 들어 경례하면 라운드가 시작됩니다.');feel(30);}
       if(d&&d.t==='slot'){p=d.p;$('padWho').textContent=(p?'2P 성전기사':'1P 청기사')+'의 무기 · 코드 '+code;}
       if(d&&d.t==='pg'&&conn)conn.send({t:'po',ts:d.ts});
+      if(d&&d.t==='ui')ui(d);
       if(d&&d.t==='c'&&sensing&&gotEvent){if(route==='f'&&Math.abs(lastPit)<1.1){yaw0=yaw;say('연결됨. 라운드 시작에 맞춰 정면을 다시 잡았습니다.');}else centerAt=performance.now();}},
     (s,type)=>say(s==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':type==='peer-unavailable'?'코드 '+code+'인 게임을 찾지 못했습니다. 컴퓨터 화면의 코드를 확인하세요.':s==='closed'?'연결이 끊겼습니다. 페이지를 새로 고치세요.':'연결 오류가 났습니다. 페이지를 새로 고치세요.'))};join();
   let pac=null;const canVib=typeof navigator.vibrate==='function';
@@ -582,26 +596,42 @@ function runPad(code,p){
   $('padHowOk').addEventListener('click',()=>{lift=0;$('padHow').hidden=true;$('padPlay').hidden=false;yaw0=yaw;});
   $('padHowAgain').addEventListener('click',()=>{$('padPlay').hidden=true;$('padHow').hidden=false;});
   $('padVib').addEventListener('click',()=>{feel([120,60,120]);$('padVibInfo').textContent=canVib?'진동을 보냈습니다. 안 울리면 폰의 진동 설정(무음·방해 금지·절전)을 확인하세요.':'이 브라우저는 진동을 지원하지 않아 소리로 대신합니다.';});
-  $('padRestart').addEventListener('click',()=>{if(conn)conn.send({t:'rs'});});
+  // outside a fight the screen tells the phone what to show: weapons and start buttons, the end of a match, or a way out of practice
+  let actN=0;const act=o=>{const n=++actN;for(let i=0;i<3;i++)setTimeout(()=>{if(conn)conn.send(Object.assign({n},o));},i*30);feel(20);}; // sent several times: the link may drop a packet
+  function ui(d){const s=d.s;$('padMenu').hidden=s!=='menu';$('padEnd').hidden=s!=='end';$('padQuit').hidden=s!=='prac';$('padJoy').hidden=s==='menu'||s==='end';
+    document.querySelectorAll('.padW button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.w===d.w)));$('padWDesc').textContent=d.wd||'';
+    document.querySelectorAll('#padOpp button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.c===d.c)));
+    $('padOpp').hidden=p!==0;$('padTut').hidden=p!==0;} // the computer always plays 2P and the tutorial is 1P's, so those two are on 1P's phone only
+  document.querySelectorAll('.padW button').forEach(b=>b.addEventListener('click',()=>act({t:'w',w:+b.dataset.w})));
+  document.querySelectorAll('#padOpp button').forEach(b=>b.addEventListener('click',()=>act({t:'cpu',c:+b.dataset.c})));
+  $('padGo').addEventListener('click',()=>act({t:'go',a:'start'}));$('padPrac').addEventListener('click',()=>act({t:'go',a:'prac'}));$('padTut').addEventListener('click',()=>act({t:'go',a:'tut'}));
+  $('padAgain').addEventListener('click',()=>act({t:'go',a:'again'}));$('padBack').addEventListener('click',()=>act({t:'go',a:'menu'}));$('padQuit').addEventListener('click',()=>act({t:'go',a:'menu'}));
   $('padCenter').addEventListener('click',()=>{yaw0=yaw;lift=0;if(navigator.vibrate)try{navigator.vibrate(20);}catch(_){}});
-  const joy=$('padJoy'),nub=$('padNub');let jid=null,jo=[0,0],lastMv=0;
-  const mv=(x,y,force)=>{{const l=Math.hypot(x,y);if(l>0.5){const sc=(Math.round(Math.atan2(y,x)/(PI/4))+8)%8;if(sc!==jSec){jSec=sc;if(canVib&&performance.now()>evUntil){try{navigator.vibrate(12);}catch(_){}}else ptone('square',1400,1300,0.05,0.02);}}else if(l<0.25)jSec=-1;}
-    nub.style.transform='translate('+(x*60)+'px,'+(-y*60)+'px)';const t=performance.now();if(conn&&(force||t-lastMv>40)){lastMv=t;conn.send({t:'m',x:+x.toFixed(2),y:+y.toFixed(2)});}};
-  // a fixed direction pad: where the thumb is on the pad (from its centre) is the direction, at full speed, eight ways.
-  // the same direction pressed twice quickly = a dash (forward with the blade pointed ahead = a lunging thrust); the centre pressed twice = special
-  let spN=0,qsN=0,jSc=-2,lastTap={c:'',t:0};const sendSp=()=>{const n=++spN;for(let i=0;i<4;i++)setTimeout(()=>{if(conn)conn.send({t:'sp',n});},i*30);feel(40);joy.style.background='var(--parchment)';setTimeout(()=>{joy.style.background='';},160);}; // sent several times: the link may drop a packet
+  const joy=$('padJoy'),nub=$('padNub'),jbase=$('padBase');let jid=null,lastMv=0;
+  const mv=(x,y,force,vx,vy)=>{{const l=Math.hypot(x,y);if(l>0.5){const sc=(Math.round(Math.atan2(y,x)/(PI/4))+8)%8;if(sc!==jSec){jSec=sc;if(canVib&&performance.now()>evUntil){try{navigator.vibrate(12);}catch(_){}}else ptone('square',1400,1300,0.05,0.02);}}else if(l<0.25)jSec=-1;}
+    nub.style.transform='translate('+((vx==null?x:vx)*60)+'px,'+(-(vy==null?y:vy)*60)+'px)';const t=performance.now();if(conn&&(force||t-lastMv>40)){lastMv=t;conn.send({t:'m',x:+x.toFixed(2),y:+y.toFixed(2)});}};
+  // a floating stick: it appears where the thumb lands; push to walk, harder = faster.
+  // two quick presses = a dash: push on the second press to pick the way, or just tap twice for a dash forward;
+  // when the special is ready (low health), tapping twice in place lets the special go instead (the screen decides)
+  let qsN=0,dtN=0;
   const sendQs=d=>{const n=++qsN;for(let i=0;i<3;i++)setTimeout(()=>{if(conn)conn.send({t:'qs',d,n});},i*30);feel(25);};
-  const arrows=[...joy.querySelectorAll('.pa')],CARD={0:'r',2:'u',4:'l',6:'d'};
-  const at=e=>{const r=joy.getBoundingClientRect(),R=Math.min(r.width,r.height)/2,x=(e.clientX-r.left-r.width/2)/R,y=-(e.clientY-r.top-r.height/2)/R;
-    if(Math.hypot(x,y)<0.28)return -1;return (Math.round(Math.atan2(y,x)/(PI/4))+8)%8;};
-  const setSc=sc=>{jSc=sc;const on={u:sc>=1&&sc<=3,l:sc>=3&&sc<=5,d:sc>=5&&sc<=7,r:sc===7||sc===0||sc===1};arrows.forEach(el=>el.classList.toggle('on',sc>=0&&on[el.dataset.d]));
-    if(sc<0)mv(0,0,true);else{const a=sc*PI/4;mv(Math.round(Math.cos(a)*100)/100,Math.round(Math.sin(a)*100)/100,true);}};
+  const sendDt=()=>{const n=++dtN;for(let i=0;i<3;i++)setTimeout(()=>{if(conn)conn.send({t:'dt',n});},i*30);feel(40);};
+  const JR=60;let j0=[0,0],jt0=0,jMoved=false,tapEnd=-1e9,dbl=false,dblDone=false,dblT=0;
+  const dblFire=()=>{if(dbl&&!dblDone){dblDone=true;clearTimeout(dblT);sendDt();}};
   joy.addEventListener('pointerdown',e=>{e.preventDefault();if(jid!=null)return;jid=e.pointerId;try{joy.setPointerCapture(jid);}catch(_){}
-    const sc=at(e),c=sc<0?'mid':(CARD[sc]||''),t=performance.now();
-    if(c&&c===lastTap.c&&t-lastTap.t<380){lastTap={c:'',t:0};if(c==='mid')sendSp();else sendQs(c);}else lastTap={c,t};
-    setSc(sc);});
-  joy.addEventListener('pointermove',e=>{if(e.pointerId!==jid)return;const sc=at(e);if(sc!==jSc)setSc(sc);});
-  const jend=e=>{if(e.pointerId!==jid)return;jid=null;setSc(-1);};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);
+    const r=joy.getBoundingClientRect(),t=performance.now();j0=[e.clientX,e.clientY];jt0=t;jMoved=false;
+    jbase.style.left=(e.clientX-r.left)+'px';jbase.style.top=(e.clientY-r.top)+'px';jbase.hidden=false;
+    dbl=t-tapEnd<300;dblDone=false;tapEnd=-1e9;if(dbl)dblT=setTimeout(dblFire,260); // held still on the second press: same as tapping twice
+    mv(0,0,true);});
+  joy.addEventListener('pointermove',e=>{if(e.pointerId!==jid)return;let x=(e.clientX-j0[0])/JR,y=-(e.clientY-j0[1])/JR;const l=Math.hypot(x,y);if(l>1){x/=l;y/=l;}
+    if(l>0.35)jMoved=true;
+    if(dbl&&!dblDone&&l>0.45&&performance.now()-jt0<350){dblDone=true;clearTimeout(dblT);const a=Math.atan2(y,x);sendQs(Math.abs(a)<=PI/4?'r':Math.abs(a)>=3*PI/4?'l':a>0?'u':'d');}
+    const m=l<0.18?0:Math.min(1,(l-0.18)/0.62),lc=Math.max(Math.min(l,1),1e-6); // a small dead zone; full speed before the edge
+    mv(Math.round(x/lc*m*100)/100,Math.round(y/lc*m*100)/100,false,x,y);});
+  const jend=e=>{if(e.pointerId!==jid)return;jid=null;const t=performance.now();
+    if(dbl)dblFire();else if(!jMoved&&t-jt0<250)tapEnd=t;
+    jbase.hidden=true;mv(0,0,true);};
+  joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',e=>{if(e.pointerId!==jid)return;dbl=false;clearTimeout(dblT);jend(e);});
 }
 if(PHONE&&HASH.get('j')){runPad(HASH.get('j').toUpperCase().slice(0,8),HASH.get('p')==='1'?1:0);return;}
 
@@ -1001,8 +1031,9 @@ const WEAPONS=[
   {name:'해머',desc:'가장 무겁고 느리다. 머리로 맞히면 피해가 크고 투구가 금방 깨진다',a:0.15,b:1.14,head:0.72,acc:27,damp:5,rk:22,rc:3,rev:10,pk:600,dmg:1.6,shaft:0.3,thr:0.4,ext:0.34,dist:1.55,st:1.5,brk:2.5,trail:0.3}];
 const FL_A=0.18,FL_L=0.55;
 let waves=[],aiLv=1;const AILV=[{w:2.2,sp:0.6,spc:0,thr:0.03,def:0},{w:1,sp:1,spc:0.05,thr:0.09,def:0.25},{w:0.4,sp:1,spc:0.16,thr:0.12,def:0.85}];
-const HEAVY_COST=22,GUARD_DRAIN=10,STA_REGEN=20,STA_BACK=40; // stamina is spent only on heavy (wound-up) blows and on guarding
-const SP_HP=30,spOk=k=>practice||k.hp<=SP_HP; // the special is a last stand: only at low health
+const HEAVY_COST=22,GUARD_DRAIN=10,STA_REGEN=20,STA_BACK=40;
+const ARM_SW=[Infinity,3,Infinity,Infinity]; // the flail's head trails on its chain, so its plain swings are told by how fast the arm moves // stamina is spent only on heavy (wound-up) blows and on guarding
+const SP_HP=40,spOk=k=>practice||k.hp<=SP_HP; // the special is a last stand: only at low health
 const SPECIAL=['검기','철퇴 돌리기','연속 찌르기','내려찍기'],SP_CD=4,TELE=0.35,CTR_T=3,DISARM_F=9.5; // warning time before a special, counter window after parrying one, clash force that knocks a weapon loose
 // spear special: five quick stabs scattered over the target, then one deep thrust through the middle
 const FLURRY=[[0,0.04],[0.1,0.32],[-0.12,-0.2],[-0.12,0.3],[0.12,-0.18],[0,0.06]];let ghosts=[];
@@ -1456,7 +1487,9 @@ function step(h){
     if(fight&&!k.dead){
       if(k.charge>0.5&&!k.sp&&(k.wind||0)<k.charge-0.08&&k.tipSp>5&&!k.heavyPaid){k.heavyPaid=true;spendSta(k,HEAVY_COST);} // a charged blow is let go
       if(k.charge<0.15&&(k.wind||0)<0.15)k.heavyPaid=false;
-      if(k.tipSp>6&&!k.swingPaid&&!k.thr&&!k.sp){k.swingPaid=true;if(!k.heavyPaid)spendSta(k,1.5);}else if(k.tipSp<2)k.swingPaid=false;
+      const armSw=ARM_SW[k.weapon],armSp=Math.hypot(k.vx,k.vy);
+      const byArm=armSw<Infinity,fast=byArm?armSp>armSw&&k.guard<0.3:k.tipSp>6; // a flail's chain keeps swinging after the arm stops, so for it only the arm counts
+      if(fast&&!k.swingPaid&&!k.thr&&!k.sp){k.swingPaid=true;if(!k.heavyPaid)spendSta(k,1.5);}else if(byArm?armSp<armSw*0.3:k.tipSp<2)k.swingPaid=false;
       if(k.guard>0.5)spendSta(k,GUARD_DRAIN*h);
       k.staDelay-=h;if(k.staDelay<=0&&k.guard<0.3)k.sta=Math.min(STMAX,k.sta+STA_REGEN*h);
       if(k.gas&&k.sta>=STA_BACK){k.gas=false;popFix(k.i,'숨을 골랐다');}}
@@ -1910,18 +1943,18 @@ function startPractice(){tut=null;tutShow();practice=true;K[1].cpu=false;K[0].cp
 let tut=null;
 const TUT=[
   {k:'A와 D를 번갈아 눌러 무기를 좌우 끝까지 움직여 보세요.',t:'오른쪽 무기 조이스틱을 좌우 끝까지 밀어 무기를 양쪽으로 움직여 보세요.',p:'폰을 좌우로 돌려 무기를 양쪽 끝까지 움직여 보세요.',ok:(k,t)=>{if(k.ax<-0.8)t.f.l=1;if(k.ax>0.8)t.f.r=1;return t.f.l&&t.f.r;}},
-  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',t:'왼쪽 이동 조이스틱의 ▲ 쪽을 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면 방향판의 ▲를 눌러 상대에게 다가가세요.',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
+  {k:'Shift를 누른 채 W를 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',t:'왼쪽 이동 조이스틱의 ▲ 쪽을 눌러 상대에게 다가가세요. 거리는 직접 맞춰야 합니다.',p:'폰 화면 조이스틱 칸에 엄지를 대고 위로 밀어 상대에게 다가가세요(엄지가 닿은 곳에 조이스틱이 생깁니다).',ok:(k)=>Math.hypot(K[1].x-k.x,K[1].z-k.z)<1.7},
   {k:'옆으로 베기: A를 눌러 무기를 옆으로 보냈다가 D로 휘둘러 맞혀 보세요.',t:'옆으로 베기: 무기 조이스틱을 옆으로 보냈다가 반대쪽으로 휘둘러 맞혀 보세요.',p:'옆으로 베기: 폰을 옆으로 뺐다가 휘둘러 상대를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&!e.thr)},
   {k:'내려치기: W로 무기를 들었다가 S로 내려쳐 머리를 맞혀 보세요.',t:'내려치기: 무기 조이스틱을 위로 올렸다가 아래로 내려쳐 머리를 맞혀 보세요.',p:'내려치기: 폰을 위로 들었다가 내려쳐 머리를 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.p==='head')},
   {k:'크게 젖히기: W나 A를 길게 눌러 머리 뒤나 옆으로 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',t:'크게 젖히기: 무기 조이스틱을 위나 옆 끝까지 잠깐 밀어 크게 젖힌 뒤 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',p:'크게 젖히기: 칼끝을 머리 뒤나 어깨 뒤까지 넘겼다가 휘두르면 더 셉니다. 그렇게 맞혀 보세요.',ok:(k,t)=>t.ev.some(e=>e.i===0&&e.ch>0.5)},
   {k:'찌르기: 칼을 앞으로 겨눈 채 Shift+W를 빠르게 두 번 눌러 앞으로 대시하세요.',t:'찌르기: 이동 조이스틱의 ▲를 빠르게 두 번 눌러 앞으로 대시하세요.',p:'찌르기: 폰을 칼끝 방향으로 짧고 빠르게 내지르세요.',ok:(k,t)=>{if(k.thr)t.f.th=1;return t.f.th;}},
   {k:'막기: V를 1초 동안 누르고 있으세요.',t:'막기: 무기 조이스틱을 아래 대각선 끝까지 당겨 1초 동안 버티세요.',p:'막기: 칼끝을 비스듬히 아래로 내린 채 1초 동안 버티세요.',ok:(k,t,dt)=>{t.f.g=k.guard>0.5?(t.f.g||0)+dt:0;return t.f.g>1;}},
   {k:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. V로 막아서 막대가 줄어드는 걸 보세요.',t:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. 무기 조이스틱을 아래 대각선으로 당겨 막아서 막대가 줄어드는 걸 보세요.',p:'스태미나: 체력바 아래 금색 막대입니다. 강공격과 막기에 쓰고, 바닥나면 잠시 막기와 강공격을 못 합니다. 칼끝을 비스듬히 내려 막아서 막대가 줄어드는 걸 보세요.',ok:(k)=>k.sta<82},
-  {k:'옆으로 피하기: Shift를 누른 채 A나 D를 빠르게 두 번 눌러 옆으로 대시하세요.',t:'옆으로 피하기: 이동 조이스틱의 ◀나 ▶를 빠르게 두 번 누르세요.',p:'옆으로 피하기: 방향판의 ◀나 ▶를 빠르게 두 번 누르세요.',ok:(k)=>k.qsCd>0.2&&(k.lastQs==='l'||k.lastQs==='r')},
-  {k:'특수 공격: R을 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',t:'특수 공격: 이동 조이스틱 가운데를 빠르게 두 번 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',p:'특수 공격: 방향판 가운데를 빠르게 두 번 누르세요. 실전에서는 체력이 30 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',ok:(k)=>k.tele>0||!!k.sp},
+  {k:'옆으로 피하기: Shift를 누른 채 A나 D를 빠르게 두 번 눌러 옆으로 대시하세요.',t:'옆으로 피하기: 이동 조이스틱의 ◀나 ▶를 빠르게 두 번 누르세요.',p:'옆으로 피하기: 조이스틱 칸을 빠르게 두 번 누르면서 두 번째에 ◀나 ▶ 쪽으로 미세요.',ok:(k)=>k.qsCd>0.2&&(k.lastQs==='l'||k.lastQs==='r')},
+  {k:'특수 공격: R을 누르세요. 실전에서는 체력이 40 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',t:'특수 공격: 이동 조이스틱 가운데를 빠르게 두 번 누르세요. 실전에서는 체력이 40 이하일 때만 쓸 수 있고, 그때 몸에 오라가 생깁니다.',p:'특수 공격: 조이스틱 칸을 제자리에서 빠르게 두 번 톡톡 누르세요. 실전에서는 체력이 40 이하일 때만 나가고(그 전에는 앞으로 대시), 그때 몸에 오라가 생깁니다.',ok:(k)=>k.tele>0||!!k.sp},
   {k:'돌기: Q와 E로 몸을 좌우로 돌려 보세요.',t:null,p:null,ok:(k,t)=>{if(k.turn>0.5)t.f.a=1;if(k.turn<-0.5)t.f.b=1;return t.f.a&&t.f.b;}}];
 function tutShow(){const el=$('tut');if(!tut){el.hidden=true;return;}el.hidden=false;
-  if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(터치는 위쪽 ✕를 두 번, 폰은 다시 하기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
+  if(tut.i>=TUT.length){$('tutText').textContent='튜토리얼 끝! 계속 연습하거나 Esc(터치는 위쪽 ✕를 두 번, 폰은 연습 끝내기 버튼)로 나가세요.';$('tutSkip').hidden=true;return;}
   const st=TUT[tut.i],ph=K[0].phLive;$('tutSkip').hidden=false;$('tutText').textContent=(tut.done>0?'좋아요! ':'')+'('+(tut.i+1)+'/'+TUT.length+') '+(ph?st.p:tutTouch()&&st.t?st.t:st.k);}
 // touch play (no phone hilt): its own wording; steps it cannot do are skipped
 const tutTouch=()=>!K[0].phLive&&stage.classList.contains('touch')&&!K[0].pad,tutSkip=st=>(K[0].phLive&&!st.p)||(tutTouch()&&st.t===null);
@@ -2015,6 +2048,10 @@ function probe(A,D){const pa=A.pose,pd=D.pose,inv=mInvRigid(pd.shM),la=mP(inv,pa
   if(segSeg(pa.bA,pa.bB,pd.bA,pd.bB)[0]<0.13)return best?'x':'/';return best?best.hb.p[0].toUpperCase():'.';}
 window.__duel={K,probe,WEAPONS,REST,set log(v){LOG=v;},get log(){return LOG;},step,render,startMatch,setWeapon,mMulN,mT,mRY,mRX,cam:null,get state(){return state;},set state(v){state=v;},computePose,PARTS,set aiLv(v){aiLv=v;}};
 // phone pairing (host side)
+// what each phone shows outside a fight; sent when it changes and now and then again (the link may drop a packet)
+const fightOn=()=>state==='fight'||state==='intro';
+function phoneUi(again){const s=state==='title'?'menu':state==='ko'&&!$('ko').hidden?'end':practice?'prac':'fight',c=$('mC').getAttribute('aria-pressed')==='true'?1:0;
+  for(const k of K){const ph=k.phone;if(!ph)continue;const sig=s+k.weapon+c;if(!again&&ph.uiSig===sig)continue;ph.uiSig=sig;try{ph.c.send({t:'ui',s,w:k.weapon,wd:WEAPONS[k.weapon].desc,c});}catch(_){}}}
 let pairCode=null,pairState='';
 const pairText=p=>{const k=K[p];return k.phone&&performance.now()-k.phone.seen<6000?(performance.now()-k.phone.last<3000?'폰 연결됨. 폰 위쪽이 칼끝입니다.':'폰 연결됨. 폰에서 센서 켜기를 눌러 주세요.'):pairState==='lib'?'연결 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하세요.':pairState==='error'?'연결 서버 오류입니다. 새로 고친 뒤 다시 시도하세요.':pairState!=='ready'?'연결 서버에 접속하는 중…':/^https?:/.test(location.protocol)?'폰 카메라로 QR을 찍거나, 폰에서 이 주소를 열고 코드 '+pairCode+'를 입력하세요.':'이 파일을 웹(https)에 올려야 폰이 접속할 수 있습니다. 코드 '+pairCode;};
 function drawQR(cv,text){try{if(typeof qrcode!=='function')return false;const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),sz=Math.floor(cv.width/(n+4)),o=Math.floor((cv.width-n*sz)/2),g=cv.getContext('2d');
@@ -2027,10 +2064,18 @@ function pairOpen(p){
         let pp=id?K.findIndex(k=>k.phone&&k.phone.id===id):-1;if(pp<0)pp=free(want)?want:free(1-want)?1-want:want;
         c.send({t:'slot',p:pp});const ph={c,id,tx:REST[0],ty:REST[1],mx:0,my:0,h:[0,0,0],last:0,seen:performance.now()};K[pp].phone=ph;
         ph.n=0;ph.rate=0;ph.rtt=-1;
-        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th'){if(K[pp].bindT>0)ph.pushU=performance.now()+350;else K[pp].thrustReq='p';}else if(d.t==='sal'){const k=K[pp];if(state==='intro'&&!k.saluted){k.saluted=true;buzz(k,[40,40,90],'salute');popFix(k.i,'경례!');sfx.tick();}}else if(d.t==='sp'){if(d.n==null||d.n!==ph.spN){ph.spN=d.n;K[pp].spReq=true;}}else if(d.t==='qs'){if(d.n!==ph.qsN&&'udlr'.includes(d.d)&&d.d.length===1){ph.qsN=d.n;K[pp].qsReq=d.d;}}else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}};
+        c.on=d=>{if(!d)return;ph.seen=performance.now();ph.n++;if(d.t==='po'){ph.rtt=Math.round(performance.now()-d.ts);return;}if(d.t==='o'){let x=+d.x||0,y=+d.y||0;const l=Math.hypot(x/AX_SIDE,y/(y>0?AY_UP:1));if(l>1){x/=l;y/=l;}ph.tx=x;ph.ty=y;ph.last=performance.now();ph.l=clamp(+d.l||0,-0.5,0.6);if(Array.isArray(d.e))ph.e=[+d.e[0]||0,+d.e[1]||0,+d.e[2]||0];if(Array.isArray(d.h))ph.h=[clamp(+d.h[0]||0,-0.4,0.4),clamp(+d.h[1]||0,-0.4,0.4),clamp(+d.h[2]||0,-0.4,0.4)];}else if(d.t==='th'){if(K[pp].bindT>0)ph.pushU=performance.now()+350;else K[pp].thrustReq='p';}else if(d.t==='sal'){const k=K[pp];if(state==='intro'&&!k.saluted){k.saluted=true;buzz(k,[40,40,90],'salute');popFix(k.i,'경례!');sfx.tick();}}else if(d.t==='sp'){if(d.n==null||d.n!==ph.spN){ph.spN=d.n;K[pp].spReq=true;}}else if(d.t==='qs'){if(d.n!==ph.qsN&&'udlr'.includes(d.d)&&d.d.length===1){ph.qsN=d.n;K[pp].qsReq=d.d;}}else if(d.t==='rs'){if(tut&&tut.i>=TUT.length){toTitle();}else if(state==='title'||(state==='ko'&&!$('ko').hidden))startMatch();}else if(d.t==='m'){ph.mx=clamp(+d.x||0,-1,1);ph.my=clamp(+d.y||0,-1,1);}
+          else if(d.t==='dt'){if(d.n!==ph.dtN){ph.dtN=d.n;const k=K[pp];if(fightOn()&&spOk(k)&&k.spCd<=0&&!k.sp&&k.tele<=0)k.spReq=true;else k.qsReq='u';}} // two taps in place: the special when it is ready, otherwise a dash forward
+          else if(d.n!=null&&d.n===ph.actN&&(d.t==='w'||d.t==='cpu'||d.t==='go')){} // a repeat of the same press
+          else if(d.t==='w'){ph.actN=d.n;const w=+d.w;if(state==='title'&&w>=0&&w<WEAPONS.length)setWeapon(pp,w);phoneUi();}
+          else if(d.t==='cpu'){ph.actN=d.n;if(state==='title'&&pp===0)setMode(!!d.c);phoneUi();}
+          else if(d.t==='go'){ph.actN=d.n;const end=state==='ko'&&!$('ko').hidden;
+            if(d.a==='start'&&state==='title')startMatch();else if(d.a==='prac'&&state==='title')startPractice();else if(d.a==='tut'&&state==='title'&&pp===0)startTutorial();
+            else if(d.a==='again'&&end)startMatch();else if(d.a==='menu'&&(end||(practice&&state!=='title')))toTitle();phoneUi();}};
         c.onclose=()=>{if(K[pp].phone===ph)K[pp].phone=null;};pairRefresh();},
       (st)=>{pairState=st;pairRefresh();});
-    setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);}
+    setInterval(pairRefresh,1000);setInterval(()=>{for(const k of K)if(k.phone){k.phone.rate=k.phone.n;k.phone.n=0;k.phone.c.send({t:'pg',ts:performance.now()});}},1000);
+    setInterval(()=>phoneUi(),250);setInterval(()=>phoneUi(true),2000);}
   const el=document.querySelector('.plink[data-p="'+p+'"]');el.querySelector('.pbox').hidden=false;pairRefresh();
 }
 if(PHONE){document.querySelectorAll('.plink').forEach(el=>{el.hidden=false;el.querySelector('.pbtn').addEventListener('click',()=>pairOpen(+el.dataset.p));});
